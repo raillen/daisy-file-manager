@@ -79,7 +79,7 @@ function buildPlaces(home: string, t: Translator): Place[] {
   ];
 }
 
-function Root(props: {
+type RootProps = {
   previewCache: PreviewCache;
   clipboard: ClipboardStore;
   queue: QueueStore;
@@ -89,7 +89,36 @@ function Root(props: {
   home: string;
   freeSpace: number | undefined;
   keymapOverrides: Record<string, string[]>;
-}) {
+};
+
+function CommandLayerApp(props: RootProps) {
+  useCommandLayer({
+    session: props.session,
+    ui: props.ui,
+    clipboard: props.clipboard,
+    queue: props.queue,
+    currentEntryPath: () => visibleEntries(props.session.state)[props.session.state.cursor]?.path,
+    overrides: props.keymapOverrides,
+    onQuit: () => props.ui.actions.quit(),
+  });
+
+  return (
+    <App
+      keymapOverrides={props.keymapOverrides}
+      previewCache={props.previewCache}
+      clipboard={props.clipboard}
+      queue={props.queue}
+      session={props.session}
+      ui={props.ui}
+      places={props.places}
+      home={props.home}
+      separator={glyph("nav.expand", props.ui.state.iconSet)}
+      freeSpace={props.freeSpace}
+    />
+  );
+}
+
+function Root(props: RootProps) {
   const renderer = useRenderer();
   const keymap = createDefaultOpenTuiKeymap(renderer);
 
@@ -103,30 +132,9 @@ function Root(props: {
     onCleanup(() => void watcher.close());
   });
 
-  useCommandLayer({
-    session: props.session,
-    ui: props.ui,
-    clipboard: props.clipboard,
-    queue: props.queue,
-    currentEntryPath: () => visibleEntries(props.session.state)[props.session.state.cursor]?.path,
-    overrides: props.keymapOverrides,
-    onQuit: () => props.ui.actions.quit(),
-  });
-
   return (
     <KeymapProvider keymap={keymap}>
-      <App
-        keymapOverrides={props.keymapOverrides}
-        previewCache={props.previewCache}
-        clipboard={props.clipboard}
-        queue={props.queue}
-        session={props.session}
-        ui={props.ui}
-        places={props.places}
-        home={props.home}
-        separator={glyph("nav.expand", props.ui.state.iconSet)}
-        freeSpace={props.freeSpace}
-      />
+      <CommandLayerApp {...props} />
     </KeymapProvider>
   );
 }

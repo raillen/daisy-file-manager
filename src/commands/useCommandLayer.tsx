@@ -174,7 +174,6 @@ export function useCommandLayer(runtime: CommandRuntime) {
   const keymap = useKeymap();
 
   useBindings(() => ({
-    name: "app",
     priority: 0,
     commands: commandsFor(runtime),
     bindings: buildBindings(runtime.overrides),
