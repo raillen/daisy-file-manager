@@ -43,21 +43,19 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
 
   createEffect(() => {
     const curPage = page();
-    const curMode = mode();
     const dpi = currentDpi();
     const filePath = props.entry.path;
 
-    if (curMode === "visual" && hasRenderer()) {
+    if (hasRenderer()) {
       void renderPdfPage(filePath, curPage, dpi).then((png) => {
         if (png !== undefined) {
           setCurrentPng(png);
         }
       });
-    } else {
-      void extractPdfText(filePath, curPage).then((txt) => {
-        setCurrentText(txt);
-      });
     }
+    void extractPdfText(filePath, curPage).then((txt) => {
+      setCurrentText(txt);
+    });
   });
 
   function nextPage() {
@@ -299,7 +297,7 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
 
       {/* Main Content Viewer */}
       <Show
-        when={mode() === "visual" && hasRenderer() && currentPng() !== undefined}
+        when={mode() === "visual" && hasRenderer()}
         fallback={
           <scrollbox
             flexGrow={1}
@@ -308,42 +306,37 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
             paddingLeft={1}
             paddingRight={1}
           >
-            <text fg={props.palette["fg.default"]}>{currentText() || "—"}</text>
+            <text fg={props.palette["fg.default"]}>
+              {currentText() || (hasRenderer() ? props.t("status.loading") : props.t("viewer.noRenderer"))}
+            </text>
           </scrollbox>
         }
       >
-        <Show
-          when={!isFit()}
-          fallback={
-            <box
+        <box
+          flexGrow={1}
+          width="100%"
+          backgroundColor={props.palette["bg.inset"]}
+          onMouseScroll={(event: MouseEvent) => {
+            if (event.scroll?.direction === "up") zoomIn();
+            else if (event.scroll?.direction === "down") zoomOut();
+          }}
+        >
+          <Show
+            when={currentPng() !== undefined}
+            fallback={
+              <box flexGrow={1} width="100%" alignItems="center" justifyContent="center">
+                <text fg={props.palette["fg.muted"]}>{props.t("status.loading")}</text>
+              </box>
+            }
+          >
+            <image
+              source={currentPng()}
+              fit={isFit() ? "fit" : zoom() > 100 ? "cover" : "fit"}
               flexGrow={1}
               width="100%"
-              alignItems="center"
-              justifyContent="center"
-              onMouseScroll={(event: MouseEvent) => {
-                if (event.scroll?.direction === "up") zoomIn();
-                else if (event.scroll?.direction === "down") zoomOut();
-              }}
-            >
-              <image source={currentPng() ?? ""} fit="fit" flexGrow={1} />
-            </box>
-          }
-        >
-          <scrollbox
-            flexGrow={1}
-            width="100%"
-            onMouseScroll={(event: MouseEvent) => {
-              if (event.modifiers?.ctrl) {
-                if (event.scroll?.direction === "up") zoomIn();
-                else if (event.scroll?.direction === "down") zoomOut();
-              }
-            }}
-          >
-            <box width={`${zoom()}%`} height={`${zoom()}%`} alignItems="center" justifyContent="center">
-              <image source={currentPng() ?? ""} fit="fit" flexGrow={1} />
-            </box>
-          </scrollbox>
-        </Show>
+            />
+          </Show>
+        </box>
       </Show>
 
       {/* Footer: Shortcut Hints and Status */}

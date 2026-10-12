@@ -587,3 +587,42 @@ test("App renders dual-pane split and switches active pane with Tab", async () =
 
   await setup.dispose();
 });
+
+test("HelpOverlay renders shortcuts cleanly without character collisions", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  ui.actions.toggleHelp();
+  expect(ui.state.helpOpen).toBe(true);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  const setup = await testRender(
+    () => (
+      <App
+        keymapOverrides={{}}
+        previewCache={previewCache}
+        clipboard={clipboard}
+        queue={queue}
+        session={session}
+        ui={ui}
+        places={[]}
+        home={cwd}
+        separator="/"
+        freeSpace={undefined}
+      />
+    ),
+    { width: 120, height: 40 },
+  );
+  await setup.renderOnce();
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("Ajuda");
+  expect(frame).toContain("nav.down");
+  expect(frame).toContain("nav.up");
+  expect(frame).not.toContain("nav.upwn");
+  expect(frame).not.toContain("file.mkdirrties");
+  expect(frame).not.toContain("view.toggleodified");
+
+  await setup.dispose();
+});
