@@ -27,6 +27,7 @@ function testStores(cwd: string) {
   const session = createSessionStore(emptySession(cwd));
   const ui = createUiStore({
     initial: {
+      mode: "normal",
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",

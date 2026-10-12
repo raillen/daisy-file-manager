@@ -13,6 +13,7 @@ export type CommandRuntime = {
   ui: UiStore;
   currentEntryPath: () => string | undefined;
   onQuit: () => void;
+  onExitSearch?: () => void;
   overrides?: BindingOverrides;
 };
 
@@ -27,7 +28,14 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "nav.enter", run: () => void session.actions.enter() },
     { name: "nav.parent", run: () => void session.actions.goUp() },
     { name: "select.toggle", run: () => toggleMarked(runtime) },
+    { name: "select.visual", run: ui.actions.toggleVisual },
+    { name: "ui.search", run: () => openSearch(runtime) },
+    { name: "ui.escape", run: () => closeSearch(runtime) },
+    { name: "ui.clear", run: () => session.actions.setQuery("") },
     { name: "view.toggle", run: session.actions.toggleView },
+    { name: "view.sort.name", run: () => session.actions.setSort("name") },
+    { name: "view.sort.size", run: () => session.actions.setSort("size") },
+    { name: "view.sort.modified", run: () => session.actions.setSort("modified") },
     { name: "view.hidden", run: session.actions.toggleHidden },
     { name: "view.splitPane", run: ui.actions.toggleSplitPane },
     { name: "view.sidebar", run: ui.actions.toggleSidebar },
@@ -35,6 +43,18 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "view.help", run: () => {} },
     { name: "ui.quit", run: runtime.onQuit },
   ];
+}
+
+function openSearch(runtime: CommandRuntime) {
+  if (runtime.ui.state.mode === "search") return;
+  runtime.ui.actions.openSearch();
+}
+
+function closeSearch(runtime: CommandRuntime) {
+  if (runtime.ui.state.mode !== "search") return;
+  runtime.session.actions.setQuery("");
+  runtime.ui.actions.closeSearch();
+  runtime.onExitSearch?.();
 }
 
 function toggleMarked(runtime: CommandRuntime) {

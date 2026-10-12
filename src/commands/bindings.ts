@@ -8,12 +8,19 @@ export type CommandName =
   | "nav.enter"
   | "nav.parent"
   | "select.toggle"
+  | "select.visual"
+  | "ui.search"
+  | "ui.escape"
+  | "ui.clear"
   | "view.toggle"
   | "view.hidden"
   | "view.splitPane"
   | "view.sidebar"
   | "view.preview"
   | "view.help"
+  | "view.sort.name"
+  | "view.sort.size"
+  | "view.sort.modified"
   | "ui.quit";
 
 export type BindingSpec = {
@@ -29,6 +36,13 @@ export const defaultBindings: readonly BindingSpec[] = [
   { command: "nav.enter", keys: ["l", "right", "return"] },
   { command: "nav.parent", keys: ["h", "left"] },
   { command: "select.toggle", keys: ["space"] },
+  { command: "select.visual", keys: ["V"] },
+  { command: "ui.search", keys: ["/"] },
+  { command: "ui.escape", keys: ["escape"] },
+  { command: "ui.clear", keys: ["ctrl+r"] },
+  { command: "view.sort.name", keys: ["1"] },
+  { command: "view.sort.size", keys: ["2"] },
+  { command: "view.sort.modified", keys: ["3"] },
   { command: "view.toggle", keys: ["v"] },
   { command: "view.hidden", keys: ["ctrl+h"] },
   { command: "view.splitPane", keys: ["F3"] },

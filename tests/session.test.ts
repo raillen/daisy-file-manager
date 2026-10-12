@@ -27,6 +27,7 @@ function blankSession(cwd: string): SessionState {
 function uiStore() {
   return createUiStore({
     initial: {
+      mode: "normal",
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",

@@ -4,7 +4,10 @@ import type { LocaleCode, Translator } from "../core/i18n/translator";
 import type { IconSet } from "../core/theme/icons";
 import type { Palette, ThemeName } from "../core/theme/palette";
 
+export type UiMode = "normal" | "search" | "visual";
+
 export type UiState = {
+  mode: UiMode;
   theme: ThemeName;
   locale: LocaleCode;
   iconSet: IconSet;
@@ -15,6 +18,10 @@ export type UiState = {
 };
 
 export type UiActions = {
+  setMode: (mode: UiMode) => void;
+  openSearch: () => void;
+  closeSearch: () => void;
+  toggleVisual: () => void;
   toggleSidebar: () => void;
   togglePreview: () => void;
   toggleSplitPane: () => void;
@@ -40,6 +47,18 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
   const [state, setState] = createStore<UiState>(initial);
 
   const actions: UiActions = {
+    setMode(mode) {
+      setState("mode", mode);
+    },
+    openSearch() {
+      setState("mode", "search");
+    },
+    closeSearch() {
+      setState("mode", "normal");
+    },
+    toggleVisual() {
+      setState("mode", (mode) => (mode === "visual" ? "normal" : "visual"));
+    },
     toggleSidebar() {
       setState("sidebarVisible", (visible) => !visible);
     },

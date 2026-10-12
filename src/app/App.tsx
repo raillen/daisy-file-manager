@@ -1,10 +1,12 @@
-import { useRenderer } from "@opentui/solid";
-import { createEffect, createMemo } from "solid-js";
+import { useRenderer, useTerminalDimensions } from "@opentui/solid";
+import { createEffect, createMemo, Show } from "solid-js";
 import { segmentsFor } from "../core/entries/path";
 import type { SessionStore } from "../state/session";
 import { visibleEntries } from "../state/session";
 import type { UiStore } from "../state/ui";
+import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
+import { SearchBar } from "./SearchBar";
 import { type Place, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
 import { TitleBar } from "./TitleBar";
@@ -20,9 +22,14 @@ export type AppProps = {
 
 export function App(props: AppProps) {
   const renderer = useRenderer();
+  const dimensions = useTerminalDimensions();
   const palette = createMemo(() => props.ui.palette());
   const visible = createMemo(() => visibleEntries(props.session.state));
   const segments = createMemo(() => segmentsFor(props.session.state.cwd, props.home));
+  const gridColumns = createMemo(() => {
+    const usable = props.ui.state.sidebarVisible ? dimensions().width - 22 : dimensions().width;
+    return Math.max(1, Math.floor(usable / 18));
+  });
   const markedSize = createMemo(() => {
     const marked = props.session.state.marked;
     if (marked.length === 0) return undefined;
@@ -62,16 +69,40 @@ export function App(props: AppProps) {
           onNavigate={(path) => void props.session.actions.load(path)}
         />
 
-        <FileList
-          palette={palette()}
-          entries={visible()}
-          cursor={props.session.state.cursor}
-          marked={props.session.state.marked}
-          iconSet={props.ui.state.iconSet}
-          locale={props.ui.state.locale}
-          t={props.ui.translate}
-        />
+        <Show
+          when={props.session.state.view === "grid"}
+          fallback={
+            <FileList
+              palette={palette()}
+              entries={visible()}
+              cursor={props.session.state.cursor}
+              marked={props.session.state.marked}
+              iconSet={props.ui.state.iconSet}
+              locale={props.ui.state.locale}
+              t={props.ui.translate}
+            />
+          }
+        >
+          <FileGrid
+            palette={palette()}
+            entries={visible()}
+            cursor={props.session.state.cursor}
+            marked={props.session.state.marked}
+            iconSet={props.ui.state.iconSet}
+            columns={gridColumns()}
+          />
+        </Show>
       </box>
+
+      <Show when={props.ui.state.mode === "search"}>
+        <SearchBar
+          palette={palette()}
+          label={props.ui.translate("modes.search")}
+          placeholder={props.ui.translate("search.placeholder")}
+          onQuery={(value) => props.session.actions.setQuery(value)}
+          onSubmit={() => props.ui.actions.closeSearch()}
+        />
+      </Show>
 
       <StatusBar
         palette={palette()}

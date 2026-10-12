@@ -11,7 +11,7 @@ import type { Place } from "./app/Sidebar";
 import { useCommandLayer } from "./commands/useCommandLayer";
 import { loadConfig } from "./core/config/loader";
 import { createTranslator, type LocaleCode, type Translator } from "./core/i18n/translator";
-import { glyph } from "./core/theme/icons";
+import { glyph, type IconSet } from "./core/theme/icons";
 import { palettes, type ThemeName } from "./core/theme/palette";
 import { createSessionStore, type SessionState, visibleEntries } from "./state/session";
 import { createUiStore, type UiState } from "./state/ui";
@@ -47,11 +47,12 @@ function initialSession(cwd: string): SessionState {
   };
 }
 
-function initialUi(theme: ThemeName, locale: LocaleCode, splitPane: boolean): UiState {
+function initialUi(theme: ThemeName, locale: LocaleCode, iconSet: IconSet, splitPane: boolean): UiState {
   return {
+    mode: "normal",
     theme,
     locale,
-    iconSet: "nerd",
+    iconSet,
     sidebarVisible: true,
     previewVisible: true,
     splitPane,
@@ -112,7 +113,7 @@ for (const warning of warnings) console.error(`[daisy] ${warning}`);
 const translators = translatorsFor();
 const session = createSessionStore(initialSession(startDirectory));
 const ui = createUiStore({
-  initial: initialUi(config.theme, config.locale, config.splitPane),
+  initial: initialUi(config.theme, config.locale, config.iconSet, config.splitPane),
   translators,
   palettes,
 });
