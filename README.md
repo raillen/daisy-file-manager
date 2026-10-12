@@ -1,63 +1,95 @@
 # 🌼 Daisy File Manager
 
-Gerenciador de arquivos TUI elegante e acessível estilo Nautilus (GNOME Files), construído com **OpenTUI**, **Solid.js** e **TypeScript** sobre **Bun**.
+[![Bun](https://img.shields.io/badge/Bun-%E2%89%A51.4-black?style=flat-square&logo=bun)](https://bun.sh)
+[![OpenTUI](https://img.shields.io/badge/UI-OpenTUI%20%2B%20Solid.js-blue?style=flat-square)](https://github.com/opentui)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
+[![Biome](https://img.shields.io/badge/Code%20Style-Biome-60A5FA?style=flat-square&logo=biome)](https://biomejs.dev)
+[![Tests](https://img.shields.io/badge/Tests-109%20passing-success?style=flat-square)]()
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)]()
+
+Gerenciador de arquivos TUI elegante, ágil e acessível estilo Nautilus (GNOME Files), construído com **OpenTUI**, **Solid.js (1.9.12)** e **TypeScript** sobre o runtime **Bun**.
 
 ---
 
-## ✨ Recursos
+## ✨ Recursos Principais
 
-- 📂 **Navegação visual fluida**: Alternância imediata entre visualização em lista detalhada e grade de ícones (`v`).
-- ⚡ **Atalhos intuitivos e ergonômicos**: Navegação estilo Vim (`hjkl`) ou setas, seleção individual com `Espaço` e seleção em bloco visual com `V`.
-- 🔍 **Busca instantânea**: Filtro fuzzy veloz ativado com `/`, com realce automático e descarte com `Esc`.
-- 👁️ **Painel de pré-visualização integrado**:
-  - Imagens via protocolos de terminal compatíveis;
-  - Arquivos de texto e código com detecção de linguagem;
-  - Resumo de pastas (contagem de itens e subpastas);
-  - Metadados detalhados de arquivos e binários com cache por caminho e mtime.
-- 📦 **Operações de arquivos completas**:
-  - Copiar (`y`), cortar (`d`), colar (`p`);
-  - Nova pasta (`ctrl+n`), renomear (`a`);
-  - Envio seguro para a lixeira via `gio trash` (`D`);
-  - Abertura com o programa padrão do sistema via `xdg-open` (`o`);
-  - Fila de tarefas assíncronas com indicador de progresso e cancelamento.
-- 🔄 **Atualização em tempo real (Watcher)**: Monitoramento automático com `chokidar` que atualiza a listagem ao detectar alterações em disco.
-- 🎨 **Design tokens e temas**:
-  - Cores semânticas tokenizadas (`dark`, `light`, `nord`, `dracula`);
-  - Ícones semânticos com suporte a Nerd Fonts e fallback elegante em Unicode;
-  - Internacionalização nativa em português (`pt-BR`) e inglês (`en-US`).
-- ⚙️ **Configuração declarativa em TOML**: Personalização de tema, idioma, atalhos e limites em `~/.config/daisy/config.toml` ou `.daisy/config.toml`.
-- 🚀 **Binários nativos standalone**: Compilação via `bun build --compile` gerando executáveis únicos sem dependência do runtime Bun para Linux x64 (glibc e musl).
-- 📖 **Site de documentação local**: Site completo de arquitetura, guias e referências em `website/`, com servidor integrado.
+### 📂 Interface & Navegação Estilo Nautilus
+- **Modos de Exibição**: Alternância imediata entre lista detalhada e grade de ícones (`v`).
+- **Painel Duplo (Split-Pane)**: Divisão de tela (`F3`) com sessões independentes e chaveamento instantâneo via `Tab`.
+- **Barra Lateral Completa**:
+  - **Locais do Sistema**: Home, Documentos, Downloads, Músicas, Imagens, Vídeos, Área de Trabalho, Raiz e Lixeira.
+  - **Favoritos (Bookmarks)**: Fixe e desafixe qualquer pasta da barra lateral com um toque (`b`).
+  - **Dispositivos & Discos**: Detecção dinâmica de HDs externos, pendrives USB e pontos de montagem via `lsblk`.
+- **Caminho e Breadcrumbs**: Navegação de caminho com segmentos interativos no cabeçalho.
+- **Barra de Status Rica**: Exibição em tempo real de itens na pasta, itens selecionados, permissões e espaço livre em disco.
+
+### 🔍 Busca, Filtros & Modo de Comando
+- **Filtro Fuzzy Instantâneo**: Ative a busca com `/` e filtre pastas em tempo real com realce de correspondências.
+- **Linha de Comando Estilo Vim (:ex)**: Pressione `:` para executar comandos nativos como `:cd <pasta>`, `:mkdir <nome>`, `:touch <nome>`, `:sort <critério>`, `:theme <tema>` e `:quit`.
+
+### 🖱️ Suporte Completo a Mouse & Menu Contextual
+- **Menu de Contexto**: Abra com o **botão direito do mouse** ou pressionando `m` sobre qualquer arquivo ou pasta.
+- Ações rápidas no menu: Abrir, Abrir com aplicativo personalizado, Copiar, Recortar, Renomear, Fixar/Desafixar favoritos, Enviar para a Lixeira e Propriedades.
+- Navegação e seleção clicáveis em itens, abas e botões.
+
+### 📄 Visualizador de PDF Embutido
+- Renderização gráfica de páginas de PDF em alta resolução via `pdftoppm`.
+- **Zoom Real Configurável**: Escalas de 50%, 75%, 100%, 125%, 150%, 175%, 200%, 250% e 300% com rolagem suave (`ScrollBox`).
+- **Ajuste à Tela (Fit)**: Modo de enquadramento automático (`f` ou `0`) que calibra largura e altura para caber perfeitamente no terminal.
+- Controles de zoom via atalhos de teclado (`Ctrl +`, `Ctrl -`, `+`, `-`), botões na barra de ferramentas ou `Ctrl + Scroll` do mouse.
+- Navegação entre páginas (`n`, `p`, `Home`, `End`), modo de texto alternativo (`t`) e DPI dinâmico (72 a 300 DPI).
+
+### 👁️ Visualizadores & Pré-visualização Integrados
+- **Imagens**: Visualização em alta resolução no terminal através de protocolos gráficos suportados.
+- **Texto e Código**: Janela de leitura com destaque sintático, quebra de linha e numeração.
+- **Arquivos Compactados**: Extração automática de arquivos `.tar.gz` e `.zip` com um toque (`Enter` ou atalho de extração).
+- **Painel Lateral de Prévia**: Exibição instantânea de metadados, conteúdo de texto, miniaturas de imagem e contagem de itens em diretórios.
+
+### 📦 Operações de Arquivo Robustas
+- **Área de Transferência**: Copiar (`y`), recortar (`d`) e colar (`p`) com suporte a seleção múltipla.
+- **Diálogo Copiar/Mover Para**: Seleção interativa de pasta de destino com navegação (`F5` para copiar, `F6` para mover).
+- **Fila de Tarefas em Segundo Plano**: Operações assíncronas com toast notification de progresso e cancelamento seguro.
+- **Resolução de Conflitos**: Diálogo interativo para arquivos existentes (Sobrescrever, Renomear ou Pular).
+- **Lixeira do Sistema**: Integração com `gio trash` para exclusão recuperável.
+
+### 🎨 Design System, Temas & Acessibilidade
+- **Paletas Semânticas Tokenizadas**: Temas `dark`, `light`, `nord` e `dracula`.
+- **Sistema de Ícones**: Suporte a Nerd Fonts com fallback automático para Unicode em qualquer terminal.
+- **Internacionalização (i18n)**: Suporte completo e paritário em Português (`pt-BR`) e Inglês (`en-US`).
+- **Acessibilidade**: Foco visível em todos os controles, contraste calibrado e navegação 100% acionável via teclado.
 
 ---
 
 ## 🚀 Instalação e Execução
 
-### Requisitos
+### Pré-requisitos
+- **Bun** ≥ 1.4 (`curl -fsSL https://bun.sh/install | bash`)
+- **Terminal com UTF-8** (recomendado emuladores modernos como Ghostty, WezTerm, Kitty ou Alacritty com Nerd Font)
+- *(Opcional)* `poppler-utils` (`pdftoppm`, `pdfinfo`) para renderização visual de PDFs.
 
-- **Bun** ≥ 1.4
-- **Terminal com suporte UTF-8** (recomendado Nerd Font para ícones completos)
-
-### Rodando pelo código-fonte
-
+### Executando pelo Código-Fonte
 ```sh
+# Clonar o repositório
+git clone https://github.com/raillen/daisy-file-manager.git
+cd daisy-file-manager
+
 # Instalar dependências
 bun install
 
-# Iniciar o gerenciador no diretório atual
+# Iniciar o Daisy no diretório atual
 bun run dev
 
-# Ou passando um caminho específico
-bun run dev /caminho/do/diretorio
+# Ou passando um diretório inicial específico
+bun run dev ~/Downloads
 ```
 
-### Compilando binários nativos
-
+### Compilando Binário Standalone
+O Daisy pode ser compilado em um binário nativo executável sem dependência do Bun instalado:
 ```sh
-# Compila para Linux x64 (glibc e musl)
+# Compilar binário standalone
 bun run build
 
-# Executar o binário gerado
+# Executar o binário compilado
 ./dist/daisy-linux-x64
 ```
 
@@ -65,55 +97,72 @@ bun run build
 
 ## ⌨️ Tabela de Atalhos
 
-| Categoria | Tecla | Ação |
+| Categoria | Atalho | Ação |
 | --- | --- | --- |
 | **Navegação** | `j` / `↓` | Mover cursor para baixo |
 | | `k` / `↑` | Mover cursor para cima |
-| | `l` / `Enter` | Entrar na pasta / abrir arquivo |
+| | `l` / `Enter` | Entrar na pasta / abrir visualizador de arquivo |
 | | `h` | Voltar ao diretório pai |
 | | `g` / `G` | Ir para o primeiro / último item |
-| | `v` | Alternar entre visualização em lista e grade |
+| | `Tab` | Alternar entre o painel esquerdo e direito (Split-Pane) |
+| | `v` | Alternar modo de exibição (Lista / Grade) |
 | **Seleção** | `Espaço` | Marcar / desmarcar item sob o cursor |
-| | `V` | Alternar modo visual de seleção |
-| | `ctrl+a` | Marcar todos os itens |
-| | `ctrl+d` | Desmarcar todos os itens |
-| **Busca** | `/` | Iniciar busca com filtro fuzzy |
-| | `Esc` | Fechar busca / desmarcar seleção / voltar ao normal |
-| **Operações** | `y` | Copiar itens selecionados |
-| | `d` | Cortar itens selecionados |
+| | `V` | Alternar modo visual de seleção por intervalo |
+| | `Ctrl + A` | Selecionar todos os itens da pasta |
+| | `Ctrl + D` | Desmarcar todos os itens |
+| **Operações** | `y` | Copiar seleção para a área de transferência |
+| | `d` | Recortar seleção para a área de transferência |
 | | `p` | Colar itens da área de transferência |
-| | `a` | Renomear item |
-| | `ctrl+n` | Criar nova pasta |
-| | `D` | Enviar itens selecionados para a lixeira |
-| | `o` | Abrir item com o aplicativo padrão (`xdg-open`) |
-| | `i` | Exibir diálogo de propriedades |
-| **Interface** | `F9` | Alternar visibilidade da barra lateral |
+| | `F5` / `Shift + C` | Abrir diálogo para copiar itens para outra pasta |
+| | `F6` / `Shift + M` | Abrir diálogo para mover itens para outra pasta |
+| | `a` / `F2` | Renomear item selecionado |
+| | `Ctrl + N` | Criar nova pasta (`mkdir`) |
+| | `Ctrl + Shift + N` | Criar novo arquivo vazio (`touch`) |
+| | `D` / `Delete` | Enviar itens selecionados para a Lixeira |
+| | `Shift + Delete` | Excluir itens permanentemente |
+| | `o` | Abrir arquivo com o programa padrão do sistema (`xdg-open`) |
+| | `b` | Fixar ou desafixar a pasta atual nos Favoritos da barra lateral |
+| | `m` / `Menu` | Abrir Menu Contextual sob o cursor |
+| | `i` / `Alt + Enter` | Exibir diálogo de Propriedades e metadados |
+| **Busca & Comandos** | `/` | Iniciar busca com filtro fuzzy instantâneo |
+| | `:` | Abrir linha de comando (`:cd`, `:mkdir`, `:sort`, `:theme`, etc.) |
+| | `Esc` | Fechar busca, diálogo ou desmarcar seleção |
+| **Leitor de PDF** | `+` / `Ctrl + =` | Aumentar zoom (+25%) |
+| | `-` / `Ctrl + -` | Reduzir zoom (-25%) |
+| | `f` / `Ctrl + 0` / `0` | Alternar ajuste à tela (Fit to screen) |
+| | `j` / `↓` / `k` / `↑` | Rolar página do PDF quando ampliado |
+| | `n` / `p` | Próxima / página anterior |
+| | `t` | Alternar entre modo visual e texto extraído |
+| **Interface** | `F9` | Mostrar / ocultar barra lateral |
 | | `F3` | Alternar painel duplo (split-pane) |
-| | `F10` | Alternar tema visual |
-| | `?` | Abrir tela de ajuda e atalhos |
-| | `q` / `ctrl+c` | Sair do daisy |
+| | `F10` | Alternar tema de cores |
+| | `?` | Abrir painel de Ajuda e atalhos |
+| | `q` / `Ctrl + C` | Sair do Daisy |
 
 ---
 
-## ⚙️ Configuração (TOML)
+## ⚙️ Configuração Declarativa (`config.toml`)
 
-Crie ou edite `~/.config/daisy/config.toml` ou `.daisy/config.toml`:
+Você pode personalizar o comportamento do Daisy criando um arquivo em `~/.config/daisy/config.toml` ou no próprio diretório do projeto em `.daisy/config.toml`:
 
 ```toml
 [theme]
-name = "dark"          # "dark", "light", "nord", "dracula"
-icons = "nerd"         # "nerd" ou "unicode"
+name = "dark"          # "dark" | "light" | "nord" | "dracula"
+icons = "nerd"         # "nerd" (ícones Nerd Font) ou "unicode"
 
 [locale]
 lang = "pt-BR"         # "pt-BR" ou "en-US"
 
+[editor]
+command = "code"       # Editor para abrir arquivos de texto (ex: "nvim", "nano", "code")
+
 [view]
 default = "list"       # "list" ou "grid"
-show_hidden = false
-split_pane = false
+show_hidden = false    # Exibir arquivos ocultos por padrão
+split_pane = false     # Iniciar em modo split-pane
 
 [preview]
-max_text_bytes = 1048576  # 1 MB
+max_text_bytes = 1048576  # Limite de leitura de prévia (1 MB)
 
 [keymap]
 "ui.quit" = ["q", "ctrl+q"]
@@ -122,49 +171,43 @@ max_text_bytes = 1048576  # 1 MB
 
 ---
 
-## 🛠️ Scripts do Projeto
+## 🛠️ Scripts & Desenvolvimento
 
 ```sh
-bun run dev        # Inicia a TUI em modo de desenvolvimento
-bun run build      # Compila executáveis standalone em dist/
-bun test           # Executa a suite de testes unitários e de integração
-bun run typecheck  # Checagem estrita de tipos com tsc
-bun run lint       # Validação de código e formatação com Biome
-bun run verify     # Executa testes, typecheck e linter em sequência
-bun run website    # Inicia o servidor local do site de documentação
-bun run workforce  # Sincroniza agentes e skills do Prumo Workforce
+bun run dev        # Inicia a TUI em modo interativo
+bun run build      # Compila executáveis nativos standalone em dist/
+bun test           # Executa a suíte de testes (109 testes unitários e de integração)
+bun run typecheck  # Checagem estrita de tipos com TypeScript (tsc --noEmit)
+bun run lint       # Análise estática e formatação de código com Biome
+bun run verify     # Executa test + typecheck + lint em sequência
+bun run website    # Servidor local da documentação em http://localhost:3000
 ```
 
 ---
 
-## 📚 Documentação e Arquitetura
+## 🏛️ Arquitetura do Projeto
 
-O projeto possui um site de documentação interativo completo contido na pasta `website/`. Para visualizá-lo:
-
-```sh
-bun run website
-# Acesse http://localhost:3000 no seu navegador
-```
-
-### Estrutura de Código
+O Daisy segue princípios estritos de Clean Code, separação de responsabilidades e código reativo:
 
 ```
 daisy-file-manager/
-├── design/              # Fonte canônica de design tokens (cores, ícones, i18n)
+├── design/              # Fonte canônica de design tokens (colors.json, icons.json, i18n/*.json)
 ├── src/
-│   ├── app/             # Componentes de interface OpenTUI + Solid (camada fina)
-│   ├── commands/        # Definições semânticas de comandos e keymaps
-│   ├── core/            # Módulos de domínio puros e testáveis (fs, config, preview, etc.)
-│   ├── state/           # Stores reativas Solid (sessão, ui, operações)
-│   └── main.tsx         # Bootstrap, inicialização de stores e ciclo de vida
-├── website/             # Site de documentação estático inspirado no petunia3d
-├── tests/               # 74 testes com bun:test e renderizadores headless do OpenTUI
-├── .agents/workforce/   # Catálogo integrado de 40 agentes e 189 skills
-└── build.ts             # Script de compilação multi-alvo para binários nativos
+│   ├── app/             # Componentes OpenTUI + Solid (camada de apresentação fina)
+│   │   ├── dialogs/     # Diálogos modais (PDF, Imagem, Texto, Propriedades, Copiar/Mover)
+│   │   ├── entries/     # Renderização de itens em lista e grade
+│   │   ├── layout/      # Estrutura de janelas, cabeçalho, barra lateral e rodapé
+│   │   └── App.tsx      # Componente raiz da aplicação
+│   ├── commands/        # Registro de comandos semânticos e mapa de teclas (@opentui/keymap)
+│   ├── core/            # Módulos de domínio puros e testáveis (fs, pdf, preview, drives, etc.)
+│   ├── state/           # Stores reativas Solid (session, ui, operations)
+│   └── index.tsx        # Ponto de entrada e bootstrap da TUI
+├── website/             # Site estático de documentação interativa
+└── tests/               # Suíte abrangente de testes automatizados com bun:test
 ```
 
 ---
 
 ## 📄 Licença
 
-MIT
+Este projeto está sob a licença [MIT](LICENSE).
