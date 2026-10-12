@@ -1,6 +1,7 @@
-import { type MouseEvent, TextAttributes } from "@opentui/core";
+import { type MouseEvent, type ScrollBoxRenderable, TextAttributes } from "@opentui/core";
 import { useBindings } from "@opentui/keymap/solid";
-import { createEffect, createSignal, Show } from "solid-js";
+import { useTerminalDimensions } from "@opentui/solid";
+import { createEffect, createMemo, createSignal, Show } from "solid-js";
 
 import type { Entry } from "../../core/entries/directory";
 import { formatBytes } from "../../core/format/units";
@@ -22,13 +23,36 @@ export type PdfViewerDialogProps = {
 const ZOOM_LEVELS = [50, 75, 100, 125, 150, 175, 200, 250, 300] as const;
 
 export function PdfViewerDialog(props: PdfViewerDialogProps) {
+  const dimensions = useTerminalDimensions();
   const [page, setPage] = createSignal(Math.max(1, Math.min(props.initialPage ?? 1, props.totalPages)));
   const [mode, setMode] = createSignal<"visual" | "text">("visual");
   const [zoom, setZoom] = createSignal<number>(100);
   const [isFit, setIsFit] = createSignal<boolean>(true);
+  const [aspectRatio, setAspectRatio] = createSignal<number>(Math.SQRT2);
   const [currentPng, setCurrentPng] = createSignal<string | undefined>(undefined);
   const [currentText, setCurrentText] = createSignal<string>("");
   const [hasRenderer, setHasRenderer] = createSignal<boolean>(true);
+  let scrollBoxRef: ScrollBoxRenderable | null = null;
+
+  const containerWidth = createMemo(() => Math.max(20, Math.floor(dimensions().width * 0.92) - 4));
+  const containerHeight = createMemo(() => Math.max(10, Math.floor(dimensions().height * 0.94) - 10));
+  const aspectInCells = createMemo(() => Math.max(0.1, aspectRatio() / 2));
+
+  const imageWidth = createMemo(() => {
+    if (isFit()) {
+      const fitW = Math.min(containerWidth(), Math.floor(containerHeight() / aspectInCells()));
+      return Math.max(1, fitW);
+    }
+    return Math.max(1, Math.round(containerWidth() * (zoom() / 100)));
+  });
+
+  const imageHeight = createMemo(() => {
+    if (isFit()) {
+      const fitH = Math.min(containerHeight(), Math.round(imageWidth() * aspectInCells()));
+      return Math.max(1, fitH);
+    }
+    return Math.max(1, Math.round(imageWidth() * aspectInCells()));
+  });
 
   const currentDpi = () => (isFit() ? 150 : Math.min(300, Math.max(72, Math.round(150 * (zoom() / 100)))));
 
@@ -113,6 +137,37 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
     setMode((m) => (m === "visual" ? "text" : "visual"));
   }
 
+  function scrollDown() {
+    scrollBoxRef?.scrollBy(3);
+  }
+
+  function scrollUp() {
+    scrollBoxRef?.scrollBy(-3);
+  }
+
+  function handleViewerScroll(event: MouseEvent) {
+    if (event.modifiers?.ctrl) {
+      if (event.scroll?.direction === "up") zoomIn();
+      else if (event.scroll?.direction === "down") zoomOut();
+      return;
+    }
+    if (isFit()) {
+      if (event.scroll?.direction === "up") {
+        zoomIn();
+      } else if (event.scroll?.direction === "down") {
+        nextPage();
+      }
+    }
+  }
+
+  createEffect(() => {
+    page();
+    if (scrollBoxRef) {
+      scrollBoxRef.scrollTop = 0;
+      scrollBoxRef.scrollLeft = 0;
+    }
+  });
+
   try {
     useBindings(() => ({
       priority: 10,
@@ -124,6 +179,8 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
         { name: "pdf.zoomIn", run: zoomIn },
         { name: "pdf.zoomOut", run: zoomOut },
         { name: "pdf.fit", run: toggleFit },
+        { name: "pdf.scrollDown", run: scrollDown },
+        { name: "pdf.scrollUp", run: scrollUp },
         { name: "pdf.toggle", run: toggleMode },
         { name: "pdf.close", run: props.onClose },
       ],
@@ -140,6 +197,10 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
         { key: "home", cmd: "pdf.first" },
         { key: "shift+g", cmd: "pdf.last" },
         { key: "end", cmd: "pdf.last" },
+        { key: "j", cmd: "pdf.scrollDown" },
+        { key: "down", cmd: "pdf.scrollDown" },
+        { key: "k", cmd: "pdf.scrollUp" },
+        { key: "up", cmd: "pdf.scrollUp" },
         { key: "ctrl++", cmd: "pdf.zoomIn" },
         { key: "ctrl+=", cmd: "pdf.zoomIn" },
         { key: "+", cmd: "pdf.zoomIn" },
@@ -312,14 +373,18 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
           </scrollbox>
         }
       >
-        <box
+        <scrollbox
+          ref={(r) => {
+            scrollBoxRef = r;
+          }}
           flexGrow={1}
           width="100%"
           backgroundColor={props.palette["bg.inset"]}
-          onMouseScroll={(event: MouseEvent) => {
-            if (event.scroll?.direction === "up") zoomIn();
-            else if (event.scroll?.direction === "down") zoomOut();
+          contentOptions={{
+            maxWidth: undefined,
+            alignItems: "center",
           }}
+          onMouseScroll={handleViewerScroll}
         >
           <Show
             when={currentPng() !== undefined}
@@ -331,12 +396,17 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
           >
             <image
               source={currentPng()}
-              fit={isFit() ? "fit" : zoom() > 100 ? "cover" : "fit"}
-              flexGrow={1}
-              width="100%"
+              width={imageWidth()}
+              height={imageHeight()}
+              fit="fill"
+              onLoad={(img) => {
+                if (img.width > 0 && img.height > 0) {
+                  setAspectRatio(img.height / img.width);
+                }
+              }}
             />
           </Show>
-        </box>
+        </scrollbox>
       </Show>
 
       {/* Footer: Shortcut Hints and Status */}

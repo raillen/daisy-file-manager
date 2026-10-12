@@ -483,6 +483,44 @@ test("App renders PdfViewerDialog when viewerModal is pdf", async () => {
   const fitFrame = setup.captureCharFrame();
   expect(fitFrame).toContain("Ajustado");
 
+  // Test zoom out with '-'
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "-",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "-",
+      raw: "-",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+  const zoomOutFrame = setup.captureCharFrame();
+  expect(zoomOutFrame).toContain("75%");
+
+  // Test scroll keys
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "j",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "j",
+      raw: "j",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+
   await setup.dispose();
 });
 
