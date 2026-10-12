@@ -6,6 +6,7 @@ import { testRender, useRenderer } from "@opentui/solid";
 
 import { App } from "../src/app/App";
 import { useCommandLayer } from "../src/commands/useCommandLayer";
+import type { Entry } from "../src/core/entries/directory";
 import { createTranslator } from "../src/core/i18n/translator";
 import { createPreviewCache } from "../src/core/preview/cache";
 import { defaultTheme, palettes } from "../src/core/theme/palette";
@@ -35,6 +36,7 @@ function testStores(cwd: string) {
       mode: "normal",
       properties: undefined,
       inputDialog: undefined,
+      viewerModal: undefined,
       helpOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
@@ -131,5 +133,90 @@ test("App with KeymapProvider and useCommandLayer mounts cleanly", async () => {
   await setup.renderOnce();
   const frame = setup.captureCharFrame();
   expect(frame).toContain("daisy");
+  await setup.dispose();
+});
+
+test("App renders ImageViewerDialog when viewerModal is an image", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  const entry: Entry = {
+    name: "photo.png",
+    path: `${cwd}/photo.png`,
+    kind: "image",
+    isDirectory: false,
+    isSymlink: false,
+    size: 2048,
+    modifiedMs: Date.now(),
+    permissions: "-rw-r--r--",
+  };
+
+  ui.actions.openImageViewer(entry);
+
+  const setup = await testRender(() => (
+    <App
+      keymapOverrides={{}}
+      previewCache={previewCache}
+      clipboard={clipboard}
+      queue={queue}
+      session={session}
+      ui={ui}
+      places={[]}
+      home={cwd}
+      separator="/"
+      freeSpace={undefined}
+    />
+  ));
+  await setup.renderOnce();
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("photo.png");
+  await setup.dispose();
+});
+
+test("App renders TextViewerDialog when viewerModal is text", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  const entry: Entry = {
+    name: "README.md",
+    path: `${cwd}/README.md`,
+    kind: "markdown",
+    isDirectory: false,
+    isSymlink: false,
+    size: 512,
+    modifiedMs: Date.now(),
+    permissions: "-rw-r--r--",
+  };
+
+  ui.actions.openTextViewer(entry, "# Hello World\nDaisy is awesome", "markdown");
+
+  const setup = await testRender(() => (
+    <App
+      keymapOverrides={{}}
+      previewCache={previewCache}
+      clipboard={clipboard}
+      queue={queue}
+      session={session}
+      ui={ui}
+      places={[]}
+      home={cwd}
+      separator="/"
+      freeSpace={undefined}
+    />
+  ));
+  await setup.renderOnce();
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("README.md");
+  expect(frame).toContain("markdown");
   await setup.dispose();
 });

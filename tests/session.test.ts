@@ -30,6 +30,7 @@ function uiStore() {
       mode: "normal",
       properties: undefined,
       inputDialog: undefined,
+      viewerModal: undefined,
       helpOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",

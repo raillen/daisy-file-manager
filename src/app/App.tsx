@@ -1,4 +1,4 @@
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
 import { SyntaxStyle } from "@opentui/core";
 import { useRenderer, useTerminalDimensions } from "@opentui/solid";
@@ -6,6 +6,7 @@ import { createEffect, createMemo, Show } from "solid-js";
 
 import { parseExCommand } from "../core/commands/exCommand";
 import { segmentsFor } from "../core/entries/path";
+import { extractArchive, isArchive } from "../core/operations/archive";
 import { createDirectory, createEmptyFile, renameEntry } from "../core/operations/operations";
 import type { PreviewCache } from "../core/preview/cache";
 import type { ClipboardStore, QueueStore } from "../state/operations";
@@ -15,8 +16,10 @@ import { visibleEntries } from "../state/session";
 import type { UiStore } from "../state/ui";
 
 import { CommandLine } from "./CommandLine";
+import { ImageViewerDialog } from "./dialogs/ImageViewerDialog";
 import { InputDialog } from "./dialogs/InputDialog";
 import { PropertiesDialog } from "./dialogs/PropertiesDialog";
+import { TextViewerDialog } from "./dialogs/TextViewerDialog";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
 import { HelpOverlay, helpEntries } from "./HelpOverlay";
@@ -168,6 +171,26 @@ export function App(props: AppProps) {
         props.session.actions.toggleView();
         break;
       }
+      case "extract": {
+        const paths = selectedPaths(props.session);
+        const archives = paths.filter((path) => isArchive(path));
+        if (archives.length === 0) {
+          props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name: "" }));
+          break;
+        }
+        for (const archive of archives) {
+          const name = basename(archive);
+          props.queue.actions.succeed(props.ui.translate("operation.extract.started", { name }));
+          const result = await extractArchive(archive);
+          if (result.success) {
+            props.queue.actions.succeed(props.ui.translate("operation.extract.done"));
+          } else {
+            props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name }));
+          }
+        }
+        await props.session.actions.load(props.session.state.cwd);
+        break;
+      }
       case "quit": {
         props.ui.actions.quit();
         break;
@@ -309,6 +332,36 @@ export function App(props: AppProps) {
               onClose={() => props.ui.actions.hideProperties()}
             />
           ) : null;
+        })()}
+      </Show>
+
+      <Show when={props.ui.state.viewerModal !== undefined}>
+        {(() => {
+          const modal = props.ui.state.viewerModal;
+          if (modal?.kind === "image") {
+            return (
+              <ImageViewerDialog
+                palette={palette()}
+                entry={modal.entry}
+                t={props.ui.translate}
+                onClose={() => props.ui.actions.closeViewer()}
+              />
+            );
+          }
+          if (modal?.kind === "text") {
+            return (
+              <TextViewerDialog
+                palette={palette()}
+                entry={modal.entry}
+                content={modal.content}
+                filetype={modal.filetype}
+                syntaxStyle={syntaxStyle()}
+                t={props.ui.translate}
+                onClose={() => props.ui.actions.closeViewer()}
+              />
+            );
+          }
+          return null;
         })()}
       </Show>
 

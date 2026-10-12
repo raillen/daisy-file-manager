@@ -1,8 +1,12 @@
+import { basename } from "node:path";
+
 import type { Command } from "@opentui/keymap";
 import { useBindings, useKeymap } from "@opentui/keymap/solid";
 import { createEffect } from "solid-js";
 
+import { extractArchive, isArchive } from "../core/operations/archive";
 import { openExternally } from "../core/operations/system";
+import type { PreviewCache } from "../core/preview/cache";
 import type { ClipboardStore, QueueStore } from "../state/operations";
 import { pasteInto, selectedPaths, trashSelection } from "../state/operations";
 import { type SessionStore, visibleEntries } from "../state/session";
@@ -15,6 +19,7 @@ export type CommandRuntime = {
   ui: UiStore;
   clipboard: ClipboardStore;
   queue: QueueStore;
+  previewCache?: PreviewCache;
   currentEntryPath: () => string | undefined;
   onQuit: () => void;
   onExitSearch?: () => void;
@@ -32,7 +37,7 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "nav.up", run: () => session.actions.moveCursor(-1) },
     { name: "nav.first", run: () => session.actions.cursorTo(0) },
     { name: "nav.last", run: () => session.actions.cursorTo(Number.MAX_SAFE_INTEGER) },
-    { name: "nav.enter", run: () => void session.actions.enter() },
+    { name: "nav.enter", run: () => void handleEnter(runtime) },
     { name: "nav.parent", run: () => void session.actions.goUp() },
 
     { name: "select.toggle", run: () => toggleMarked(runtime) },
@@ -47,6 +52,7 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "file.mkdir", run: () => openMkdir(runtime) },
     { name: "file.rename", run: () => openRename(runtime) },
     { name: "file.newFile", run: () => openNewFile(runtime) },
+    { name: "file.extract", run: () => void extractSelection(runtime) },
 
     { name: "ui.commandLine", run: () => runtime.ui.actions.openCommandLine() },
     { name: "ui.search", run: () => openSearch(runtime) },
@@ -65,6 +71,55 @@ function commandsFor(runtime: CommandRuntime): Command[] {
 
     { name: "ui.quit", run: runtime.onQuit },
   ];
+}
+
+async function handleEnter(runtime: CommandRuntime) {
+  const current = runtime.currentEntryPath();
+  if (current === undefined) return;
+  const entry = visibleEntries(runtime.session.state).find((item) => item.path === current);
+  if (entry === undefined) return;
+
+  if (entry.isDirectory) {
+    await runtime.session.actions.enter();
+    return;
+  }
+
+  if (isArchive(entry.name)) {
+    await extractSelection(runtime);
+    return;
+  }
+
+  if (runtime.previewCache) {
+    const preview = await runtime.previewCache.get(entry);
+    if (preview.kind === "image") {
+      runtime.ui.actions.openImageViewer(entry);
+      return;
+    }
+    if (preview.kind === "text") {
+      runtime.ui.actions.openTextViewer(entry, preview.content, preview.filetype);
+      return;
+    }
+  }
+
+  openExternally(entry.path);
+}
+
+async function extractSelection(runtime: CommandRuntime) {
+  const paths = selectedPaths(runtime.session);
+  const archives = paths.filter((path) => isArchive(path));
+  if (archives.length === 0) return;
+
+  for (const archive of archives) {
+    const name = basename(archive);
+    runtime.queue.actions.succeed(runtime.ui.translate("operation.extract.started", { name }));
+    const result = await extractArchive(archive);
+    if (result.success) {
+      runtime.queue.actions.succeed(runtime.ui.translate("operation.extract.done"));
+    } else {
+      runtime.queue.actions.fail(runtime.ui.translate("operation.extract.failed", { name }));
+    }
+  }
+  await runtime.session.actions.load(runtime.session.state.cwd);
 }
 
 function openMkdir(runtime: CommandRuntime) {
@@ -95,6 +150,10 @@ function openNewFile(runtime: CommandRuntime) {
 }
 
 function handleEscape(runtime: CommandRuntime) {
+  if (runtime.ui.state.viewerModal !== undefined) {
+    runtime.ui.actions.closeViewer();
+    return;
+  }
   if (runtime.ui.state.inputDialog !== undefined) {
     runtime.ui.actions.closeInputDialog();
     return;

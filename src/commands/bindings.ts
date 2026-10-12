@@ -18,6 +18,7 @@ export type CommandName =
   | "file.mkdir"
   | "file.rename"
   | "file.newFile"
+  | "file.extract"
   | "ui.commandLine"
   | "ui.search"
   | "ui.escape"
@@ -56,6 +57,7 @@ export const defaultBindings: readonly BindingSpec[] = [
   { command: "file.mkdir", keys: ["ctrl+n"] },
   { command: "file.rename", keys: ["a"] },
   { command: "file.newFile", keys: ["ctrl+t"] },
+  { command: "file.extract", keys: ["x"] },
   { command: "ui.commandLine", keys: [":"] },
   { command: "ui.search", keys: ["/"] },
   { command: "ui.escape", keys: ["escape"] },

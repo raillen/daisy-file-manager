@@ -190,7 +190,18 @@
     },
     "open": {
       "failed": "Falha ao abrir {name}"
+    },
+    "extract": {
+      "started": "Extraindo {name}…",
+      "done": "Arquivo extraído com sucesso",
+      "failed": "Falha ao extrair {name}"
     }
+  },
+  "viewer": {
+    "imageTitle": "Visualizador de Imagem",
+    "textTitle": "Visualizador de Texto",
+    "close": "Fechar [Esc]",
+    "lines": "{count} linhas"
   },
   "modes": {
     "normal": "NORMAL",

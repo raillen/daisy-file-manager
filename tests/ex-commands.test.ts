@@ -33,6 +33,10 @@ describe("parseExCommand", () => {
     const sort = parseExCommand(":sort size");
     expect(sort.kind).toBe("sort");
     expect(sort.args).toEqual(["size"]);
+
+    const extract = parseExCommand(":extract bundle.zip");
+    expect(extract.kind).toBe("extract");
+    expect(extract.args).toEqual(["bundle.zip"]);
   });
 
   test("trata entrada vazia e comando desconhecido", () => {

@@ -190,7 +190,18 @@
     },
     "open": {
       "failed": "Failed to open {name}"
+    },
+    "extract": {
+      "started": "Extracting {name}…",
+      "done": "Archive extracted successfully",
+      "failed": "Failed to extract {name}"
     }
+  },
+  "viewer": {
+    "imageTitle": "Image Viewer",
+    "textTitle": "Text Viewer",
+    "close": "Close [Esc]",
+    "lines": "{count} lines"
   },
   "modes": {
     "normal": "NORMAL",

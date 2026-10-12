@@ -15,10 +15,15 @@ export type InputDialogState = {
   targetPath?: string;
 };
 
+export type ViewerModalState =
+  | { kind: "image"; entry: Entry }
+  | { kind: "text"; entry: Entry; content: string; filetype: string };
+
 export type UiState = {
   mode: UiMode;
   properties: Entry | undefined;
   inputDialog: InputDialogState | undefined;
+  viewerModal: ViewerModalState | undefined;
   helpOpen: boolean;
   theme: ThemeName;
   locale: LocaleCode;
@@ -37,6 +42,9 @@ export type UiActions = {
   closeInputDialog: () => void;
   openCommandLine: () => void;
   closeCommandLine: () => void;
+  openImageViewer: (entry: Entry) => void;
+  openTextViewer: (entry: Entry, content: string, filetype: string) => void;
+  closeViewer: () => void;
   toggleHelp: () => void;
   openSearch: () => void;
   closeSearch: () => void;
@@ -83,6 +91,15 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     closeCommandLine() {
       setState("mode", "normal");
+    },
+    openImageViewer(entry) {
+      setState("viewerModal", { kind: "image", entry });
+    },
+    openTextViewer(entry, content, filetype) {
+      setState("viewerModal", { kind: "text", entry, content, filetype });
+    },
+    closeViewer() {
+      setState("viewerModal", undefined);
     },
     toggleHelp() {
       setState("helpOpen", (open) => !open);

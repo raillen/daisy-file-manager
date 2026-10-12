@@ -3,6 +3,7 @@ export type ExCommandKind =
   | "mkdir"
   | "touch"
   | "trash"
+  | "extract"
   | "quit"
   | "theme"
   | "help"
@@ -23,6 +24,8 @@ const knownCommands: Record<string, ExCommandKind> = {
   touch: "touch",
   rm: "trash",
   trash: "trash",
+  extract: "extract",
+  x: "extract",
   q: "quit",
   quit: "quit",
   theme: "theme",
