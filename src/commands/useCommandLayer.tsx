@@ -54,7 +54,7 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "view.splitPane", run: ui.actions.toggleSplitPane },
     { name: "view.sidebar", run: ui.actions.toggleSidebar },
     { name: "view.preview", run: ui.actions.togglePreview },
-    { name: "view.help", run: () => {} },
+    { name: "view.help", run: ui.actions.toggleHelp },
     { name: "view.sort.name", run: () => session.actions.setSort("name") },
     { name: "view.sort.size", run: () => session.actions.setSort("size") },
     { name: "view.sort.modified", run: () => session.actions.setSort("modified") },

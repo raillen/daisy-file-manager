@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui";
 import { KeymapProvider } from "@opentui/keymap/solid";
 import { render, useRenderer } from "@opentui/solid";
+import { createEffect, onCleanup } from "solid-js";
 
 import { App } from "./app/App";
 import type { Place } from "./app/Sidebar";
@@ -15,6 +16,7 @@ import type { PreviewCache } from "./core/preview/cache";
 import { createPreviewCache } from "./core/preview/cache";
 import { glyph, type IconSet } from "./core/theme/icons";
 import { palettes, type ThemeName } from "./core/theme/palette";
+import { createDirectoryWatcher } from "./core/watch/watcher";
 import { type ClipboardStore, createClipboardStore, createQueueStore, type QueueStore } from "./state/operations";
 import { createSessionStore, type SessionState, visibleEntries } from "./state/session";
 import { createUiStore, type UiState } from "./state/ui";
@@ -54,6 +56,7 @@ function initialUi(theme: ThemeName, locale: LocaleCode, iconSet: IconSet, split
   return {
     mode: "normal",
     properties: undefined,
+    helpOpen: false,
     theme,
     locale,
     iconSet,
@@ -89,6 +92,16 @@ function Root(props: {
   const renderer = useRenderer();
   const keymap = createDefaultOpenTuiKeymap(renderer);
 
+  createEffect(() => {
+    const directory = props.session.state.cwd;
+    const watcher = createDirectoryWatcher(() => {
+      void props.session.actions.load(directory);
+    });
+
+    void watcher.watch(directory);
+    onCleanup(() => void watcher.close());
+  });
+
   useCommandLayer({
     session: props.session,
     ui: props.ui,
@@ -102,6 +115,7 @@ function Root(props: {
   return (
     <KeymapProvider keymap={keymap}>
       <App
+        keymapOverrides={props.keymapOverrides}
         previewCache={props.previewCache}
         queue={props.queue}
         session={props.session}

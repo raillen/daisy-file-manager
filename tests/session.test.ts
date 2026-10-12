@@ -29,6 +29,7 @@ function uiStore() {
     initial: {
       mode: "normal",
       properties: undefined,
+      helpOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",

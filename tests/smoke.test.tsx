@@ -31,6 +31,7 @@ function testStores(cwd: string) {
     initial: {
       mode: "normal",
       properties: undefined,
+      helpOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",
@@ -55,6 +56,7 @@ test("App renders headlessly", async () => {
 
   const setup = await testRender(() => (
     <App
+      keymapOverrides={{}}
       previewCache={previewCache}
       queue={queue}
       session={session}

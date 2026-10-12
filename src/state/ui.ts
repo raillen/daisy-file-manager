@@ -10,6 +10,7 @@ export type UiMode = "normal" | "search" | "visual";
 export type UiState = {
   mode: UiMode;
   properties: Entry | undefined;
+  helpOpen: boolean;
   theme: ThemeName;
   locale: LocaleCode;
   iconSet: IconSet;
@@ -22,6 +23,7 @@ export type UiState = {
 export type UiActions = {
   setMode: (mode: UiMode) => void;
   showProperties: (entry: Entry) => void;
+  toggleHelp: () => void;
   hideProperties: () => void;
   openSearch: () => void;
   closeSearch: () => void;
@@ -56,6 +58,9 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     hideProperties() {
       setState("properties", undefined);
+    },
+    toggleHelp() {
+      setState("helpOpen", (open) => !open);
     },
     setMode(mode) {
       setState("mode", mode);

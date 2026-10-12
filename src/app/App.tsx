@@ -11,6 +11,7 @@ import type { UiStore } from "../state/ui";
 import { PropertiesDialog } from "./dialogs/PropertiesDialog";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
+import { HelpOverlay, helpEntries } from "./HelpOverlay";
 import { PreviewPane } from "./PreviewPane";
 import { SearchBar } from "./SearchBar";
 import { type Place, Sidebar } from "./Sidebar";
@@ -18,6 +19,7 @@ import { StatusBar } from "./StatusBar";
 import { TitleBar } from "./TitleBar";
 
 export type AppProps = {
+  keymapOverrides: Record<string, string[]>;
   previewCache: PreviewCache;
   queue: QueueStore;
   session: SessionStore;
@@ -125,6 +127,13 @@ export function App(props: AppProps) {
           onSubmit={() => props.ui.actions.closeSearch()}
         />
       </Show>
+
+      <HelpOverlay
+        open={props.ui.state.helpOpen}
+        palette={palette()}
+        t={props.ui.translate}
+        entries={helpEntries(props.keymapOverrides)}
+      />
 
       <Show when={props.ui.state.properties !== undefined}>
         <PropertiesDialog
