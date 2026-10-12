@@ -37,6 +37,11 @@ describe("parseExCommand", () => {
     const extract = parseExCommand(":extract bundle.zip");
     expect(extract.kind).toBe("extract");
     expect(extract.args).toEqual(["bundle.zip"]);
+
+    expect(parseExCommand(":copy").kind).toBe("copy");
+    expect(parseExCommand(":cp").kind).toBe("copy");
+    expect(parseExCommand(":move").kind).toBe("move");
+    expect(parseExCommand(":mv").kind).toBe("move");
   });
 
   test("trata entrada vazia e comando desconhecido", () => {

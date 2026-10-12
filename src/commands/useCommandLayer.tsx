@@ -159,13 +159,15 @@ function openNewFile(runtime: CommandRuntime) {
 }
 
 function openCopyTo(runtime: CommandRuntime) {
-  const paths = selectedPaths(runtime.session);
+  const selected = selectedPaths(runtime.session);
+  const paths = selected.length > 0 ? selected : runtime.clipboard.state.paths;
   if (paths.length === 0) return;
   runtime.ui.actions.openTargetFolderDialog("copy", paths);
 }
 
 function openMoveTo(runtime: CommandRuntime) {
-  const paths = selectedPaths(runtime.session);
+  const selected = selectedPaths(runtime.session);
+  const paths = selected.length > 0 ? selected : runtime.clipboard.state.paths;
   if (paths.length === 0) return;
   runtime.ui.actions.openTargetFolderDialog("move", paths);
 }

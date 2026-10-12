@@ -275,6 +275,22 @@ export function App(props: AppProps) {
         await props.session.actions.load(props.session.state.cwd);
         break;
       }
+      case "copy": {
+        const selected = selectedPaths(props.session);
+        const paths = selected.length > 0 ? selected : props.clipboard.state.paths;
+        if (paths.length > 0) {
+          props.ui.actions.openTargetFolderDialog("copy", paths);
+        }
+        break;
+      }
+      case "move": {
+        const selected = selectedPaths(props.session);
+        const paths = selected.length > 0 ? selected : props.clipboard.state.paths;
+        if (paths.length > 0) {
+          props.ui.actions.openTargetFolderDialog("move", paths);
+        }
+        break;
+      }
       case "quit": {
         props.ui.actions.quit();
         break;

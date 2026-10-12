@@ -9,6 +9,8 @@ export type ExCommandKind =
   | "help"
   | "sort"
   | "view"
+  | "copy"
+  | "move"
   | "unknown";
 
 export type ParsedExCommand = {
@@ -34,6 +36,10 @@ const knownCommands: Record<string, ExCommandKind> = {
   sort: "sort",
   view: "view",
   v: "view",
+  copy: "copy",
+  cp: "copy",
+  move: "move",
+  mv: "move",
 };
 
 export function parseExCommand(input: string): ParsedExCommand {

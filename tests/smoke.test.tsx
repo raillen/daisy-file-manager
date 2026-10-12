@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 
+import { KeyEvent } from "@opentui/core";
 import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui";
 import { KeymapProvider } from "@opentui/keymap/solid";
 import { testRender, useRenderer } from "@opentui/solid";
@@ -290,5 +291,97 @@ test("App renders ToastNotification when queue is running with progress", async 
   const frame = setup.captureCharFrame();
   expect(frame).toContain("50%");
   expect(frame).toContain("sample.txt");
+  await setup.dispose();
+});
+
+test("F5 or Shift+C triggers file.copyTo and opens TargetFolderDialog", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  function RootWrapper() {
+    const renderer = useRenderer();
+    const keymap = createDefaultOpenTuiKeymap(renderer);
+
+    function Inner() {
+      useCommandLayer({
+        session,
+        ui,
+        clipboard,
+        queue,
+        currentEntryPath: () => undefined,
+        onQuit: () => {},
+      });
+      return (
+        <App
+          keymapOverrides={{}}
+          previewCache={previewCache}
+          clipboard={clipboard}
+          queue={queue}
+          session={session}
+          ui={ui}
+          places={[]}
+          home={cwd}
+          separator="/"
+          freeSpace={undefined}
+        />
+      );
+    }
+
+    return (
+      <KeymapProvider keymap={keymap}>
+        <Inner />
+      </KeymapProvider>
+    );
+  }
+
+  const setup = await testRender(() => <RootWrapper />);
+  await setup.renderOnce();
+
+  expect(ui.state.targetFolderDialog).toBeUndefined();
+
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "f5",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "\x1b[15~",
+      raw: "\x1b[15~",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+
+  expect(ui.state.targetFolderDialog?.mode).toBe("copy");
+
+  ui.actions.closeTargetFolderDialog();
+  expect(ui.state.targetFolderDialog).toBeUndefined();
+
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "c",
+      ctrl: false,
+      meta: false,
+      shift: true,
+      option: false,
+      number: false,
+      sequence: "C",
+      raw: "C",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+
+  expect(ui.state.targetFolderDialog?.mode).toBe("copy");
+
   await setup.dispose();
 });
