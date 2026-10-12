@@ -235,7 +235,11 @@
     "grid": "Grid",
     "preview": "Preview",
     "sidebar": "Sidebar",
-    "splitPane": "Split pane"
+    "splitPane": "Split pane",
+    "leftPane": "Left",
+    "rightPane": "Right",
+    "activePane": "Active pane",
+    "inactivePane": "Inactive pane"
   },
   "error": {
     "title": "Error",

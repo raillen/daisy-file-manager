@@ -235,7 +235,11 @@
     "grid": "Grade",
     "preview": "Pré-visualização",
     "sidebar": "Barra lateral",
-    "splitPane": "Painel duplo"
+    "splitPane": "Painel duplo",
+    "leftPane": "Esquerda",
+    "rightPane": "Direita",
+    "activePane": "Painel ativo",
+    "inactivePane": "Painel inativo"
   },
   "error": {
     "title": "Erro",

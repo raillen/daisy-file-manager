@@ -41,6 +41,8 @@ function uiStore() {
       previewVisible: true,
       previewWidth: 40,
       splitPane: false,
+      activePane: "left",
+      splitRatio: 0.5,
       quit: false,
     },
     translators: { "pt-BR": createTranslator("pt-BR"), "en-US": createTranslator("en-US") },

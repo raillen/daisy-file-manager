@@ -16,6 +16,8 @@ import { type BindingOverrides, buildBindings } from "./bindings";
 
 export type CommandRuntime = {
   session: SessionStore;
+  activeSession?: () => SessionStore;
+  onSwitchPane?: () => void;
   ui: UiStore;
   clipboard: ClipboardStore;
   queue: QueueStore;
@@ -27,31 +29,40 @@ export type CommandRuntime = {
 };
 
 function commandsFor(runtime: CommandRuntime): Command[] {
-  const { session, ui, clipboard, queue } = runtime;
-  const reload = () => session.actions.load(session.state.cwd);
+  const { ui, clipboard, queue } = runtime;
+  const curSession = () => runtime.activeSession?.() ?? runtime.session;
+  const reload = () => curSession().actions.load(curSession().state.cwd);
 
-  const deps = { session, clipboard, queue, translate: ui.translate, reload };
+  const deps = {
+    get session() {
+      return curSession();
+    },
+    clipboard,
+    queue,
+    translate: ui.translate,
+    reload,
+  };
 
   return [
-    { name: "nav.down", run: () => session.actions.moveCursor(1) },
-    { name: "nav.up", run: () => session.actions.moveCursor(-1) },
-    { name: "nav.first", run: () => session.actions.cursorTo(0) },
-    { name: "nav.last", run: () => session.actions.cursorTo(Number.MAX_SAFE_INTEGER) },
+    { name: "nav.down", run: () => curSession().actions.moveCursor(1) },
+    { name: "nav.up", run: () => curSession().actions.moveCursor(-1) },
+    { name: "nav.first", run: () => curSession().actions.cursorTo(0) },
+    { name: "nav.last", run: () => curSession().actions.cursorTo(Number.MAX_SAFE_INTEGER) },
     { name: "nav.enter", run: () => void handleEnter(runtime) },
-    { name: "nav.parent", run: () => void session.actions.goUp() },
+    { name: "nav.parent", run: () => void curSession().actions.goUp() },
 
     { name: "select.toggle", run: () => toggleMarked(runtime) },
     { name: "select.visual", run: ui.actions.toggleVisual },
-    { name: "select.down", run: () => session.actions.extendSelection(1) },
-    { name: "select.up", run: () => session.actions.extendSelection(-1) },
-    { name: "select.all", run: () => session.actions.selectAll() },
+    { name: "select.down", run: () => curSession().actions.extendSelection(1) },
+    { name: "select.up", run: () => curSession().actions.extendSelection(-1) },
+    { name: "select.all", run: () => curSession().actions.selectAll() },
 
     { name: "file.yank", run: () => copySelection(runtime, "copy") },
     { name: "file.cut", run: () => copySelection(runtime, "cut") },
-    { name: "file.paste", run: () => void pasteInto(deps, session.state.cwd) },
+    { name: "file.paste", run: () => void pasteInto(deps, curSession().state.cwd) },
     { name: "file.copyTo", run: () => openCopyTo(runtime) },
     { name: "file.moveTo", run: () => openMoveTo(runtime) },
-    { name: "file.trash", run: () => void trashSelection(deps, selectedPaths(session)) },
+    { name: "file.trash", run: () => void trashSelection(deps, selectedPaths(curSession())) },
     { name: "file.open", run: () => openCurrent(runtime) },
     { name: "file.properties", run: () => toggleProperties(runtime) },
     { name: "file.mkdir", run: () => openMkdir(runtime) },
@@ -62,21 +73,22 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "panel.sidebarInc", run: () => runtime.ui.actions.adjustSidebarWidth(2) },
     { name: "panel.previewDec", run: () => runtime.ui.actions.adjustPreviewWidth(-4) },
     { name: "panel.previewInc", run: () => runtime.ui.actions.adjustPreviewWidth(4) },
+    { name: "panel.switchPane", run: () => runtime.onSwitchPane?.() },
 
     { name: "ui.commandLine", run: () => runtime.ui.actions.openCommandLine() },
     { name: "ui.search", run: () => openSearch(runtime) },
     { name: "ui.escape", run: () => handleEscape(runtime) },
-    { name: "ui.clear", run: () => session.actions.setQuery("") },
+    { name: "ui.clear", run: () => curSession().actions.setQuery("") },
 
-    { name: "view.toggle", run: session.actions.toggleView },
-    { name: "view.hidden", run: session.actions.toggleHidden },
+    { name: "view.toggle", run: () => curSession().actions.toggleView() },
+    { name: "view.hidden", run: () => curSession().actions.toggleHidden() },
     { name: "view.splitPane", run: ui.actions.toggleSplitPane },
     { name: "view.sidebar", run: ui.actions.toggleSidebar },
     { name: "view.preview", run: ui.actions.togglePreview },
     { name: "view.help", run: ui.actions.toggleHelp },
-    { name: "view.sort.name", run: () => session.actions.setSort("name") },
-    { name: "view.sort.size", run: () => session.actions.setSort("size") },
-    { name: "view.sort.modified", run: () => session.actions.setSort("modified") },
+    { name: "view.sort.name", run: () => curSession().actions.setSort("name") },
+    { name: "view.sort.size", run: () => curSession().actions.setSort("size") },
+    { name: "view.sort.modified", run: () => curSession().actions.setSort("modified") },
 
     { name: "ui.quit", run: runtime.onQuit },
   ];
@@ -85,11 +97,12 @@ function commandsFor(runtime: CommandRuntime): Command[] {
 async function handleEnter(runtime: CommandRuntime) {
   const current = runtime.currentEntryPath();
   if (current === undefined) return;
-  const entry = visibleEntries(runtime.session.state).find((item) => item.path === current);
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const entry = visibleEntries(cur.state).find((item) => item.path === current);
   if (entry === undefined) return;
 
   if (entry.isDirectory) {
-    await runtime.session.actions.enter();
+    await cur.actions.enter();
     return;
   }
 
@@ -118,7 +131,8 @@ async function handleEnter(runtime: CommandRuntime) {
 }
 
 async function extractSelection(runtime: CommandRuntime) {
-  const paths = selectedPaths(runtime.session);
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const paths = selectedPaths(cur);
   const archives = paths.filter((path) => isArchive(path));
   if (archives.length === 0) return;
 
@@ -132,7 +146,7 @@ async function extractSelection(runtime: CommandRuntime) {
       runtime.queue.actions.fail(runtime.ui.translate("operation.extract.failed", { name }));
     }
   }
-  await runtime.session.actions.load(runtime.session.state.cwd);
+  await cur.actions.load(cur.state.cwd);
 }
 
 function openMkdir(runtime: CommandRuntime) {
@@ -145,7 +159,8 @@ function openMkdir(runtime: CommandRuntime) {
 function openRename(runtime: CommandRuntime) {
   const current = runtime.currentEntryPath();
   if (current === undefined) return;
-  const entry = visibleEntries(runtime.session.state).find((item) => item.path === current);
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const entry = visibleEntries(cur.state).find((item) => item.path === current);
   if (entry === undefined) return;
 
   runtime.ui.actions.openInputDialog({
@@ -163,14 +178,16 @@ function openNewFile(runtime: CommandRuntime) {
 }
 
 function openCopyTo(runtime: CommandRuntime) {
-  const selected = selectedPaths(runtime.session);
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const selected = selectedPaths(cur);
   const paths = selected.length > 0 ? selected : runtime.clipboard.state.paths;
   if (paths.length === 0) return;
   runtime.ui.actions.openTargetFolderDialog("copy", paths);
 }
 
 function openMoveTo(runtime: CommandRuntime) {
-  const selected = selectedPaths(runtime.session);
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const selected = selectedPaths(cur);
   const paths = selected.length > 0 ? selected : runtime.clipboard.state.paths;
   if (paths.length === 0) return;
   runtime.ui.actions.openTargetFolderDialog("move", paths);
@@ -205,20 +222,23 @@ function handleEscape(runtime: CommandRuntime) {
     runtime.ui.actions.toggleHelp();
     return;
   }
-  if (runtime.session.state.marked.length > 0) {
-    runtime.session.actions.clearMarked();
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  if (cur.state.marked.length > 0) {
+    cur.actions.clearMarked();
   }
 }
 
 function toggleMarked(runtime: CommandRuntime) {
   const path = runtime.currentEntryPath();
   if (path === undefined) return;
-  runtime.session.actions.toggleMarked(path);
-  runtime.session.actions.moveCursor(1);
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  cur.actions.toggleMarked(path);
+  cur.actions.moveCursor(1);
 }
 
 function copySelection(runtime: CommandRuntime, mode: "copy" | "cut") {
-  const paths = selectedPaths(runtime.session);
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const paths = selectedPaths(cur);
   if (paths.length === 0) return;
   runtime.clipboard.actions.set(mode, paths);
   runtime.queue.actions.succeed(
@@ -237,7 +257,8 @@ function toggleProperties(runtime: CommandRuntime) {
     return;
   }
 
-  const entry = visibleEntries(runtime.session.state).find((item) => item.path === current);
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const entry = visibleEntries(cur.state).find((item) => item.path === current);
   if (entry === undefined) return;
   runtime.ui.actions.showProperties(entry);
 }
@@ -255,7 +276,8 @@ function openSearch(runtime: CommandRuntime) {
 
 function closeSearch(runtime: CommandRuntime) {
   if (runtime.ui.state.mode !== "search") return;
-  runtime.session.actions.setQuery("");
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  cur.actions.setQuery("");
   runtime.ui.actions.closeSearch();
   runtime.onExitSearch?.();
 }

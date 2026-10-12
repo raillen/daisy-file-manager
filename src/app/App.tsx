@@ -1,12 +1,12 @@
 import { basename, dirname, join } from "node:path";
 
-import { SyntaxStyle } from "@opentui/core";
+import { SyntaxStyle, TextAttributes } from "@opentui/core";
 import { useRenderer, useTerminalDimensions } from "@opentui/solid";
 import { createEffect, createMemo, Show } from "solid-js";
 
 import { parseExCommand } from "../core/commands/exCommand";
 import type { Entry } from "../core/entries/directory";
-import { segmentsFor } from "../core/entries/path";
+import { segmentsFor, shortPath } from "../core/entries/path";
 import { extractArchive, isArchive } from "../core/operations/archive";
 import {
   createDirectory,
@@ -18,10 +18,10 @@ import {
 } from "../core/operations/operations";
 import { openExternally } from "../core/operations/system";
 import type { PreviewCache } from "../core/preview/cache";
+import { glyph } from "../core/theme/icons";
 import type { ClipboardStore, QueueStore } from "../state/operations";
-import { selectedPaths, trashSelection } from "../state/operations";
-import type { SessionStore } from "../state/session";
-import { visibleEntries } from "../state/session";
+import { selectedPaths } from "../state/operations";
+import { createSessionStore, type SessionState, type SessionStore, visibleEntries } from "../state/session";
 import type { UiStore } from "../state/ui";
 
 import { CommandLine } from "./CommandLine";
@@ -48,6 +48,7 @@ export type AppProps = {
   clipboard: ClipboardStore;
   queue: QueueStore;
   session: SessionStore;
+  secondarySession?: SessionStore;
   ui: UiStore;
   places: Place[];
   home: string;
@@ -55,24 +56,62 @@ export type AppProps = {
   freeSpace: number | undefined;
 };
 
+function fallbackSession(cwd: string): SessionState {
+  return {
+    cwd,
+    entries: [],
+    cursor: 0,
+    marked: [],
+    query: "",
+    showHidden: false,
+    view: "list",
+    sort: { field: "name", descending: false, directoriesFirst: true },
+    loading: false,
+    error: undefined,
+  };
+}
+
 export function App(props: AppProps) {
   const renderer = useRenderer();
   const dimensions = useTerminalDimensions();
   const syntaxStyle = createMemo(() => SyntaxStyle.create(renderer.nativeScene.resourceContext));
   const palette = createMemo(() => props.ui.palette());
-  const visible = createMemo(() => visibleEntries(props.session.state));
-  const segments = createMemo(() => segmentsFor(props.session.state.cwd, props.home));
+
+  const fallbackRight = createSessionStore(fallbackSession(props.session.state.cwd));
+  const rightSession = () => props.secondarySession ?? fallbackRight;
+  const activeSession = () =>
+    props.ui.state.splitPane && props.ui.state.activePane === "right" ? rightSession() : props.session;
+  const inactiveSession = () =>
+    props.ui.state.splitPane && props.ui.state.activePane === "right" ? props.session : rightSession();
+
+  createEffect(() => {
+    if (props.ui.state.splitPane) {
+      const r = rightSession();
+      if (r.state.entries.length === 0 && !r.state.loading) {
+        void r.actions.load(r.state.cwd || props.session.state.cwd);
+      }
+    }
+  });
+
+  const leftVisible = createMemo(() => visibleEntries(props.session.state));
+  const rightVisible = createMemo(() => visibleEntries(rightSession().state));
+  const activeVisible = createMemo(() =>
+    props.ui.state.splitPane && props.ui.state.activePane === "right" ? rightVisible() : leftVisible(),
+  );
+
+  const segments = createMemo(() => segmentsFor(activeSession().state.cwd, props.home));
   const gridColumns = createMemo(() => {
     const sidebar = props.ui.state.sidebarVisible ? props.ui.state.sidebarWidth : 0;
     const preview = props.ui.state.previewVisible ? props.ui.state.previewWidth : 0;
     const usable = dimensions().width - sidebar - preview;
     return Math.max(1, Math.floor(usable / 18));
   });
-  const currentEntry = createMemo(() => visible()[props.session.state.cursor]);
+
+  const currentEntry = createMemo(() => activeVisible()[activeSession().state.cursor]);
   const markedSize = createMemo(() => {
-    const marked = props.session.state.marked;
+    const marked = activeSession().state.marked;
     if (marked.length === 0) return undefined;
-    return visible()
+    return activeVisible()
       .filter((entry) => marked.includes(entry.path))
       .reduce((total, entry) => total + (entry.size ?? 0), 0);
   });
@@ -84,9 +123,22 @@ export function App(props: AppProps) {
   const hints = createMemo(() => [
     { key: "j/k", label: props.ui.translate("navigation.back") },
     { key: "v", label: props.ui.translate("view.list") },
+    { key: "F3", label: props.ui.translate("view.splitPane") },
+    { key: "Tab", label: `${props.ui.translate("view.leftPane")}/${props.ui.translate("view.rightPane")}` },
     { key: ":", label: props.ui.translate("modes.command") },
     { key: "?", label: props.ui.translate("help.title") },
   ]);
+
+  function handleSplitDrag(x: number) {
+    const sidebarW = props.ui.state.sidebarVisible ? props.ui.state.sidebarWidth : 0;
+    const previewW = props.ui.state.previewVisible ? props.ui.state.previewWidth : 0;
+    const availableW = dimensions().width - sidebarW - previewW;
+    if (availableW > 20) {
+      const relX = x - sidebarW;
+      const ratio = Math.max(0.2, Math.min(0.8, relX / availableW));
+      props.ui.actions.setSplitRatio(ratio);
+    }
+  }
 
   async function handleInputConfirm(value: string) {
     const dialog = props.ui.state.inputDialog;
@@ -95,17 +147,17 @@ export function App(props: AppProps) {
 
     try {
       if (dialog.kind === "mkdir") {
-        await createDirectory(join(props.session.state.cwd, value));
+        await createDirectory(join(activeSession().state.cwd, value));
         props.queue.actions.succeed(props.ui.translate("operation.mkdir.done"));
       } else if (dialog.kind === "rename" && dialog.targetPath !== undefined) {
         const dest = join(dirname(dialog.targetPath), value);
         await renameEntry(dialog.targetPath, dest);
         props.queue.actions.succeed(props.ui.translate("operation.rename.done"));
       } else if (dialog.kind === "newFile") {
-        await createEmptyFile(join(props.session.state.cwd, value));
+        await createEmptyFile(join(activeSession().state.cwd, value));
         props.queue.actions.succeed(props.ui.translate("operation.newFile.done"));
       }
-      await props.session.actions.load(props.session.state.cwd);
+      await activeSession().actions.load(activeSession().state.cwd);
     } catch {
       const failKey =
         dialog.kind === "mkdir"
@@ -139,39 +191,36 @@ export function App(props: AppProps) {
       if (dialog.mode === "move") {
         props.clipboard.actions.clear();
       }
-      props.session.actions.clearMarked();
       props.queue.actions.succeed(props.ui.translate(`operation.${dialog.mode}.done`));
-      await props.session.actions.load(props.session.state.cwd);
+      await activeSession().actions.load(activeSession().state.cwd);
+      if (props.ui.state.splitPane) {
+        await inactiveSession().actions.load(inactiveSession().state.cwd);
+      }
     } catch (err) {
       if (err instanceof TargetExists) {
-        props.queue.actions.fail(
-          props.ui.translate("dialog.confirm.overwrite.message", {
-            name: err.target.split("/").pop() ?? err.target,
-            directory: destPath,
-          }),
-        );
+        props.queue.actions.fail(props.ui.translate("operation.conflict.title"));
       } else {
-        props.queue.actions.fail(err instanceof Error ? err.message : String(err));
+        props.queue.actions.fail(props.ui.translate(`operation.${dialog.mode}.failed`));
       }
-      await props.session.actions.load(props.session.state.cwd);
     }
   }
 
-  async function handleOpen(entry: Entry) {
+  async function handleOpen(entry: Entry, targetSession?: SessionStore) {
+    const sess = targetSession ?? activeSession();
     if (entry.isDirectory) {
-      await props.session.actions.enter();
+      await sess.actions.load(entry.path);
       return;
     }
+
     if (isArchive(entry.name)) {
-      const name = basename(entry.path);
-      props.queue.actions.succeed(props.ui.translate("operation.extract.started", { name }));
+      props.queue.actions.succeed(props.ui.translate("operation.extract.started", { name: entry.name }));
       const result = await extractArchive(entry.path);
       if (result.success) {
         props.queue.actions.succeed(props.ui.translate("operation.extract.done"));
       } else {
-        props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name }));
+        props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name: entry.name }));
       }
-      await props.session.actions.load(props.session.state.cwd);
+      await sess.actions.load(sess.state.cwd);
       return;
     }
 
@@ -191,77 +240,49 @@ export function App(props: AppProps) {
     openExternally(entry.path);
   }
 
-  async function handleExCommand(input: string) {
+  async function handleCommandLine(command: string) {
     props.ui.actions.closeCommandLine();
-    const parsed = parseExCommand(input);
+    const parsed = parseExCommand(command);
 
     switch (parsed.kind) {
       case "cd": {
-        const dest = parsed.args[0] ?? props.home;
-        await props.session.actions.load(dest);
-        break;
-      }
-      case "mkdir": {
-        const name = parsed.args[0];
-        if (name !== undefined) {
-          try {
-            await createDirectory(join(props.session.state.cwd, name));
-            props.queue.actions.succeed(props.ui.translate("operation.mkdir.done"));
-            await props.session.actions.load(props.session.state.cwd);
-          } catch {
-            props.queue.actions.fail(props.ui.translate("operation.mkdir.failed"));
-          }
-        }
+        const target = parsed.args[0] ?? props.home;
+        await activeSession().actions.load(target);
         break;
       }
       case "touch": {
         const name = parsed.args[0];
-        if (name !== undefined) {
-          try {
-            await createEmptyFile(join(props.session.state.cwd, name));
-            props.queue.actions.succeed(props.ui.translate("operation.newFile.done"));
-            await props.session.actions.load(props.session.state.cwd);
-          } catch {
-            props.queue.actions.fail(props.ui.translate("operation.newFile.failed"));
-          }
+        if (name) {
+          await createEmptyFile(join(activeSession().state.cwd, name));
+          await activeSession().actions.load(activeSession().state.cwd);
         }
         break;
       }
-      case "trash": {
-        const paths = selectedPaths(props.session);
-        await trashSelection(
-          {
-            session: props.session,
-            clipboard: props.clipboard,
-            queue: props.queue,
-            translate: props.ui.translate,
-            reload: () => props.session.actions.load(props.session.state.cwd),
-          },
-          paths,
-        );
+      case "mkdir": {
+        const name = parsed.args[0];
+        if (name) {
+          await createDirectory(join(activeSession().state.cwd, name));
+          await activeSession().actions.load(activeSession().state.cwd);
+        }
         break;
       }
       case "theme": {
         props.ui.actions.toggleTheme();
         break;
       }
-      case "help": {
-        props.ui.actions.toggleHelp();
-        break;
-      }
       case "sort": {
         const field = parsed.args[0];
         if (field === "name" || field === "size" || field === "modified") {
-          props.session.actions.setSort(field);
+          activeSession().actions.setSort(field);
         }
         break;
       }
       case "view": {
-        props.session.actions.toggleView();
+        activeSession().actions.toggleView();
         break;
       }
       case "extract": {
-        const paths = selectedPaths(props.session);
+        const paths = selectedPaths(activeSession());
         const archives = paths.filter((path) => isArchive(path));
         if (archives.length === 0) {
           props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name: "" }));
@@ -277,11 +298,11 @@ export function App(props: AppProps) {
             props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name }));
           }
         }
-        await props.session.actions.load(props.session.state.cwd);
+        await activeSession().actions.load(activeSession().state.cwd);
         break;
       }
       case "copy": {
-        const selected = selectedPaths(props.session);
+        const selected = selectedPaths(activeSession());
         const paths = selected.length > 0 ? selected : props.clipboard.state.paths;
         if (paths.length > 0) {
           props.ui.actions.openTargetFolderDialog("copy", paths);
@@ -289,7 +310,7 @@ export function App(props: AppProps) {
         break;
       }
       case "move": {
-        const selected = selectedPaths(props.session);
+        const selected = selectedPaths(activeSession());
         const paths = selected.length > 0 ? selected : props.clipboard.state.paths;
         if (paths.length > 0) {
           props.ui.actions.openTargetFolderDialog("move", paths);
@@ -315,9 +336,9 @@ export function App(props: AppProps) {
         palette={palette()}
         segments={segments()}
         separator={props.separator}
-        query={props.session.state.query}
+        query={activeSession().state.query}
         hint={props.ui.translate("search.placeholder")}
-        onNavigate={(path) => void props.session.actions.load(path)}
+        onNavigate={(path) => void activeSession().actions.load(path)}
       />
 
       <box flexDirection="row" flexGrow={1}>
@@ -327,67 +348,244 @@ export function App(props: AppProps) {
             iconSet={props.ui.state.iconSet}
             t={props.ui.translate}
             places={props.places}
-            activePath={props.session.state.cwd}
+            activePath={activeSession().state.cwd}
             width={props.ui.state.sidebarWidth}
-            onNavigate={(path) => void props.session.actions.load(path)}
+            onNavigate={(path) => void activeSession().actions.load(path)}
           />
           <Resizer palette={palette()} onDrag={(x) => props.ui.actions.setSidebarWidth(x)} />
         </Show>
 
         <Show
-          when={props.session.state.view === "grid"}
+          when={props.ui.state.splitPane}
           fallback={
-            <FileList
-              palette={palette()}
-              entries={visible()}
-              cursor={props.session.state.cursor}
-              marked={props.session.state.marked}
-              clipboard={props.clipboard.state}
-              iconSet={props.ui.state.iconSet}
-              locale={props.ui.state.locale}
-              t={props.ui.translate}
-              onSelect={(index) => props.session.actions.cursorTo(index)}
-              onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
-              onToggleMark={(path) => props.session.actions.toggleMarked(path)}
-              onOpen={(entry) => void handleOpen(entry)}
-              onMoveCursor={(delta) => props.session.actions.moveCursor(delta)}
-            />
+            <Show
+              when={props.session.state.view === "grid"}
+              fallback={
+                <FileList
+                  palette={palette()}
+                  entries={leftVisible()}
+                  cursor={props.session.state.cursor}
+                  marked={props.session.state.marked}
+                  clipboard={props.clipboard.state}
+                  iconSet={props.ui.state.iconSet}
+                  locale={props.ui.state.locale}
+                  t={props.ui.translate}
+                  isActive={true}
+                  onSelect={(index) => props.session.actions.cursorTo(index)}
+                  onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
+                  onToggleMark={(path) => props.session.actions.toggleMarked(path)}
+                  onOpen={(entry) => void handleOpen(entry, props.session)}
+                  onMoveCursor={(delta) => props.session.actions.moveCursor(delta)}
+                />
+              }
+            >
+              <FileGrid
+                palette={palette()}
+                entries={leftVisible()}
+                cursor={props.session.state.cursor}
+                marked={props.session.state.marked}
+                clipboard={props.clipboard.state}
+                iconSet={props.ui.state.iconSet}
+                columns={gridColumns()}
+                isActive={true}
+                onSelect={(index) => props.session.actions.cursorTo(index)}
+                onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
+                onToggleMark={(path) => props.session.actions.toggleMarked(path)}
+                onOpen={(entry) => void handleOpen(entry, props.session)}
+              />
+            </Show>
           }
         >
-          <FileGrid
-            palette={palette()}
-            entries={visible()}
-            cursor={props.session.state.cursor}
-            marked={props.session.state.marked}
-            clipboard={props.clipboard.state}
-            iconSet={props.ui.state.iconSet}
-            columns={gridColumns()}
-            onSelect={(index) => props.session.actions.cursorTo(index)}
-            onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
-            onToggleMark={(path) => props.session.actions.toggleMarked(path)}
-            onOpen={(entry) => void handleOpen(entry)}
-          />
-        </Show>
+          {/* Dual Pane Mode: Left Pane */}
+          <box
+            flexDirection="column"
+            width={`${Math.round((props.ui.state.splitRatio ?? 0.5) * 100)}%`}
+            flexGrow={1}
+            border
+            borderColor={props.ui.state.activePane === "left" ? palette()["border.focus"] : palette()["border.default"]}
+            onMouseDown={() => props.ui.actions.setActivePane("left")}
+          >
+            <box
+              flexDirection="row"
+              justifyContent="space-between"
+              height={1}
+              paddingLeft={1}
+              paddingRight={1}
+              backgroundColor={props.ui.state.activePane === "left" ? palette()["bg.muted"] : palette()["bg.inset"]}
+              onMouseDown={() => props.ui.actions.setActivePane("left")}
+            >
+              <box flexDirection="row" gap={1}>
+                <text fg={palette()["fg.directory"]}>{glyph("file.directory", props.ui.state.iconSet)}</text>
+                <text
+                  fg={props.ui.state.activePane === "left" ? palette()["fg.accent"] : palette()["fg.default"]}
+                  attributes={props.ui.state.activePane === "left" ? TextAttributes.BOLD : TextAttributes.NONE}
+                >
+                  {shortPath(props.session.state.cwd, props.home)}
+                </text>
+              </box>
+              <text fg={props.ui.state.activePane === "left" ? palette()["fg.accent"] : palette()["fg.muted"]}>
+                {props.ui.state.activePane === "left"
+                  ? `● ${props.ui.translate("view.activePane")}`
+                  : props.ui.translate("view.leftPane")}
+              </text>
+            </box>
 
-        <Show when={props.ui.state.splitPane}>
-          <box width={1} backgroundColor={palette()["bg.default"]}>
-            <text fg={palette()["fg.muted"]}>{"│"}</text>
+            <Show
+              when={props.session.state.view === "grid"}
+              fallback={
+                <FileList
+                  palette={palette()}
+                  entries={leftVisible()}
+                  cursor={props.session.state.cursor}
+                  marked={props.session.state.marked}
+                  clipboard={props.clipboard.state}
+                  iconSet={props.ui.state.iconSet}
+                  locale={props.ui.state.locale}
+                  t={props.ui.translate}
+                  isActive={props.ui.state.activePane === "left"}
+                  onSelect={(index) => {
+                    props.ui.actions.setActivePane("left");
+                    props.session.actions.cursorTo(index);
+                  }}
+                  onSelectRange={(from, to) => {
+                    props.ui.actions.setActivePane("left");
+                    props.session.actions.selectRange(from, to);
+                  }}
+                  onToggleMark={(path) => {
+                    props.ui.actions.setActivePane("left");
+                    props.session.actions.toggleMarked(path);
+                  }}
+                  onOpen={(entry) => void handleOpen(entry, props.session)}
+                  onMoveCursor={(delta) => {
+                    props.ui.actions.setActivePane("left");
+                    props.session.actions.moveCursor(delta);
+                  }}
+                />
+              }
+            >
+              <FileGrid
+                palette={palette()}
+                entries={leftVisible()}
+                cursor={props.session.state.cursor}
+                marked={props.session.state.marked}
+                clipboard={props.clipboard.state}
+                iconSet={props.ui.state.iconSet}
+                columns={Math.max(1, Math.floor(gridColumns() * (props.ui.state.splitRatio ?? 0.5)))}
+                isActive={props.ui.state.activePane === "left"}
+                onSelect={(index) => {
+                  props.ui.actions.setActivePane("left");
+                  props.session.actions.cursorTo(index);
+                }}
+                onSelectRange={(from, to) => {
+                  props.ui.actions.setActivePane("left");
+                  props.session.actions.selectRange(from, to);
+                }}
+                onToggleMark={(path) => {
+                  props.ui.actions.setActivePane("left");
+                  props.session.actions.toggleMarked(path);
+                }}
+                onOpen={(entry) => void handleOpen(entry, props.session)}
+              />
+            </Show>
           </box>
-          <FileList
-            palette={palette()}
-            entries={visible()}
-            cursor={props.session.state.cursor}
-            marked={props.session.state.marked}
-            clipboard={props.clipboard.state}
-            iconSet={props.ui.state.iconSet}
-            locale={props.ui.state.locale}
-            t={props.ui.translate}
-            onSelect={(index) => props.session.actions.cursorTo(index)}
-            onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
-            onToggleMark={(path) => props.session.actions.toggleMarked(path)}
-            onOpen={(entry) => void handleOpen(entry)}
-            onMoveCursor={(delta) => props.session.actions.moveCursor(delta)}
-          />
+
+          {/* Resizer between panes */}
+          <Resizer palette={palette()} onDrag={handleSplitDrag} />
+
+          {/* Dual Pane Mode: Right Pane */}
+          <box
+            flexDirection="column"
+            width={`${100 - Math.round((props.ui.state.splitRatio ?? 0.5) * 100)}%`}
+            flexGrow={1}
+            border
+            borderColor={
+              props.ui.state.activePane === "right" ? palette()["border.focus"] : palette()["border.default"]
+            }
+            onMouseDown={() => props.ui.actions.setActivePane("right")}
+          >
+            <box
+              flexDirection="row"
+              justifyContent="space-between"
+              height={1}
+              paddingLeft={1}
+              paddingRight={1}
+              backgroundColor={props.ui.state.activePane === "right" ? palette()["bg.muted"] : palette()["bg.inset"]}
+              onMouseDown={() => props.ui.actions.setActivePane("right")}
+            >
+              <box flexDirection="row" gap={1}>
+                <text fg={palette()["fg.directory"]}>{glyph("file.directory", props.ui.state.iconSet)}</text>
+                <text
+                  fg={props.ui.state.activePane === "right" ? palette()["fg.accent"] : palette()["fg.default"]}
+                  attributes={props.ui.state.activePane === "right" ? TextAttributes.BOLD : TextAttributes.NONE}
+                >
+                  {shortPath(rightSession().state.cwd, props.home)}
+                </text>
+              </box>
+              <text fg={props.ui.state.activePane === "right" ? palette()["fg.accent"] : palette()["fg.muted"]}>
+                {props.ui.state.activePane === "right"
+                  ? `● ${props.ui.translate("view.activePane")}`
+                  : props.ui.translate("view.rightPane")}
+              </text>
+            </box>
+
+            <Show
+              when={rightSession().state.view === "grid"}
+              fallback={
+                <FileList
+                  palette={palette()}
+                  entries={rightVisible()}
+                  cursor={rightSession().state.cursor}
+                  marked={rightSession().state.marked}
+                  clipboard={props.clipboard.state}
+                  iconSet={props.ui.state.iconSet}
+                  locale={props.ui.state.locale}
+                  t={props.ui.translate}
+                  isActive={props.ui.state.activePane === "right"}
+                  onSelect={(index) => {
+                    props.ui.actions.setActivePane("right");
+                    rightSession().actions.cursorTo(index);
+                  }}
+                  onSelectRange={(from, to) => {
+                    props.ui.actions.setActivePane("right");
+                    rightSession().actions.selectRange(from, to);
+                  }}
+                  onToggleMark={(path) => {
+                    props.ui.actions.setActivePane("right");
+                    rightSession().actions.toggleMarked(path);
+                  }}
+                  onOpen={(entry) => void handleOpen(entry, rightSession())}
+                  onMoveCursor={(delta) => {
+                    props.ui.actions.setActivePane("right");
+                    rightSession().actions.moveCursor(delta);
+                  }}
+                />
+              }
+            >
+              <FileGrid
+                palette={palette()}
+                entries={rightVisible()}
+                cursor={rightSession().state.cursor}
+                marked={rightSession().state.marked}
+                clipboard={props.clipboard.state}
+                iconSet={props.ui.state.iconSet}
+                columns={Math.max(1, Math.floor(gridColumns() * (1 - (props.ui.state.splitRatio ?? 0.5))))}
+                isActive={props.ui.state.activePane === "right"}
+                onSelect={(index) => {
+                  props.ui.actions.setActivePane("right");
+                  rightSession().actions.cursorTo(index);
+                }}
+                onSelectRange={(from, to) => {
+                  props.ui.actions.setActivePane("right");
+                  rightSession().actions.selectRange(from, to);
+                }}
+                onToggleMark={(path) => {
+                  props.ui.actions.setActivePane("right");
+                  rightSession().actions.toggleMarked(path);
+                }}
+                onOpen={(entry) => void handleOpen(entry, rightSession())}
+              />
+            </Show>
+          </box>
         </Show>
 
         <Show when={props.ui.state.previewVisible}>
@@ -409,7 +607,7 @@ export function App(props: AppProps) {
           palette={palette()}
           label={props.ui.translate("modes.search")}
           placeholder={props.ui.translate("search.placeholder")}
-          onQuery={(value) => props.session.actions.setQuery(value)}
+          onQuery={(q: string) => activeSession().actions.setQuery(q)}
           onSubmit={() => props.ui.actions.closeSearch()}
         />
       </Show>
@@ -417,16 +615,16 @@ export function App(props: AppProps) {
       <Show when={props.ui.state.mode === "command"}>
         <CommandLine
           palette={palette()}
-          prompt={props.ui.translate("commandLine.prompt")}
-          placeholder={props.ui.translate("commandLine.hint")}
-          onExecute={(cmd) => void handleExCommand(cmd)}
+          prompt=":"
+          placeholder={props.ui.translate("commandLine.placeholder")}
+          onExecute={(command: string) => void handleCommandLine(command)}
           onCancel={() => props.ui.actions.closeCommandLine()}
         />
       </Show>
 
       <HelpOverlay
-        open={props.ui.state.helpOpen}
         palette={palette()}
+        open={props.ui.state.helpOpen}
         t={props.ui.translate}
         entries={helpEntries(props.keymapOverrides)}
       />
@@ -514,7 +712,7 @@ export function App(props: AppProps) {
               iconSet={props.ui.state.iconSet}
               mode={dialog.mode}
               sources={dialog.sources}
-              initialDirectory={props.session.state.cwd}
+              initialDirectory={props.ui.state.splitPane ? inactiveSession().state.cwd : activeSession().state.cwd}
               places={props.places}
               t={props.ui.translate}
               onConfirm={(dest) => void handleTargetFolderConfirm(dest)}
@@ -533,13 +731,13 @@ export function App(props: AppProps) {
 
       <StatusBar
         palette={palette()}
-        total={props.session.state.entries.length}
-        visible={visible().length}
-        marked={props.session.state.marked.length}
+        total={activeSession().state.entries.length}
+        visible={activeVisible().length}
+        marked={activeSession().state.marked.length}
         selectedSize={markedSize()}
         freeSpace={props.freeSpace}
-        loading={props.session.state.loading}
-        message={props.session.state.error ?? props.queue.state.error ?? props.queue.state.message}
+        loading={activeSession().state.loading}
+        message={activeSession().state.error ?? props.queue.state.error ?? props.queue.state.message}
         t={props.ui.translate}
         hints={hints()}
       />

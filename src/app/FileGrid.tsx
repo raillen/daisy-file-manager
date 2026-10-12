@@ -15,6 +15,7 @@ export type FileGridProps = {
   clipboard?: ClipboardState;
   iconSet: IconSet;
   columns: number;
+  isActive?: boolean;
   onSelect?: (index: number) => void;
   onSelectRange?: (fromIndex: number, toIndex: number) => void;
   onToggleMark?: (path: string, index: number) => void;
@@ -25,15 +26,20 @@ export function FileGrid(props: FileGridProps) {
   let lastClick = { index: -1, time: 0 };
   const isMarked = (entry: Entry) => props.marked.includes(entry.path);
   const isCut = (entry: Entry) => props.clipboard?.mode === "cut" && props.clipboard.paths.includes(entry.path);
+  const isPaneActive = () => props.isActive !== false;
 
   const tileBackground = (entry: Entry, index: number) => {
-    if (index === props.cursor) return props.palette["bg.accent"];
+    if (index === props.cursor) {
+      return isPaneActive() ? props.palette["bg.accent"] : props.palette["bg.selectedRow"];
+    }
     if (isMarked(entry)) return props.palette["bg.accentMuted"];
     return undefined;
   };
 
   const labelColor = (entry: Entry, index: number) => {
-    if (index === props.cursor) return props.palette["fg.onEmphasis"];
+    if (index === props.cursor) {
+      return isPaneActive() ? props.palette["fg.onEmphasis"] : props.palette["fg.default"];
+    }
     if (isCut(entry)) return props.palette["fg.muted"];
     if (entry.isDirectory) return props.palette["fg.directory"];
     return props.palette["fg.default"];

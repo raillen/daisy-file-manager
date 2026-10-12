@@ -68,6 +68,8 @@ function initialUi(theme: ThemeName, locale: LocaleCode, iconSet: IconSet, split
     previewVisible: true,
     previewWidth: 40,
     splitPane,
+    activePane: "left",
+    splitRatio: 0.5,
     quit: false,
   };
 }
@@ -88,6 +90,7 @@ type RootProps = {
   clipboard: ClipboardStore;
   queue: QueueStore;
   session: ReturnType<typeof createSessionStore>;
+  secondarySession: ReturnType<typeof createSessionStore>;
   ui: ReturnType<typeof createUiStore>;
   places: Place[];
   home: string;
@@ -96,13 +99,18 @@ type RootProps = {
 };
 
 function CommandLayerApp(props: RootProps) {
+  const activeSession = () =>
+    props.ui.state.splitPane && props.ui.state.activePane === "right" ? props.secondarySession : props.session;
+
   useCommandLayer({
     session: props.session,
+    activeSession,
+    onSwitchPane: () => props.ui.actions.switchPane(),
     ui: props.ui,
     clipboard: props.clipboard,
     queue: props.queue,
     previewCache: props.previewCache,
-    currentEntryPath: () => visibleEntries(props.session.state)[props.session.state.cursor]?.path,
+    currentEntryPath: () => visibleEntries(activeSession().state)[activeSession().state.cursor]?.path,
     overrides: props.keymapOverrides,
     onQuit: () => props.ui.actions.quit(),
   });
@@ -114,6 +122,7 @@ function CommandLayerApp(props: RootProps) {
       clipboard={props.clipboard}
       queue={props.queue}
       session={props.session}
+      secondarySession={props.secondarySession}
       ui={props.ui}
       places={props.places}
       home={props.home}
@@ -131,6 +140,17 @@ function Root(props: RootProps) {
     const directory = props.session.state.cwd;
     const watcher = createDirectoryWatcher(() => {
       void props.session.actions.load(directory);
+    });
+
+    void watcher.watch(directory);
+    onCleanup(() => void watcher.close());
+  });
+
+  createEffect(() => {
+    if (!props.ui.state.splitPane) return;
+    const directory = props.secondarySession.state.cwd;
+    const watcher = createDirectoryWatcher(() => {
+      void props.secondarySession.actions.load(directory);
     });
 
     void watcher.watch(directory);
@@ -186,6 +206,7 @@ for (const warning of warnings) console.error(`[daisy] ${warning}`);
 
 const translators = translatorsFor();
 const session = createSessionStore(initialSession(startDirectory));
+const secondarySession = createSessionStore(initialSession(startDirectory));
 const ui = createUiStore({
   initial: initialUi(config.theme, config.locale, config.iconSet, config.splitPane),
   translators,
@@ -197,6 +218,7 @@ const clipboard = createClipboardStore();
 const queue = createQueueStore();
 
 await session.actions.load(startDirectory);
+await secondarySession.actions.load(startDirectory);
 const freeSpace = await freeSpaceOf(startDirectory);
 
 await render(
@@ -206,6 +228,7 @@ await render(
       clipboard={clipboard}
       queue={queue}
       session={session}
+      secondarySession={secondarySession}
       ui={ui}
       places={places}
       home={home}

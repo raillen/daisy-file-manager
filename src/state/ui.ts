@@ -40,6 +40,8 @@ export type UiState = {
   previewVisible: boolean;
   previewWidth: number;
   splitPane: boolean;
+  activePane: "left" | "right";
+  splitRatio: number;
   quit: boolean;
 };
 
@@ -64,6 +66,9 @@ export type UiActions = {
   toggleSidebar: () => void;
   togglePreview: () => void;
   toggleSplitPane: () => void;
+  switchPane: () => void;
+  setActivePane: (pane: "left" | "right") => void;
+  setSplitRatio: (ratio: number) => void;
   setSidebarWidth: (width: number) => void;
   setPreviewWidth: (width: number) => void;
   adjustSidebarWidth: (delta: number) => void;
@@ -149,6 +154,18 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     toggleSplitPane() {
       setState("splitPane", (enabled) => !enabled);
+      if (!state.splitPane) {
+        setState("activePane", "left");
+      }
+    },
+    switchPane() {
+      setState("activePane", (pane) => (pane === "left" ? "right" : "left"));
+    },
+    setActivePane(pane) {
+      setState("activePane", pane);
+    },
+    setSplitRatio(ratio) {
+      setState("splitRatio", Math.max(0.2, Math.min(0.8, ratio)));
     },
     setSidebarWidth(width) {
       setState("sidebarWidth", Math.max(12, Math.min(width, 60)));

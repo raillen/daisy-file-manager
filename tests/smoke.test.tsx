@@ -48,6 +48,8 @@ function testStores(cwd: string) {
       previewVisible: true,
       previewWidth: 40,
       splitPane: false,
+      activePane: "left",
+      splitRatio: 0.5,
       quit: false,
     } as UiState,
     translators: { "pt-BR": createTranslator("pt-BR"), "en-US": createTranslator("en-US") },
@@ -477,6 +479,111 @@ test("App renders PdfViewerDialog when viewerModal is pdf", async () => {
   await setup.renderOnce();
   const fitFrame = setup.captureCharFrame();
   expect(fitFrame).toContain("Ajustado");
+
+  await setup.dispose();
+});
+
+test("App renders dual-pane split and switches active pane with Tab", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  const secondarySession = createSessionStore(emptySession("/tmp"));
+  await session.actions.load(cwd);
+  await secondarySession.actions.load("/tmp");
+
+  ui.actions.toggleSplitPane();
+  expect(ui.state.splitPane).toBe(true);
+  expect(ui.state.activePane).toBe("left");
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  const activeSession = () => (ui.state.splitPane && ui.state.activePane === "right" ? secondarySession : session);
+
+  function RootWrapper() {
+    const renderer = useRenderer();
+    const keymap = createDefaultOpenTuiKeymap(renderer);
+
+    function Inner() {
+      useCommandLayer({
+        session,
+        activeSession,
+        onSwitchPane: () => ui.actions.switchPane(),
+        ui,
+        clipboard,
+        queue,
+        currentEntryPath: () => undefined,
+        onQuit: () => {},
+      });
+      return (
+        <App
+          keymapOverrides={{}}
+          previewCache={previewCache}
+          clipboard={clipboard}
+          queue={queue}
+          session={session}
+          secondarySession={secondarySession}
+          ui={ui}
+          places={[]}
+          home={cwd}
+          separator="/"
+          freeSpace={undefined}
+        />
+      );
+    }
+
+    return (
+      <KeymapProvider keymap={keymap}>
+        <Inner />
+      </KeymapProvider>
+    );
+  }
+
+  const setup = await testRender(() => <RootWrapper />, { width: 140, height: 35 });
+  await setup.renderOnce();
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain(ui.translate("view.activePane"));
+  expect(frame).toContain(ui.translate("view.rightPane"));
+
+  // Press 'tab' to switch active pane to right
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "tab",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "\t",
+      raw: "\t",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+  expect(ui.state.activePane).toBe("right");
+  const rightActiveFrame = setup.captureCharFrame();
+  expect(rightActiveFrame).toContain(ui.translate("view.leftPane"));
+
+  // Press 'tab' again to switch active pane back to left
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "tab",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "\t",
+      raw: "\t",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+  expect(ui.state.activePane).toBe("left");
 
   await setup.dispose();
 });

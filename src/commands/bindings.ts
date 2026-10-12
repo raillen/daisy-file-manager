@@ -28,6 +28,7 @@ export type CommandName =
   | "panel.sidebarInc"
   | "panel.previewDec"
   | "panel.previewInc"
+  | "panel.switchPane"
   | "ui.commandLine"
   | "ui.search"
   | "ui.escape"
@@ -86,6 +87,7 @@ export const defaultBindings: readonly BindingSpec[] = [
   { command: "view.toggle", keys: ["v"] },
   { command: "view.hidden", keys: ["ctrl+h"] },
   { command: "view.splitPane", keys: ["F3"] },
+  { command: "panel.switchPane", keys: ["tab"] },
   { command: "view.sidebar", keys: ["ctrl+b"] },
   { command: "view.preview", keys: ["ctrl+p"] },
   { command: "view.help", keys: ["?"] },

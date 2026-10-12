@@ -18,6 +18,7 @@ export type FileListProps = {
   iconSet: "nerd" | "unicode";
   locale: string;
   t: Translator;
+  isActive?: boolean;
   onSelect?: (index: number) => void;
   onSelectRange?: (fromIndex: number, toIndex: number) => void;
   onToggleMark?: (path: string, index: number) => void;
@@ -29,15 +30,20 @@ export function FileList(props: FileListProps) {
   let lastClick = { index: -1, time: 0 };
   const isMarked = (entry: Entry) => props.marked.includes(entry.path);
   const isCut = (entry: Entry) => props.clipboard?.mode === "cut" && props.clipboard.paths.includes(entry.path);
+  const isPaneActive = () => props.isActive !== false;
 
   const nameColor = (entry: Entry, index: number) => {
-    if (index === props.cursor) return props.palette["bg.accent"];
+    if (index === props.cursor) {
+      return isPaneActive() ? props.palette["bg.accent"] : props.palette["bg.selectedRow"];
+    }
     if (isMarked(entry)) return props.palette["bg.accentMuted"];
     return undefined;
   };
 
   const textColor = (entry: Entry, index: number) => {
-    if (index === props.cursor) return props.palette["fg.onEmphasis"];
+    if (index === props.cursor) {
+      return isPaneActive() ? props.palette["fg.onEmphasis"] : props.palette["fg.default"];
+    }
     if (isCut(entry)) return props.palette["fg.muted"];
     if (entry.isDirectory) return props.palette["fg.directory"];
     if (entry.kind === "executable") return props.palette["fg.executable"];
@@ -117,7 +123,15 @@ export function FileList(props: FileListProps) {
               </box>
 
               <box width={18} alignItems="flex-end" paddingLeft={1}>
-                <text fg={index() === props.cursor ? props.palette["fg.onEmphasis"] : props.palette["fg.muted"]}>
+                <text
+                  fg={
+                    index() === props.cursor
+                      ? isPaneActive()
+                        ? props.palette["fg.onEmphasis"]
+                        : props.palette["fg.default"]
+                      : props.palette["fg.muted"]
+                  }
+                >
                   {formatDate(entry.modifiedMs, props.locale)}
                 </text>
               </box>
