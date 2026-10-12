@@ -1,0 +1,226 @@
+{
+  "locale": "en-US",
+  "name": "English (United States)",
+  "app": {
+    "title": "daisy",
+    "tagline": "Terminal file manager",
+    "binary": "daisy"
+  },
+  "places": {
+    "title": "Places",
+    "home": "Home",
+    "desktop": "Desktop",
+    "documents": "Documents",
+    "downloads": "Downloads",
+    "pictures": "Pictures",
+    "music": "Music",
+    "videos": "Videos",
+    "trash": "Trash"
+  },
+  "bookmarks": {
+    "title": "Bookmarks",
+    "empty": "No bookmarks",
+    "hint": "Press b to bookmark the current folder"
+  },
+  "drives": {
+    "title": "Volumes",
+    "empty": "No mounted volumes",
+    "unmounted": "Not mounted"
+  },
+  "navigation": {
+    "back": "Back",
+    "forward": "Forward",
+    "up": "Go to parent",
+    "breadcrumb": "Current path",
+    "parentDirectory": "Parent folder"
+  },
+  "list": {
+    "empty": "Empty folder",
+    "noMatch": "No item matches the filter",
+    "itemCount": { "one": "{count} item", "other": "{count} items" },
+    "selectionCount": "{count} selected",
+    "hiddenShown": "Showing hidden files",
+    "hiddenHidden": "Hiding hidden files",
+    "truncated": "Showing {shown} of {total} items — refine the filter",
+    "columns": {
+      "name": "Name",
+      "size": "Size",
+      "modified": "Modified",
+      "kind": "Type",
+      "permissions": "Permissions"
+    }
+  },
+  "status": {
+    "loading": "Loading…",
+    "items": "{count} items",
+    "selected": "{count} selected",
+    "freeSpace": "{size} free",
+    "trashSuffix": "in Trash",
+    "markSuffix": "marked"
+  },
+  "preview": {
+    "title": "Preview",
+    "empty": "Nothing to preview",
+    "unsupported": "Preview unavailable for {kind}",
+    "tooLarge": "File too large to preview ({size})",
+    "directory": {
+      "summary": "{count} items · {folders} folders · {files} files",
+      "totalSize": "Total size: {size}"
+    },
+    "archive": {
+      "summary": "{count} compressed entries",
+      "encrypted": "Password-protected archive"
+    },
+    "binary": {
+      "summary": "Binary file",
+      "hexdump": "First bytes"
+    },
+    "loadFailed": "Failed to load the preview"
+  },
+  "search": {
+    "placeholder": "Filter items",
+    "noResults": "No results",
+    "recursive": "Recursive search",
+    "recursiveHint": "Press f to search inside subfolders"
+  },
+  "palette": {
+    "title": "Commands",
+    "placeholder": "Search command",
+    "empty": "No command found",
+    "hint": "Ctrl+Shift+P"
+  },
+  "commandLine": {
+    "prompt": ":",
+    "hint": "Commands: :cd :mkdir :touch :mv :cp :rm",
+    "unknownCommand": "Unknown command: {name}",
+    "usage": "Usage: {usage}"
+  },
+  "help": {
+    "title": "Help",
+    "navigation": "Navigation",
+    "files": "Files",
+    "view": "View",
+    "tabs": "Tabs and panes",
+    "pressClose": "Press ? again to close"
+  },
+  "dialog": {
+    "confirm": {
+      "title": "Confirm",
+      "deleteTitle": "Move to Trash",
+      "deleteMessage": { "one": "Move {name} to Trash?", "other": "Move {count} items to Trash?" },
+      "overwrite": {
+        "title": "Already exists",
+        "message": "{name} already exists in {directory}.",
+        "overwrite": "Overwrite",
+        "rename": "Rename",
+        "skip": "Skip"
+      },
+      "yes": "Confirm",
+      "no": "Cancel"
+    },
+    "properties": {
+      "title": "Properties",
+      "name": "Name",
+      "path": "Path",
+      "kind": "Type",
+      "size": "Size",
+      "modified": "Modified",
+      "accessed": "Accessed",
+      "permissions": "Permissions",
+      "owner": "Owner",
+      "group": "Group",
+      "links": "Links",
+      "items": "Items"
+    },
+    "rename": {
+      "title": "Rename",
+      "label": "New name",
+      "exists": "An item with that name already exists",
+      "invalid": "Invalid name"
+    },
+    "renameBulk": {
+      "title": "Bulk rename",
+      "hint": "One name per line; use #n to number",
+      "invalid": "Line {line} is invalid: {value}"
+    },
+    "newFolder": {
+      "title": "New folder",
+      "label": "Folder name",
+      "exists": "An item with that name already exists"
+    },
+    "newFile": {
+      "title": "New file",
+      "label": "File name"
+    },
+    "progress": {
+      "title": "Operation in progress",
+      "item": "{current} of {total} · {path}",
+      "cancel": "Cancel",
+      "running": "Running…",
+      "waiting": "Queued"
+    }
+  },
+  "operation": {
+    "copy": {
+      "started": "Copying {count} items…",
+      "done": "Copy finished",
+      "failed": "Failed to copy {name}"
+    },
+    "move": {
+      "started": "Moving {count} items…",
+      "done": "Move finished",
+      "failed": "Failed to move {name}"
+    },
+    "delete": {
+      "started": "Sending {count} items to Trash",
+      "done": "Items moved to Trash",
+      "failed": "Failed to remove {name}"
+    },
+    "mkdir": {
+      "done": "Folder created",
+      "failed": "Failed to create the folder"
+    },
+    "newFile": {
+      "done": "File created",
+      "failed": "Failed to create the file"
+    },
+    "rename": {
+      "done": "Item renamed",
+      "failed": "Failed to rename the item"
+    },
+    "open": {
+      "failed": "Failed to open {name}"
+    }
+  },
+  "modes": {
+    "normal": "NORMAL",
+    "visual": "VISUAL",
+    "search": "SEARCH",
+    "rename": "RENAME",
+    "command": "COMMAND"
+  },
+  "view": {
+    "list": "List",
+    "grid": "Grid",
+    "preview": "Preview",
+    "sidebar": "Sidebar",
+    "splitPane": "Split pane"
+  },
+  "error": {
+    "title": "Error",
+    "permissionDenied": "Permission denied for {name}",
+    "notFound": "{name} does not exist",
+    "notADirectory": "{name} is not a folder",
+    "busy": "Wait for the current operation to finish",
+    "unknown": "Unexpected error: {message}",
+    "dismiss": "Dismiss"
+  },
+  "units": {
+    "bytes": "B",
+    "kilobytes": "KB",
+    "megabytes": "MB",
+    "gigabytes": "GB",
+    "terabytes": "TB",
+    "unknown": "?"
+  }
+}

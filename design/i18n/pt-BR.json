@@ -1,0 +1,226 @@
+{
+  "locale": "pt-BR",
+  "name": "Português (Brasil)",
+  "app": {
+    "title": "daisy",
+    "tagline": "Gerenciador de arquivos no terminal",
+    "binary": "daisy"
+  },
+  "places": {
+    "title": "Lugares",
+    "home": "Pessoal",
+    "desktop": "Área de trabalho",
+    "documents": "Documentos",
+    "downloads": "Downloads",
+    "pictures": "Imagens",
+    "music": "Música",
+    "videos": "Vídeos",
+    "trash": "Lixeira"
+  },
+  "bookmarks": {
+    "title": "Marcadores",
+    "empty": "Nenhum marcador",
+    "hint": "Pressione b para marcar a pasta atual"
+  },
+  "drives": {
+    "title": "Volumes",
+    "empty": "Nenhum volume montado",
+    "unmounted": "Não montado"
+  },
+  "navigation": {
+    "back": "Voltar",
+    "forward": "Avançar",
+    "up": "Ir ao pai",
+    "breadcrumb": "Caminho atual",
+    "parentDirectory": "Pasta superior"
+  },
+  "list": {
+    "empty": "Pasta vazia",
+    "noMatch": "Nenhum item corresponde ao filtro",
+    "itemCount": { "one": "{count} item", "other": "{count} itens" },
+    "selectionCount": "{count} selecionados",
+    "hiddenShown": "Mostrando arquivos ocultos",
+    "hiddenHidden": "Ocultando arquivos ocultos",
+    "truncated": "Exibindo {shown} de {total} itens — refine o filtro",
+    "columns": {
+      "name": "Nome",
+      "size": "Tamanho",
+      "modified": "Modificado",
+      "kind": "Tipo",
+      "permissions": "Permissões"
+    }
+  },
+  "status": {
+    "loading": "Carregando…",
+    "items": "{count} itens",
+    "selected": "{count} selecionados",
+    "freeSpace": "{size} livres",
+    "trashSuffix": "na Lixeira",
+    "markSuffix": "marcado"
+  },
+  "preview": {
+    "title": "Pré-visualização",
+    "empty": "Nada para pré-visualizar",
+    "unsupported": "Pré-visualização indisponível para {kind}",
+    "tooLarge": "Arquivo muito grande para pré-visualizar ({size})",
+    "directory": {
+      "summary": "{count} itens · {folders} pastas · {files} arquivos",
+      "totalSize": "Tamanho total: {size}"
+    },
+    "archive": {
+      "summary": "{count} entradas comprimidas",
+      "encrypted": "Arquivo protegido por senha"
+    },
+    "binary": {
+      "summary": "Arquivo binário",
+      "hexdump": "Primeiros bytes"
+    },
+    "loadFailed": "Falha ao carregar a pré-visualização"
+  },
+  "search": {
+    "placeholder": "Filtrar itens",
+    "noResults": "Nenhum resultado",
+    "recursive": "Busca recursiva",
+    "recursiveHint": "Pressione f para buscar dentro das subpastas"
+  },
+  "palette": {
+    "title": "Comandos",
+    "placeholder": "Buscar comando",
+    "empty": "Nenhum comando encontrado",
+    "hint": "Ctrl+Shift+P"
+  },
+  "commandLine": {
+    "prompt": ":",
+    "hint": "Comandos: :cd :mkdir :touch :mv :cp :rm",
+    "unknownCommand": "Comando desconhecido: {name}",
+    "usage": "Uso: {usage}"
+  },
+  "help": {
+    "title": "Ajuda",
+    "navigation": "Navegação",
+    "files": "Arquivos",
+    "view": "Visualização",
+    "tabs": "Abas e painéis",
+    "pressClose": "Pressione ? novamente para fechar"
+  },
+  "dialog": {
+    "confirm": {
+      "title": "Confirmar",
+      "deleteTitle": "Mover para a Lixeira",
+      "deleteMessage": { "one": "Mover {name} para a Lixeira?", "other": "Mover {count} itens para a Lixeira?" },
+      "overwrite": {
+        "title": "Já existe",
+        "message": "{name} já existe em {directory}.",
+        "overwrite": "Sobrescrever",
+        "rename": "Renomear",
+        "skip": "Pular"
+      },
+      "yes": "Confirmar",
+      "no": "Cancelar"
+    },
+    "properties": {
+      "title": "Propriedades",
+      "name": "Nome",
+      "path": "Caminho",
+      "kind": "Tipo",
+      "size": "Tamanho",
+      "modified": "Modificado",
+      "accessed": "Acessado",
+      "permissions": "Permissões",
+      "owner": "Dono",
+      "group": "Grupo",
+      "links": "Links",
+      "items": "Itens"
+    },
+    "rename": {
+      "title": "Renomear",
+      "label": "Novo nome",
+      "exists": "Já existe um item com esse nome",
+      "invalid": "Nome inválido"
+    },
+    "renameBulk": {
+      "title": "Renomear em lote",
+      "hint": "Um nome por linha; use #n para numerar",
+      "invalid": "Linha {line} inválida: {value}"
+    },
+    "newFolder": {
+      "title": "Nova pasta",
+      "label": "Nome da pasta",
+      "exists": "Já existe um item com esse nome"
+    },
+    "newFile": {
+      "title": "Novo arquivo",
+      "label": "Nome do arquivo"
+    },
+    "progress": {
+      "title": "Operação em andamento",
+      "item": "{current} de {total} · {path}",
+      "cancel": "Cancelar",
+      "running": "Executando…",
+      "waiting": "Na fila"
+    }
+  },
+  "operation": {
+    "copy": {
+      "started": "Copiando {count} itens…",
+      "done": "Cópia concluída",
+      "failed": "Falha ao copiar {name}"
+    },
+    "move": {
+      "started": "Movendo {count} itens…",
+      "done": "Movimentação concluída",
+      "failed": "Falha ao mover {name}"
+    },
+    "delete": {
+      "started": "Enviando {count} itens para a Lixeira",
+      "done": "Itens movidos para a Lixeira",
+      "failed": "Falha ao remover {name}"
+    },
+    "mkdir": {
+      "done": "Pasta criada",
+      "failed": "Falha ao criar a pasta"
+    },
+    "newFile": {
+      "done": "Arquivo criado",
+      "failed": "Falha ao criar o arquivo"
+    },
+    "rename": {
+      "done": "Item renomeado",
+      "failed": "Falha ao renomear o item"
+    },
+    "open": {
+      "failed": "Falha ao abrir {name}"
+    }
+  },
+  "modes": {
+    "normal": "NORMAL",
+    "visual": "VISUAL",
+    "search": "BUSCA",
+    "rename": "RENOMEAR",
+    "command": "COMANDO"
+  },
+  "view": {
+    "list": "Lista",
+    "grid": "Grade",
+    "preview": "Pré-visualização",
+    "sidebar": "Barra lateral",
+    "splitPane": "Painel duplo"
+  },
+  "error": {
+    "title": "Erro",
+    "permissionDenied": "Sem permissão para acessar {name}",
+    "notFound": "{name} não existe",
+    "notADirectory": "{name} não é uma pasta",
+    "busy": "Aguarde a operação atual terminar",
+    "unknown": "Erro inesperado: {message}",
+    "dismiss": "Fechar"
+  },
+  "units": {
+    "bytes": "B",
+    "kilobytes": "KB",
+    "megabytes": "MB",
+    "gigabytes": "GB",
+    "terabytes": "TB",
+    "unknown": "?"
+  }
+}

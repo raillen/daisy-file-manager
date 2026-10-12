@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Paleta semântica canônica do daisy-file-manager. Cada tema mapeia nomes semânticos para hex truecolor. Consumida pelo TUI (src/core/theme) e pelo website (website/design/tokens).",
+  "tokens": [
+    { "name": "bg.default", "role": "Fundo principal da aplicação", "dark": "#0d1117", "light": "#ffffff" },
+    { "name": "bg.muted", "role": "Fundo secundário (sidebar, cabeçalhos)", "dark": "#161b22", "light": "#f6f8fa" },
+    { "name": "bg.inset", "role": "Fundo rebaixado (inputs, campos de formulário)", "dark": "#010409", "light": "#f6f8fa" },
+    { "name": "bg.overlay", "role": "Fundo de diálogos e menus flutuantes", "dark": "#161b22", "light": "#ffffff" },
+    { "name": "bg.accent", "role": "Fundo de ênfase (seleção primária)", "dark": "#1f6feb", "light": "#0969da" },
+    { "name": "bg.accentMuted", "role": "Fundo de destaque suave", "dark": "#388bfd1a", "light": "#ddf4ff" },
+    { "name": "bg.successMuted", "role": "Fundo de sucesso", "dark": "#23863626", "light": "#dafbe1" },
+    { "name": "bg.attentionMuted", "role": "Fundo de atenção", "dark": "#9e6a0326", "light": "#fff8c5" },
+    { "name": "bg.dangerMuted", "role": "Fundo de perigo", "dark": "#f8514926", "light": "#ffebe9" },
+    { "name": "bg.selectedRow", "role": "Linha selecionada na lista de arquivos", "dark": "#1f6feb33", "light": "#ddf4ff" },
+    { "name": "fg.default", "role": "Texto principal", "dark": "#e6edf3", "light": "#1f2328" },
+    { "name": "fg.muted", "role": "Texto secundário", "dark": "#8d96a0", "light": "#59636e" },
+    { "name": "fg.onEmphasis", "role": "Texto sobre fundo de ênfase", "dark": "#ffffff", "light": "#ffffff" },
+    { "name": "fg.accent", "role": "Texto de link/destaque", "dark": "#58a6ff", "light": "#0969da" },
+    { "name": "fg.success", "role": "Texto de sucesso", "dark": "#3fb950", "light": "#1a7f37" },
+    { "name": "fg.attention", "role": "Texto de atenção", "dark": "#d29922", "light": "#9a6700" },
+    { "name": "fg.danger", "role": "Texto de perigo/erro", "dark": "#f85149", "light": "#d1242f" },
+    { "name": "fg.directory", "role": "Nome de diretório", "dark": "#58a6ff", "light": "#0969da" },
+    { "name": "fg.executable", "role": "Arquivo executável", "dark": "#3fb950", "light": "#1a7f37" },
+    { "name": "fg.symlink", "role": "Link simbólico", "dark": "#a371f7", "light": "#8250df" },
+    { "name": "fg.hidden", "role": "Nome de arquivo oculto", "dark": "#6e7681", "light": "#8c959f" },
+    { "name": "border.default", "role": "Borda padrão", "dark": "#30363d", "light": "#d0d7de" },
+    { "name": "border.muted", "role": "Borda suave (separadores)", "dark": "#21262d", "light": "#d8dee4" },
+    { "name": "border.focus", "role": "Borda de foco", "dark": "#58a6ff", "light": "#0969da" }
+  ]
+}

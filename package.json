@@ -1,0 +1,29 @@
+{
+  "name": "daisy-file-manager",
+  "module": "index.tsx",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "scripts": {
+    "dev": "bun run index.tsx",
+    "start": "bun run index.tsx",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "verify": "bun run test && bun run typecheck && biome check ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@types/bun": "latest",
+    "typescript": "7.0.2"
+  },
+  "dependencies": {
+    "@opentui/core": "0.6.1",
+    "@opentui/keymap": "0.6.1",
+    "@opentui/solid": "0.6.1",
+    "solid-js": "1.9.12"
+  }
+}

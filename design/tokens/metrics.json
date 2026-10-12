@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Métricas canônicas (espaçamento, tipografia, raio) compartilhadas entre o TUI e o website.",
+  "tokens": {
+    "space": { "4": 0.25, "8": 0.5, "12": 0.75, "16": 1, "20": 1.25, "24": 1.5, "32": 2, "40": 2.5, "48": 3 },
+    "text": { "xs": "0.75rem", "sm": "0.875rem", "md": "1rem", "lg": "1.25rem", "xl": "2rem" },
+    "radius": { "small": "6px", "medium": "8px", "large": "12px" },
+    "layout": { "headerHeight": "64px", "sidebarWidth": "304px", "tocWidth": "226px", "contentWidth": "880px" },
+    "fontFamily": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans\", Helvetica, Arial, sans-serif",
+    "fontFamilyMono": "ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, monospace"
+  }
+}
