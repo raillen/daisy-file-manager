@@ -15,6 +15,8 @@ export type CommandName =
   | "file.yank"
   | "file.cut"
   | "file.paste"
+  | "file.copyTo"
+  | "file.moveTo"
   | "file.trash"
   | "file.open"
   | "file.properties"
@@ -22,6 +24,10 @@ export type CommandName =
   | "file.rename"
   | "file.newFile"
   | "file.extract"
+  | "panel.sidebarDec"
+  | "panel.sidebarInc"
+  | "panel.previewDec"
+  | "panel.previewInc"
   | "ui.commandLine"
   | "ui.search"
   | "ui.escape"
@@ -46,24 +52,30 @@ export const defaultBindings: readonly BindingSpec[] = [
   { command: "nav.down", keys: ["j", "down"] },
   { command: "nav.up", keys: ["k", "up"] },
   { command: "nav.first", keys: ["g", "g"] },
-  { command: "nav.last", keys: ["G"] },
+  { command: "nav.last", keys: ["shift+g"] },
   { command: "nav.enter", keys: ["l", "right", "return"] },
   { command: "nav.parent", keys: ["h", "left"] },
   { command: "select.toggle", keys: ["space"] },
-  { command: "select.visual", keys: ["V"] },
-  { command: "select.down", keys: ["shift+down", "shift+j", "J"] },
-  { command: "select.up", keys: ["shift+up", "shift+k", "K"] },
+  { command: "select.visual", keys: ["shift+v"] },
+  { command: "select.down", keys: ["shift+down", "shift+j"] },
+  { command: "select.up", keys: ["shift+up", "shift+k"] },
   { command: "select.all", keys: ["ctrl+a"] },
   { command: "file.yank", keys: ["y", "ctrl+c"] },
   { command: "file.cut", keys: ["d", "ctrl+x"] },
   { command: "file.paste", keys: ["p", "ctrl+v"] },
-  { command: "file.trash", keys: ["D"] },
+  { command: "file.copyTo", keys: ["ctrl+shift+c"] },
+  { command: "file.moveTo", keys: ["ctrl+shift+x"] },
+  { command: "file.trash", keys: ["shift+d"] },
   { command: "file.open", keys: ["o"] },
   { command: "file.properties", keys: ["i"] },
   { command: "file.mkdir", keys: ["ctrl+n"] },
   { command: "file.rename", keys: ["a"] },
   { command: "file.newFile", keys: ["ctrl+t"] },
   { command: "file.extract", keys: ["x"] },
+  { command: "panel.sidebarDec", keys: ["ctrl+["] },
+  { command: "panel.sidebarInc", keys: ["ctrl+]"] },
+  { command: "panel.previewDec", keys: ["alt+["] },
+  { command: "panel.previewInc", keys: ["alt+]"] },
   { command: "ui.commandLine", keys: [":"] },
   { command: "ui.search", keys: ["/"] },
   { command: "ui.escape", keys: ["escape"] },

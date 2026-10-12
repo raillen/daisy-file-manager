@@ -15,6 +15,11 @@ export type InputDialogState = {
   targetPath?: string;
 };
 
+export type TargetFolderDialogState = {
+  mode: "copy" | "move";
+  sources: string[];
+};
+
 export type ViewerModalState =
   | { kind: "image"; entry: Entry }
   | { kind: "text"; entry: Entry; content: string; filetype: string };
@@ -24,12 +29,15 @@ export type UiState = {
   properties: Entry | undefined;
   inputDialog: InputDialogState | undefined;
   viewerModal: ViewerModalState | undefined;
+  targetFolderDialog: TargetFolderDialogState | undefined;
   helpOpen: boolean;
   theme: ThemeName;
   locale: LocaleCode;
   iconSet: IconSet;
   sidebarVisible: boolean;
+  sidebarWidth: number;
   previewVisible: boolean;
+  previewWidth: number;
   splitPane: boolean;
   quit: boolean;
 };
@@ -45,6 +53,8 @@ export type UiActions = {
   openImageViewer: (entry: Entry) => void;
   openTextViewer: (entry: Entry, content: string, filetype: string) => void;
   closeViewer: () => void;
+  openTargetFolderDialog: (mode: "copy" | "move", sources: string[]) => void;
+  closeTargetFolderDialog: () => void;
   toggleHelp: () => void;
   openSearch: () => void;
   closeSearch: () => void;
@@ -52,6 +62,10 @@ export type UiActions = {
   toggleSidebar: () => void;
   togglePreview: () => void;
   toggleSplitPane: () => void;
+  setSidebarWidth: (width: number) => void;
+  setPreviewWidth: (width: number) => void;
+  adjustSidebarWidth: (delta: number) => void;
+  adjustPreviewWidth: (delta: number) => void;
   toggleTheme: () => void;
   setLocale: (locale: LocaleCode) => void;
   quit: () => void;
@@ -101,6 +115,12 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     closeViewer() {
       setState("viewerModal", undefined);
     },
+    openTargetFolderDialog(mode, sources) {
+      setState("targetFolderDialog", { mode, sources });
+    },
+    closeTargetFolderDialog() {
+      setState("targetFolderDialog", undefined);
+    },
     toggleHelp() {
       setState("helpOpen", (open) => !open);
     },
@@ -124,6 +144,18 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     toggleSplitPane() {
       setState("splitPane", (enabled) => !enabled);
+    },
+    setSidebarWidth(width) {
+      setState("sidebarWidth", Math.max(12, Math.min(width, 60)));
+    },
+    setPreviewWidth(width) {
+      setState("previewWidth", Math.max(20, Math.min(width, 80)));
+    },
+    adjustSidebarWidth(delta) {
+      setState("sidebarWidth", (w) => Math.max(12, Math.min(w + delta, 60)));
+    },
+    adjustPreviewWidth(delta) {
+      setState("previewWidth", (w) => Math.max(20, Math.min(w + delta, 80)));
     },
     toggleTheme() {
       setState("theme", (theme) => (theme === "dark" ? "light" : "dark"));

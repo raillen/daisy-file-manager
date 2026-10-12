@@ -31,12 +31,15 @@ function uiStore() {
       properties: undefined,
       inputDialog: undefined,
       viewerModal: undefined,
+      targetFolderDialog: undefined,
       helpOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",
       sidebarVisible: true,
+      sidebarWidth: 22,
       previewVisible: true,
+      previewWidth: 40,
       splitPane: false,
       quit: false,
     },
@@ -226,5 +229,29 @@ describe("store de ui", () => {
     expect(ui.state.mode).toBe("command");
     ui.actions.closeCommandLine();
     expect(ui.state.mode).toBe("normal");
+
+    ui.actions.setSidebarWidth(30);
+    expect(ui.state.sidebarWidth).toBe(30);
+    ui.actions.adjustSidebarWidth(5);
+    expect(ui.state.sidebarWidth).toBe(35);
+    ui.actions.setSidebarWidth(100);
+    expect(ui.state.sidebarWidth).toBe(60);
+    ui.actions.setSidebarWidth(5);
+    expect(ui.state.sidebarWidth).toBe(12);
+
+    ui.actions.setPreviewWidth(50);
+    expect(ui.state.previewWidth).toBe(50);
+    ui.actions.adjustPreviewWidth(-10);
+    expect(ui.state.previewWidth).toBe(40);
+    ui.actions.setPreviewWidth(100);
+    expect(ui.state.previewWidth).toBe(80);
+    ui.actions.setPreviewWidth(10);
+    expect(ui.state.previewWidth).toBe(20);
+
+    ui.actions.openTargetFolderDialog("copy", ["/tmp/a"]);
+    expect(ui.state.targetFolderDialog?.mode).toBe("copy");
+    expect(ui.state.targetFolderDialog?.sources).toEqual(["/tmp/a"]);
+    ui.actions.closeTargetFolderDialog();
+    expect(ui.state.targetFolderDialog).toBeUndefined();
   });
 });

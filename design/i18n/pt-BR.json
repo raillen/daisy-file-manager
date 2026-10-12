@@ -230,6 +230,18 @@
     "unknown": "Erro inesperado: {message}",
     "dismiss": "Fechar"
   },
+  "targetFolder": {
+    "copyTitle": "Copiar {count} itens para…",
+    "moveTitle": "Mover {count} itens para…",
+    "current": "Destino atual: {path}",
+    "useCurrent": "Confirmar esta pasta ({path})",
+    "parent": ".. (Pasta superior)",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "confirmButton": "[Espaço] Confirmar",
+    "cancelButton": "[Esc] Cancelar",
+    "hint": "Enter/l: navegar pasta · Espaço: selecionar pasta atual · Esc: cancelar"
+  },
   "units": {
     "bytes": "B",
     "kilobytes": "KB",

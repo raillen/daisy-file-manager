@@ -8,7 +8,14 @@ import { parseExCommand } from "../core/commands/exCommand";
 import type { Entry } from "../core/entries/directory";
 import { segmentsFor } from "../core/entries/path";
 import { extractArchive, isArchive } from "../core/operations/archive";
-import { createDirectory, createEmptyFile, renameEntry } from "../core/operations/operations";
+import {
+  createDirectory,
+  createEmptyFile,
+  itemsFor,
+  renameEntry,
+  runOperation,
+  TargetExists,
+} from "../core/operations/operations";
 import { openExternally } from "../core/operations/system";
 import type { PreviewCache } from "../core/preview/cache";
 import type { ClipboardStore, QueueStore } from "../state/operations";
@@ -21,15 +28,18 @@ import { CommandLine } from "./CommandLine";
 import { ImageViewerDialog } from "./dialogs/ImageViewerDialog";
 import { InputDialog } from "./dialogs/InputDialog";
 import { PropertiesDialog } from "./dialogs/PropertiesDialog";
+import { TargetFolderDialog } from "./dialogs/TargetFolderDialog";
 import { TextViewerDialog } from "./dialogs/TextViewerDialog";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
 import { HelpOverlay, helpEntries } from "./HelpOverlay";
 import { PreviewPane } from "./PreviewPane";
+import { Resizer } from "./Resizer";
 import { SearchBar } from "./SearchBar";
 import { type Place, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
 import { TitleBar } from "./TitleBar";
+import { ToastNotification } from "./ToastNotification";
 
 export type AppProps = {
   keymapOverrides: Record<string, string[]>;
@@ -52,7 +62,9 @@ export function App(props: AppProps) {
   const visible = createMemo(() => visibleEntries(props.session.state));
   const segments = createMemo(() => segmentsFor(props.session.state.cwd, props.home));
   const gridColumns = createMemo(() => {
-    const usable = props.ui.state.sidebarVisible ? dimensions().width - 22 : dimensions().width;
+    const sidebar = props.ui.state.sidebarVisible ? props.ui.state.sidebarWidth : 0;
+    const preview = props.ui.state.previewVisible ? props.ui.state.previewWidth : 0;
+    const usable = dimensions().width - sidebar - preview;
     return Math.max(1, Math.floor(usable / 18));
   });
   const currentEntry = createMemo(() => visible()[props.session.state.cursor]);
@@ -101,6 +113,46 @@ export function App(props: AppProps) {
             ? "operation.rename.failed"
             : "operation.newFile.failed";
       props.queue.actions.fail(props.ui.translate(failKey));
+    }
+  }
+
+  async function handleTargetFolderConfirm(destPath: string) {
+    const dialog = props.ui.state.targetFolderDialog;
+    if (dialog === undefined) return;
+    props.ui.actions.closeTargetFolderDialog();
+
+    const items = itemsFor(dialog.sources, destPath);
+    props.queue.actions.report({
+      kind: dialog.mode,
+      current: 0,
+      total: items.length,
+      path: destPath,
+    });
+
+    try {
+      await runOperation(dialog.mode, items, {
+        signal: new AbortController().signal,
+        onProgress: (p) => props.queue.actions.report(p),
+      }).promise;
+
+      if (dialog.mode === "move") {
+        props.clipboard.actions.clear();
+      }
+      props.session.actions.clearMarked();
+      props.queue.actions.succeed(props.ui.translate(`operation.${dialog.mode}.done`));
+      await props.session.actions.load(props.session.state.cwd);
+    } catch (err) {
+      if (err instanceof TargetExists) {
+        props.queue.actions.fail(
+          props.ui.translate("dialog.confirm.overwrite.message", {
+            name: err.target.split("/").pop() ?? err.target,
+            directory: destPath,
+          }),
+        );
+      } else {
+        props.queue.actions.fail(err instanceof Error ? err.message : String(err));
+      }
+      await props.session.actions.load(props.session.state.cwd);
     }
   }
 
@@ -248,14 +300,18 @@ export function App(props: AppProps) {
       />
 
       <box flexDirection="row" flexGrow={1}>
-        <Sidebar
-          palette={palette()}
-          iconSet={props.ui.state.iconSet}
-          t={props.ui.translate}
-          places={props.places}
-          activePath={props.session.state.cwd}
-          onNavigate={(path) => void props.session.actions.load(path)}
-        />
+        <Show when={props.ui.state.sidebarVisible}>
+          <Sidebar
+            palette={palette()}
+            iconSet={props.ui.state.iconSet}
+            t={props.ui.translate}
+            places={props.places}
+            activePath={props.session.state.cwd}
+            width={props.ui.state.sidebarWidth}
+            onNavigate={(path) => void props.session.actions.load(path)}
+          />
+          <Resizer palette={palette()} onDrag={(x) => props.ui.actions.setSidebarWidth(x)} />
+        </Show>
 
         <Show
           when={props.session.state.view === "grid"}
@@ -314,6 +370,7 @@ export function App(props: AppProps) {
         </Show>
 
         <Show when={props.ui.state.previewVisible}>
+          <Resizer palette={palette()} onDrag={(x) => props.ui.actions.setPreviewWidth(dimensions().width - x)} />
           <PreviewPane
             palette={palette()}
             entry={currentEntry()}
@@ -321,7 +378,7 @@ export function App(props: AppProps) {
             syntaxStyle={syntaxStyle()}
             t={props.ui.translate}
             locale={props.ui.state.locale}
-            width={40}
+            width={props.ui.state.previewWidth}
           />
         </Show>
       </box>
@@ -413,6 +470,32 @@ export function App(props: AppProps) {
           return null;
         })()}
       </Show>
+
+      <Show when={props.ui.state.targetFolderDialog !== undefined}>
+        {(() => {
+          const dialog = props.ui.state.targetFolderDialog;
+          return dialog !== undefined ? (
+            <TargetFolderDialog
+              palette={palette()}
+              iconSet={props.ui.state.iconSet}
+              mode={dialog.mode}
+              sources={dialog.sources}
+              initialDirectory={props.session.state.cwd}
+              places={props.places}
+              t={props.ui.translate}
+              onConfirm={(dest) => void handleTargetFolderConfirm(dest)}
+              onCancel={() => props.ui.actions.closeTargetFolderDialog()}
+            />
+          ) : null;
+        })()}
+      </Show>
+
+      <ToastNotification
+        palette={palette()}
+        iconSet={props.ui.state.iconSet}
+        queue={props.queue.state}
+        t={props.ui.translate}
+      />
 
       <StatusBar
         palette={palette()}

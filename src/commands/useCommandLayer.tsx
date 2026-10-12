@@ -49,6 +49,8 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "file.yank", run: () => copySelection(runtime, "copy") },
     { name: "file.cut", run: () => copySelection(runtime, "cut") },
     { name: "file.paste", run: () => void pasteInto(deps, session.state.cwd) },
+    { name: "file.copyTo", run: () => openCopyTo(runtime) },
+    { name: "file.moveTo", run: () => openMoveTo(runtime) },
     { name: "file.trash", run: () => void trashSelection(deps, selectedPaths(session)) },
     { name: "file.open", run: () => openCurrent(runtime) },
     { name: "file.properties", run: () => toggleProperties(runtime) },
@@ -56,6 +58,10 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "file.rename", run: () => openRename(runtime) },
     { name: "file.newFile", run: () => openNewFile(runtime) },
     { name: "file.extract", run: () => void extractSelection(runtime) },
+    { name: "panel.sidebarDec", run: () => runtime.ui.actions.adjustSidebarWidth(-2) },
+    { name: "panel.sidebarInc", run: () => runtime.ui.actions.adjustSidebarWidth(2) },
+    { name: "panel.previewDec", run: () => runtime.ui.actions.adjustPreviewWidth(-4) },
+    { name: "panel.previewInc", run: () => runtime.ui.actions.adjustPreviewWidth(4) },
 
     { name: "ui.commandLine", run: () => runtime.ui.actions.openCommandLine() },
     { name: "ui.search", run: () => openSearch(runtime) },
@@ -152,7 +158,23 @@ function openNewFile(runtime: CommandRuntime) {
   });
 }
 
+function openCopyTo(runtime: CommandRuntime) {
+  const paths = selectedPaths(runtime.session);
+  if (paths.length === 0) return;
+  runtime.ui.actions.openTargetFolderDialog("copy", paths);
+}
+
+function openMoveTo(runtime: CommandRuntime) {
+  const paths = selectedPaths(runtime.session);
+  if (paths.length === 0) return;
+  runtime.ui.actions.openTargetFolderDialog("move", paths);
+}
+
 function handleEscape(runtime: CommandRuntime) {
+  if (runtime.ui.state.targetFolderDialog !== undefined) {
+    runtime.ui.actions.closeTargetFolderDialog();
+    return;
+  }
   if (runtime.ui.state.viewerModal !== undefined) {
     runtime.ui.actions.closeViewer();
     return;

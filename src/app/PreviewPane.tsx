@@ -46,7 +46,6 @@ export function PreviewPane(props: PreviewPaneProps) {
     <box
       flexDirection="column"
       width={props.width}
-      border={["left"]}
       paddingLeft={1}
       paddingRight={1}
       backgroundColor={props.palette["bg.default"]}

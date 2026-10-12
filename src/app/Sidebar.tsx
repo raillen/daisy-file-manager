@@ -19,18 +19,13 @@ export type SidebarProps = {
   t: Translator;
   places: Place[];
   activePath: string;
+  width?: number;
   onNavigate: (path: string) => void;
 };
 
 export function Sidebar(props: SidebarProps) {
   return (
-    <box
-      flexDirection="column"
-      width={22}
-      border={["right"]}
-      paddingRight={1}
-      backgroundColor={props.palette["bg.muted"]}
-    >
+    <box flexDirection="column" width={props.width ?? 22} paddingRight={1} backgroundColor={props.palette["bg.muted"]}>
       <box flexDirection="row" height={1} paddingLeft={1}>
         <text fg={props.palette["fg.muted"]} attributes={TextAttributes.BOLD}>
           {props.t("places.title")}

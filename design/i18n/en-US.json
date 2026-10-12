@@ -230,6 +230,18 @@
     "unknown": "Unexpected error: {message}",
     "dismiss": "Dismiss"
   },
+  "targetFolder": {
+    "copyTitle": "Copy {count} items to…",
+    "moveTitle": "Move {count} items to…",
+    "current": "Current destination: {path}",
+    "useCurrent": "Confirm this folder ({path})",
+    "parent": ".. (Parent folder)",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "confirmButton": "[Space] Confirm",
+    "cancelButton": "[Esc] Cancel",
+    "hint": "Enter/l: browse folder · Space: select current folder · Esc: cancel"
+  },
   "units": {
     "bytes": "B",
     "kilobytes": "KB",

@@ -37,12 +37,15 @@ function testStores(cwd: string) {
       properties: undefined,
       inputDialog: undefined,
       viewerModal: undefined,
+      targetFolderDialog: undefined,
       helpOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",
       sidebarVisible: true,
+      sidebarWidth: 22,
       previewVisible: true,
+      previewWidth: 40,
       splitPane: false,
       quit: false,
     } as UiState,
@@ -218,5 +221,74 @@ test("App renders TextViewerDialog when viewerModal is text", async () => {
   const frame = setup.captureCharFrame();
   expect(frame).toContain("README.md");
   expect(frame).toContain("markdown");
+  await setup.dispose();
+});
+
+test("App renders TargetFolderDialog when targetFolderDialog is set", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  ui.actions.openTargetFolderDialog("copy", [`${cwd}/test.txt`]);
+
+  const setup = await testRender(() => (
+    <App
+      keymapOverrides={{}}
+      previewCache={previewCache}
+      clipboard={clipboard}
+      queue={queue}
+      session={session}
+      ui={ui}
+      places={[]}
+      home={cwd}
+      separator="/"
+      freeSpace={undefined}
+    />
+  ));
+  await setup.renderOnce();
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("Copiar 1 itens");
+  expect(frame).toContain("[Espaço] Confirmar");
+  await setup.dispose();
+});
+
+test("App renders ToastNotification when queue is running with progress", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  queue.actions.report({
+    kind: "copy",
+    current: 5,
+    total: 10,
+    path: `${cwd}/sample.txt`,
+  });
+
+  const setup = await testRender(() => (
+    <App
+      keymapOverrides={{}}
+      previewCache={previewCache}
+      clipboard={clipboard}
+      queue={queue}
+      session={session}
+      ui={ui}
+      places={[]}
+      home={cwd}
+      separator="/"
+      freeSpace={undefined}
+    />
+  ));
+  await setup.renderOnce();
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("50%");
+  expect(frame).toContain("sample.txt");
   await setup.dispose();
 });
