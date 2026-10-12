@@ -41,6 +41,9 @@
     { "name": "action.splitPane", "phosphor": "ph-columns", "unicode": "▥", "nerd": "", "color": "fg.muted" },
     { "name": "action.help", "phosphor": "ph-question", "unicode": "?", "nerd": "", "color": "fg.accent" },
     { "name": "action.queue", "phosphor": "ph-list-checks", "unicode": "≣", "nerd": "", "color": "fg.muted" },
+    { "name": "action.zoomIn", "phosphor": "ph-magnifying-glass-plus", "unicode": "＋", "nerd": "", "color": "fg.accent" },
+    { "name": "action.zoomOut", "phosphor": "ph-magnifying-glass-minus", "unicode": "－", "nerd": "", "color": "fg.accent" },
+    { "name": "action.zoomFit", "phosphor": "ph-arrows-in", "unicode": "⊡", "nerd": "", "color": "fg.accent" },
 
     { "name": "view.list", "phosphor": "ph-list-bullets", "unicode": "≡", "nerd": "", "color": "fg.default" },
     { "name": "view.grid", "phosphor": "ph-squares-four", "unicode": "▦", "nerd": "", "color": "fg.default" },

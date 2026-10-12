@@ -408,24 +408,75 @@ test("App renders PdfViewerDialog when viewerModal is pdf", async () => {
 
   ui.actions.openPdfViewer(entry, 10);
 
-  const setup = await testRender(() => (
-    <App
-      keymapOverrides={{}}
-      previewCache={previewCache}
-      clipboard={clipboard}
-      queue={queue}
-      session={session}
-      ui={ui}
-      places={[]}
-      home={cwd}
-      separator="/"
-      freeSpace={undefined}
-    />
-  ));
+  function RootWrapper() {
+    const renderer = useRenderer();
+    const keymap = createDefaultOpenTuiKeymap(renderer);
+
+    return (
+      <KeymapProvider keymap={keymap}>
+        <App
+          keymapOverrides={{}}
+          previewCache={previewCache}
+          clipboard={clipboard}
+          queue={queue}
+          session={session}
+          ui={ui}
+          places={[]}
+          home={cwd}
+          separator="/"
+          freeSpace={undefined}
+        />
+      </KeymapProvider>
+    );
+  }
+
+  const setup = await testRender(() => <RootWrapper />);
   await setup.renderOnce();
   const frame = setup.captureCharFrame();
   expect(frame).toContain("manual");
   expect(frame).toContain("Página 1");
   expect(frame).toContain("Modo Texto");
+  expect(frame).toContain("100%");
+
+  // Test zoom in with '+'
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "+",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "+",
+      raw: "+",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+  const zoomedFrame = setup.captureCharFrame();
+  expect(zoomedFrame).toContain("125%");
+
+  // Test fit toggle with 'f'
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "f",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "f",
+      raw: "f",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+  const fitFrame = setup.captureCharFrame();
+  expect(fitFrame).toContain("Ajustado");
+
   await setup.dispose();
 });
