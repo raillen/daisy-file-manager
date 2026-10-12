@@ -13,9 +13,7 @@ export type IconEntry = {
   color: ColorToken;
 };
 
-const registry = new Map<IconName, IconEntry>(
-  iconsSource.icons.map((entry) => [entry.name, entry as IconEntry]),
-);
+const registry = new Map<IconName, IconEntry>(iconsSource.icons.map((entry) => [entry.name, entry as IconEntry]));
 
 export function iconEntry(name: IconName): IconEntry | undefined {
   return registry.get(name);

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
-import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { GROUPS, parseGroups, selectEntries, summarize } from "./workforce/groups.mjs";
 import { emptyResult, installAgent, installSkill, loadState, prune, saveState } from "./workforce/installer.mjs";
@@ -50,7 +50,7 @@ async function syncTarget(target, entries, dryRun) {
 
   for (const entry of agents) await installAgent(entry, target, result, dryRun);
   for (const entry of skills) await installSkill(entry, target, result, dryRun);
-  await prune(target, previous, result, dryRun);
+  await prune(previous, result, dryRun);
   if (!dryRun) await saveState(target, { version: 1, installed: result.installed });
 
   return result;

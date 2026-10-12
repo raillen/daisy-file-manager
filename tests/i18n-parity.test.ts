@@ -10,7 +10,9 @@ function flatten(value: unknown, prefix = ""): string[] {
   if (keys.length > 0 && keys.every((key) => typeof (value as Record<string, unknown>)[key] === "string")) {
     return [prefix];
   }
-  return keys.flatMap((key) => flatten((value as Record<string, unknown>)[key], prefix === "" ? key : `${prefix}.${key}`));
+  return keys.flatMap((key) =>
+    flatten((value as Record<string, unknown>)[key], prefix === "" ? key : `${prefix}.${key}`),
+  );
 }
 
 describe("dicionários i18n", () => {

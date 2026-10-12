@@ -4,7 +4,7 @@ import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
 import { mergeConfig, parseTomlConfig } from "./parser";
-import { configFileName, defaultConfig, type Config, type ConfigOverride } from "./schema";
+import { type Config, type ConfigOverride, configFileName, defaultConfig } from "./schema";
 
 export type LoadedConfig = {
   config: Config;

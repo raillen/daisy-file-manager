@@ -18,6 +18,9 @@
         "noUnusedVariables": "error",
         "useExhaustiveDependencies": "off"
       },
+      "a11y": {
+        "noStaticElementInteractions": "off"
+      },
       "style": {
         "noNonNullAssertion": "error",
         "useConst": "error",

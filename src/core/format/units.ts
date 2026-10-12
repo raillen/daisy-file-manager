@@ -1,6 +1,9 @@
 import type { Translator } from "../i18n/translator";
 
-const unitScales: ReadonlyArray<{ limit: number; key: "units.kilobytes" | "units.megabytes" | "units.gigabytes" | "units.terabytes" }> = [
+const unitScales: ReadonlyArray<{
+  limit: number;
+  key: "units.kilobytes" | "units.megabytes" | "units.gigabytes" | "units.terabytes";
+}> = [
   { limit: 1024, key: "units.kilobytes" },
   { limit: 1024 ** 2, key: "units.megabytes" },
   { limit: 1024 ** 3, key: "units.gigabytes" },

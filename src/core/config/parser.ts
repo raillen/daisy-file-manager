@@ -1,6 +1,6 @@
-import type { ColorToken } from "../theme/palette";
 import type { LocaleCode } from "../i18n/translator";
 import type { IconSet } from "../theme/icons";
+import type { ColorToken } from "../theme/palette";
 
 import type { Config, ConfigOverride, ImageProtocol, PreviewConfig, SortField, ViewMode } from "./schema";
 

@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { readdir } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 
 import { STATE_FILE } from "./targets.mjs";
@@ -70,7 +69,7 @@ export async function installSkill(entry, target, result, dryRun) {
   }
 }
 
-export async function prune(target, previousState, result, dryRun) {
+export async function prune(previousState, result, dryRun) {
   const keep = new Set(Object.keys(result.installed));
   for (const [path, previousHash] of Object.entries(previousState.installed)) {
     if (keep.has(path)) continue;

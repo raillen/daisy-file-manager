@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -7,7 +7,9 @@ import { loadConfig, projectConfigPath } from "../src/core/config/loader";
 import { mergeConfig, parseTomlConfig } from "../src/core/config/parser";
 import { defaultConfig } from "../src/core/config/schema";
 
-async function withProjectConfig(content: string): Promise<{ directory: string; loaded: Awaited<ReturnType<typeof loadConfig>> }> {
+async function withProjectConfig(
+  content: string,
+): Promise<{ directory: string; loaded: Awaited<ReturnType<typeof loadConfig>> }> {
   const directory = await mkdtemp(join(tmpdir(), "daisy-config-"));
   await mkdir(join(directory, ".daisy"), { recursive: true });
   await writeFile(join(directory, ".daisy", "config.toml"), content, "utf8");
@@ -27,7 +29,7 @@ describe("parseTomlConfig", () => {
         "[bookmarks]",
         'paths = ["~/Projetos"]',
         "[preview]",
-        "protocol = \"sixel\"",
+        'protocol = "sixel"',
         "maxTextBytes = 1024",
       ].join("\n"),
     );

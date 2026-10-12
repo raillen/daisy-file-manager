@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
 import { kindFromName } from "../src/core/entries/kind";
+import { formatBytes, formatDate } from "../src/core/format/units";
 import { createTranslator } from "../src/core/i18n/translator";
 import { glyph, iconColor } from "../src/core/theme/icons";
 import { iconForKind } from "../src/core/theme/kindIcons";
-import { formatBytes, formatDate } from "../src/core/format/units";
 
 describe("kindFromName", () => {
   test("classifica por extensão", () => {
@@ -28,9 +28,7 @@ describe("kindFromName", () => {
 describe("i18n translator", () => {
   test("interpola parâmetros", () => {
     const t = createTranslator("pt-BR");
-    expect(t("preview.directory.summary", { count: 3, folders: 1, files: 2 })).toBe(
-      "3 itens · 1 pastas · 2 arquivos",
-    );
+    expect(t("preview.directory.summary", { count: 3, folders: 1, files: 2 })).toBe("3 itens · 1 pastas · 2 arquivos");
   });
 
   test("escolhe plural correto", () => {
