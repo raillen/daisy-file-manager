@@ -43,6 +43,7 @@ function uiStore() {
       splitPane: false,
       activePane: "left",
       splitRatio: 0.5,
+      bookmarks: [],
       quit: false,
     },
     translators: { "pt-BR": createTranslator("pt-BR"), "en-US": createTranslator("en-US") },
@@ -274,5 +275,10 @@ describe("store de ui", () => {
     }
     ui.actions.closeViewer();
     expect(ui.state.viewerModal).toBeUndefined();
+
+    ui.actions.toggleBookmark("/tmp/my-folder");
+    expect(ui.state.bookmarks).toEqual(["/tmp/my-folder"]);
+    ui.actions.toggleBookmark("/tmp/my-folder");
+    expect(ui.state.bookmarks).toEqual([]);
   });
 });

@@ -348,9 +348,11 @@ export function App(props: AppProps) {
             iconSet={props.ui.state.iconSet}
             t={props.ui.translate}
             places={props.places}
+            bookmarks={props.ui.state.bookmarks}
             activePath={activeSession().state.cwd}
             width={props.ui.state.sidebarWidth}
             onNavigate={(path) => void activeSession().actions.load(path)}
+            onToggleBookmark={(path) => props.ui.actions.toggleBookmark(path)}
           />
           <Resizer palette={palette()} onDrag={(x) => props.ui.actions.setSidebarWidth(x)} />
         </Show>

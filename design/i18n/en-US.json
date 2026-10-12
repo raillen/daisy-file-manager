@@ -20,7 +20,9 @@
   "bookmarks": {
     "title": "Bookmarks",
     "empty": "No bookmarks",
-    "hint": "Press b to bookmark the current folder"
+    "hint": "Press b to bookmark the current folder",
+    "pinned": "Folder pinned to bookmarks",
+    "unpinned": "Folder unpinned from bookmarks"
   },
   "drives": {
     "title": "Volumes",

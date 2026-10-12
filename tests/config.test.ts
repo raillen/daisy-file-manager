@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+import { saveBookmarks } from "../src/core/config/bookmarks";
 import { loadConfig, projectConfigPath } from "../src/core/config/loader";
 import { mergeConfig, parseTomlConfig } from "../src/core/config/parser";
 import { defaultConfig } from "../src/core/config/schema";
@@ -112,6 +113,27 @@ describe("loadConfig", () => {
     expect(loaded.config.sortBy).toBe("size");
     expect(loaded.config.keymap["file.trash"]).toEqual(["x"]);
     expect(loaded.sources).toContain(projectConfigPath(directory));
+    await rm(directory, { recursive: true, force: true });
+  });
+});
+
+describe("saveBookmarks", () => {
+  test("grava marcadores em arquivo novo ou existente sem corromper configuracao", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "daisy-bm-"));
+    const configPath = join(directory, "config.toml");
+
+    // Salva em arquivo novo
+    saveBookmarks(["/home/user/docs", "/home/user/code"], configPath);
+    const content = await Bun.file(configPath).text();
+    expect(content).toContain("[bookmarks]");
+    expect(content).toContain('paths = ["/home/user/docs", "/home/user/code"]');
+
+    // Atualiza com novos caminhos
+    saveBookmarks(["/home/user/music"], configPath);
+    const updated = await Bun.file(configPath).text();
+    expect(updated).toContain('paths = ["/home/user/music"]');
+    expect(updated).not.toContain("/home/user/docs");
+
     await rm(directory, { recursive: true, force: true });
   });
 });

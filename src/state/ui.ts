@@ -42,6 +42,7 @@ export type UiState = {
   splitPane: boolean;
   activePane: "left" | "right";
   splitRatio: number;
+  bookmarks: string[];
   quit: boolean;
 };
 
@@ -75,6 +76,8 @@ export type UiActions = {
   adjustPreviewWidth: (delta: number) => void;
   toggleTheme: () => void;
   setLocale: (locale: LocaleCode) => void;
+  toggleBookmark: (path: string) => void;
+  setBookmarks: (paths: string[]) => void;
   quit: () => void;
 };
 
@@ -184,6 +187,20 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     setLocale(locale) {
       setState("locale", locale);
+    },
+    toggleBookmark(path) {
+      const current = state.bookmarks ?? [];
+      if (current.includes(path)) {
+        setState(
+          "bookmarks",
+          current.filter((p) => p !== path),
+        );
+      } else {
+        setState("bookmarks", [...current, path]);
+      }
+    },
+    setBookmarks(paths) {
+      setState("bookmarks", paths);
     },
     quit() {
       setState("quit", true);

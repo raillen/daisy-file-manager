@@ -69,6 +69,7 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "file.rename", run: () => openRename(runtime) },
     { name: "file.newFile", run: () => openNewFile(runtime) },
     { name: "file.extract", run: () => void extractSelection(runtime) },
+    { name: "action.bookmark", run: () => toggleBookmarkCurrent(runtime) },
     { name: "panel.sidebarDec", run: () => runtime.ui.actions.adjustSidebarWidth(-2) },
     { name: "panel.sidebarInc", run: () => runtime.ui.actions.adjustSidebarWidth(2) },
     { name: "panel.previewDec", run: () => runtime.ui.actions.adjustPreviewWidth(-4) },
@@ -261,6 +262,22 @@ function toggleProperties(runtime: CommandRuntime) {
   const entry = visibleEntries(cur.state).find((item) => item.path === current);
   if (entry === undefined) return;
   runtime.ui.actions.showProperties(entry);
+}
+
+function toggleBookmarkCurrent(runtime: CommandRuntime) {
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const currentPath = runtime.currentEntryPath();
+  const visible = visibleEntries(cur.state);
+  const currentEntry = currentPath ? visible.find((e) => e.path === currentPath) : undefined;
+  const targetPath = currentEntry?.isDirectory ? currentEntry.path : cur.state.cwd;
+
+  const isPinned = runtime.ui.state.bookmarks.includes(targetPath);
+  runtime.ui.actions.toggleBookmark(targetPath);
+  if (isPinned) {
+    runtime.queue.actions.succeed(runtime.ui.translate("bookmarks.unpinned"));
+  } else {
+    runtime.queue.actions.succeed(runtime.ui.translate("bookmarks.pinned"));
+  }
 }
 
 function openCurrent(runtime: CommandRuntime) {

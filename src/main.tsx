@@ -10,6 +10,7 @@ import { createEffect, onCleanup } from "solid-js";
 import { App } from "./app/App";
 import type { Place } from "./app/Sidebar";
 import { useCommandLayer } from "./commands/useCommandLayer";
+import { saveBookmarks } from "./core/config/bookmarks";
 import { loadConfig } from "./core/config/loader";
 import { createTranslator, type LocaleCode, type Translator } from "./core/i18n/translator";
 import type { PreviewCache } from "./core/preview/cache";
@@ -52,7 +53,13 @@ function initialSession(cwd: string): SessionState {
   };
 }
 
-function initialUi(theme: ThemeName, locale: LocaleCode, iconSet: IconSet, splitPane: boolean): UiState {
+function initialUi(
+  theme: ThemeName,
+  locale: LocaleCode,
+  iconSet: IconSet,
+  splitPane: boolean,
+  bookmarks: string[] = [],
+): UiState {
   return {
     mode: "normal",
     properties: undefined,
@@ -70,6 +77,7 @@ function initialUi(theme: ThemeName, locale: LocaleCode, iconSet: IconSet, split
     splitPane,
     activePane: "left",
     splitRatio: 0.5,
+    bookmarks,
     quit: false,
   };
 }
@@ -208,9 +216,13 @@ const translators = translatorsFor();
 const session = createSessionStore(initialSession(startDirectory));
 const secondarySession = createSessionStore(initialSession(startDirectory));
 const ui = createUiStore({
-  initial: initialUi(config.theme, config.locale, config.iconSet, config.splitPane),
+  initial: initialUi(config.theme, config.locale, config.iconSet, config.splitPane, config.bookmarks),
   translators,
   palettes,
+});
+
+createEffect(() => {
+  saveBookmarks(ui.state.bookmarks);
 });
 const places = buildPlaces(home, translators[config.locale]);
 const previewCache = createPreviewCache({ maxTextBytes: config.preview.maxTextBytes });

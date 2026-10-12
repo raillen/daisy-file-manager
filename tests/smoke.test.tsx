@@ -50,6 +50,7 @@ function testStores(cwd: string) {
       splitPane: false,
       activePane: "left",
       splitRatio: 0.5,
+      bookmarks: [],
       quit: false,
     } as UiState,
     translators: { "pt-BR": createTranslator("pt-BR"), "en-US": createTranslator("en-US") },
@@ -623,6 +624,102 @@ test("HelpOverlay renders shortcuts cleanly without character collisions", async
   expect(frame).not.toContain("nav.upwn");
   expect(frame).not.toContain("file.mkdirrties");
   expect(frame).not.toContain("view.toggleodified");
+
+  await setup.dispose();
+});
+
+test("Pressing 'b' pins current folder to bookmarks in sidebar and toggles unpin", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  function RootWrapper() {
+    const renderer = useRenderer();
+    const keymap = createDefaultOpenTuiKeymap(renderer);
+
+    function Inner() {
+      useCommandLayer({
+        session,
+        ui,
+        clipboard,
+        queue,
+        currentEntryPath: () => undefined,
+        onQuit: () => {},
+      });
+      return (
+        <App
+          keymapOverrides={{}}
+          previewCache={previewCache}
+          clipboard={clipboard}
+          queue={queue}
+          session={session}
+          ui={ui}
+          places={[]}
+          home={cwd}
+          separator="/"
+          freeSpace={undefined}
+        />
+      );
+    }
+
+    return (
+      <KeymapProvider keymap={keymap}>
+        <Inner />
+      </KeymapProvider>
+    );
+  }
+
+  const setup = await testRender(() => <RootWrapper />, { width: 120, height: 35 });
+  await setup.renderOnce();
+
+  // Initially bookmarks are empty
+  expect(ui.state.bookmarks).toEqual([]);
+
+  // Press 'b' to bookmark current directory
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "b",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "b",
+      raw: "b",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.bookmarks).toContain(cwd);
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("Marcadores");
+
+  // Press 'b' again to unpin
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "b",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "b",
+      raw: "b",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.bookmarks).not.toContain(cwd);
 
   await setup.dispose();
 });

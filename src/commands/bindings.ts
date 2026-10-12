@@ -24,6 +24,7 @@ export type CommandName =
   | "file.rename"
   | "file.newFile"
   | "file.extract"
+  | "action.bookmark"
   | "panel.sidebarDec"
   | "panel.sidebarInc"
   | "panel.previewDec"
@@ -73,6 +74,7 @@ export const defaultBindings: readonly BindingSpec[] = [
   { command: "file.rename", keys: ["a"] },
   { command: "file.newFile", keys: ["ctrl+t"] },
   { command: "file.extract", keys: ["x"] },
+  { command: "action.bookmark", keys: ["b"] },
   { command: "panel.sidebarDec", keys: ["ctrl+["] },
   { command: "panel.sidebarInc", keys: ["ctrl+]"] },
   { command: "panel.previewDec", keys: ["alt+["] },

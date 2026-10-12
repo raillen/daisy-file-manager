@@ -1,5 +1,6 @@
+import { basename } from "node:path";
 import { TextAttributes } from "@opentui/core";
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 
 import type { Translator } from "../core/i18n/translator";
 import type { IconSet } from "../core/theme/icons";
@@ -18,9 +19,11 @@ export type SidebarProps = {
   iconSet: IconSet;
   t: Translator;
   places: Place[];
+  bookmarks?: string[];
   activePath: string;
   width?: number;
   onNavigate: (path: string) => void;
+  onToggleBookmark?: (path: string) => void;
 };
 
 export function Sidebar(props: SidebarProps) {
@@ -50,6 +53,56 @@ export function Sidebar(props: SidebarProps) {
           );
         }}
       </For>
+
+      {/* Marcadores / Bookmarks */}
+      <box flexDirection="row" height={1} paddingLeft={1} marginTop={1}>
+        <text fg={props.palette["fg.muted"]} attributes={TextAttributes.BOLD}>
+          {props.t("bookmarks.title")}
+        </text>
+      </box>
+
+      <Show
+        when={(props.bookmarks ?? []).length > 0}
+        fallback={
+          <box paddingLeft={1} height={1}>
+            <text fg={props.palette["fg.muted"]}>{props.t("bookmarks.empty")}</text>
+          </box>
+        }
+      >
+        <For each={props.bookmarks}>
+          {(bmPath) => {
+            const active = () => bmPath === props.activePath;
+            const name = () => basename(bmPath) || bmPath;
+            return (
+              <box
+                flexDirection="row"
+                height={1}
+                paddingLeft={1}
+                paddingRight={1}
+                justifyContent="space-between"
+                onMouseDown={() => props.onNavigate(bmPath)}
+              >
+                <box flexDirection="row" gap={1}>
+                  <text fg={props.palette["fg.attention"]} width={2}>
+                    {glyph("action.bookmark", props.iconSet)}
+                  </text>
+                  <text
+                    fg={active() ? props.palette["fg.default"] : props.palette["fg.muted"]}
+                    attributes={active() ? TextAttributes.BOLD : TextAttributes.NONE}
+                  >
+                    {name()}
+                  </text>
+                </box>
+                <Show when={props.onToggleBookmark !== undefined}>
+                  <box onMouseDown={() => props.onToggleBookmark?.(bmPath)}>
+                    <text fg={props.palette["fg.muted"]}>✕</text>
+                  </box>
+                </Show>
+              </box>
+            );
+          }}
+        </For>
+      </Show>
     </box>
   );
 }

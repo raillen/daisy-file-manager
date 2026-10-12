@@ -20,7 +20,9 @@
   "bookmarks": {
     "title": "Marcadores",
     "empty": "Nenhum marcador",
-    "hint": "Pressione b para marcar a pasta atual"
+    "hint": "Pressione b para marcar a pasta atual",
+    "pinned": "Pasta fixada nos marcadores",
+    "unpinned": "Pasta removida dos marcadores"
   },
   "drives": {
     "title": "Volumes",
