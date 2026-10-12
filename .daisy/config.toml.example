@@ -1,0 +1,33 @@
+# ~/.config/daisy/config.toml
+# Configuração de personalização do daisy (TOML).
+# Valores ausentes caem no padrão. Projeto local em ./.daisy/config.toml tem precedência.
+
+theme = "dark" # "light" | "dark"
+locale = "pt-BR" # "pt-BR" | "en-US"
+iconSet = "nerd" # "nerd" | "unicode"
+editor = "nvim" # usado no rename em lote
+defaultView = "list" # "list" | "grid"
+showHidden = false
+sortBy = "name" # "name" | "size" | "modified" | "kind"
+sortDescending = false
+splitPane = false
+
+# Sobrescreve tokens semânticos de cor (hex de 6 ou 8 dígitos).
+[colors]
+"fg.accent" = "#bc8cff"
+"bg.selectedRow" = "#bc8cff22"
+
+[bookmarks]
+paths = ["~/Projetos", "~/Notas", "~/Downloads"]
+
+# Remapeia comandos por nome (teclas do keymap).
+[keymap]
+"nav.up" = ["k", "up"]
+"nav.down" = ["j", "down"]
+"file.trash" = ["D", "shift+d"]
+"file.open" = ["o", "enter"]
+
+[preview]
+enabled = true
+protocol = "auto" # "auto" | "kitty" | "sixel" | "blocks"
+maxTextBytes = 262144

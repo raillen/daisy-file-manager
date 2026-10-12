@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Documentação e caderno vivo do daisy-file-manager, gerenciador de arquivos TUI." />
+    <meta name="color-scheme" content="light dark" />
+    <title>daisy — Documentação</title>
+
+    <script>
+      (function () {
+        var theme = "light";
+        var locale = "pt-BR";
+        try {
+          if (localStorage.getItem("daisy-docs-theme") === "dark") theme = "dark";
+          if (localStorage.getItem("daisy-docs-locale") === "en-US") locale = "en-US";
+        } catch (_) {}
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.lang = locale;
+      })();
+    </script>
+
+    <link rel="stylesheet" href="https://ka-f.webawesome.com/webawesome@3.14.0/styles/themes/default.css" />
+    <script type="module" src="https://ka-f.webawesome.com/webawesome@3.14.0/webawesome.loader.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css" />
+
+    <link rel="stylesheet" href="./styles/tokens.css" />
+    <link rel="stylesheet" href="./styles/layout.css" />
+    <link rel="stylesheet" href="./styles/components.css" />
+    <link rel="stylesheet" href="./styles/content.css" />
+
+    <script defer src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js"></script>
+    <script type="module" src="./scripts/main.mjs"></script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#content" data-i18n="a11y.skipToContent">Pular para o conteúdo</a>
+
+    <header class="topbar">
+      <div class="brand-zone">
+        <button
+          class="icon-button mobile-menu"
+          id="menuToggle"
+          type="button"
+          aria-label="Abrir navegação"
+          aria-expanded="false"
+          aria-controls="sidebar"
+        >
+          <i class="ph ph-list" aria-hidden="true"></i>
+        </button>
+
+        <a class="brand" href="#/docs/home.md" aria-label="daisy — início da documentação">
+          <span class="brand-mark" aria-hidden="true">d</span>
+          <span>daisy</span>
+        </a>
+      </div>
+
+      <div class="header-actions">
+        <nav class="topnav" aria-label="Navegação principal">
+          <a href="#/docs/home.md" data-i18n="nav.documentation">documentação</a>
+          <a href="#/docs/02-roadmap/roadmap.md" data-i18n="nav.roadmap">roadmap</a>
+          <a href="#/docs/about.md" data-i18n="nav.about">sobre</a>
+        </nav>
+
+        <label class="sr-only" for="localeSelect" data-i18n="site.language">Idioma</label>
+        <select class="locale-select" id="localeSelect">
+          <option value="pt-BR">pt-BR</option>
+          <option value="en-US">en-US</option>
+        </select>
+
+        <button
+          id="themeToggle"
+          class="icon-button theme-toggle"
+          type="button"
+          aria-label="Ativar tema escuro"
+          aria-pressed="false"
+          title="Ativar tema escuro"
+        >
+          <i class="ph ph-moon" aria-hidden="true"></i>
+        </button>
+
+        <div class="search-wrap">
+          <label class="sr-only" for="search" data-i18n="search.label">Buscar na documentação</label>
+          <wa-input
+            id="search"
+            type="search"
+            size="s"
+            appearance="filled-outlined"
+            autocomplete="off"
+            spellcheck="false"
+            with-clear
+          >
+            <i class="ph ph-magnifying-glass" slot="start" aria-hidden="true"></i>
+            <kbd slot="end" class="shortcut-key" aria-hidden="true">/</kbd>
+          </wa-input>
+
+          <div
+            id="searchResults"
+            class="search-results"
+            role="listbox"
+            aria-label="Resultados da busca"
+            hidden
+          ></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Índice da documentação">
+        <div class="sidebar-heading">
+          <div>
+            <span class="eyebrow" data-i18n="nav.reference">Referência técnica</span>
+            <strong data-i18n="nav.documentation">Documentação</strong>
+          </div>
+          <button id="collapseAll" class="quiet-button" type="button">
+            <i class="ph ph-arrows-in-line-vertical" aria-hidden="true"></i>
+            <span data-i18n="nav.collapse">recolher</span>
+          </button>
+        </div>
+
+        <nav id="docNav" class="doc-nav" aria-label="Domínios e arquivos"></nav>
+      </aside>
+
+      <main id="content" class="content" tabindex="-1">
+        <div class="loading-card" role="status">
+          <span class="loading-dot" aria-hidden="true"></span>
+          <span data-i18n="site.loading">Carregando documentação…</span>
+        </div>
+      </main>
+
+      <aside class="toc" id="toc" aria-label="Nesta página">
+        <div class="toc-header">
+          <i class="ph ph-list-bullets" aria-hidden="true"></i>
+          <span data-i18n="site.onThisPage">Nesta página</span>
+        </div>
+        <nav id="pageToc"></nav>
+      </aside>
+    </div>
+
+    <noscript>
+      <div class="noscript" data-i18n="site.noscript">
+        Esta documentação precisa de JavaScript habilitado para carregar os arquivos Markdown.
+      </div>
+    </noscript>
+  </body>
+</html>

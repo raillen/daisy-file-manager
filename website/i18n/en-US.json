@@ -1,0 +1,53 @@
+{
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "themeToggle": "Toggle theme"
+  },
+  "nav": {
+    "documentation": "documentation",
+    "roadmap": "roadmap",
+    "about": "about",
+    "reference": "Technical reference",
+    "collapse": "collapse",
+    "index": "Documentation index"
+  },
+  "site": {
+    "language": "Language",
+    "loading": "Loading documentation…",
+    "noscript": "This documentation requires JavaScript to load the Markdown files.",
+    "onThisPage": "On this page",
+    "openMenu": "Open navigation",
+    "closeMenu": "Close navigation"
+  },
+  "theme": {
+    "toDark": "Activate dark theme",
+    "toLight": "Activate light theme"
+  },
+  "search": {
+    "label": "Search the documentation",
+    "placeholder": "Search the documentation",
+    "results": "Search results",
+    "noResults": "No results for “{query}”.",
+    "unavailable": "Advanced search unavailable; using text search."
+  },
+  "doc": {
+    "home": "Home",
+    "about": "About",
+    "overview": "Overview",
+    "documentation": "Documentation",
+    "loading": "The page could not be loaded.",
+    "manifestMissing": "Documentation manifest unavailable.",
+    "bootstrapFailed": "Failed to start the documentation.",
+    "httpHint": "Serve the website/ folder over HTTP; browsers usually block fetch() on file://.",
+    "copyCode": "Copy code",
+    "codeCopied": "Code copied",
+    "copyFailed": "Could not copy",
+    "anchorLabel": "Link to {title}"
+  },
+  "roadmap": {
+    "title": "Implementation roadmap",
+    "phase": "Phase",
+    "scope": "Scope",
+    "status": "Status"
+  }
+}

@@ -9,10 +9,12 @@
   "scripts": {
     "dev": "bun run index.tsx",
     "start": "bun run index.tsx",
+    "website": "bun run scripts/serve-website.mjs",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "workforce": "bun run scripts/sync-workforce.mjs",
     "verify": "bun run test && bun run typecheck && biome check ."
   },
   "devDependencies": {

@@ -1,0 +1,46 @@
+{
+  "domains": [
+    {
+      "id": "guide",
+      "title": "Começar",
+      "files": [
+        { "path": "00-guide/instalacao.md", "title": "Instalação" },
+        { "path": "00-guide/uso.md", "title": "Uso no dia a dia" },
+        { "path": "00-guide/atalhos.md", "title": "Atalhos" }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Arquitetura",
+      "files": [
+        { "path": "01-arquitetura/visao-geral.md", "title": "Visão geral" },
+        { "path": "01-arquitetura/pastas.md", "title": "Organização de pastas" },
+        { "path": "01-arquitetura/testes.md", "title": "Estratégia de testes" }
+      ]
+    },
+    {
+      "id": "design",
+      "title": "Design",
+      "files": [
+        { "path": "02-design/tokens.md", "title": "Tokens e temas" },
+        { "path": "02-design/icones.md", "title": "Ícones" },
+        { "path": "02-design/acessibilidade.md", "title": "Acessibilidade" }
+      ]
+    },
+    {
+      "id": "quality",
+      "title": "Qualidade",
+      "files": [
+        { "path": "03-qualidade/clean-code.md", "title": "Clean code" },
+        { "path": "03-qualidade/workforce.md", "title": "Workforce de agentes" }
+      ]
+    },
+    {
+      "id": "roadmap",
+      "title": "Roadmap",
+      "files": [
+        { "path": "04-roadmap/fases.md", "title": "Fases de implementação" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--base-size-16);
+  height: var(--header-height);
+  padding: 0 var(--base-size-24);
+  background: var(--overlay-bgColor);
+  border-bottom: 1px solid var(--borderColor-default);
+}
+
+.brand-zone,
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--base-size-16);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--base-size-8);
+  font-weight: 600;
+  color: var(--fgColor-default);
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-medium);
+  background: var(--bgColor-accent);
+  color: var(--fgColor-onEmphasis);
+  font-weight: 700;
+}
+
+.topnav {
+  display: flex;
+  align-items: center;
+  gap: var(--base-size-16);
+}
+
+.topnav a {
+  color: var(--fgColor-muted);
+  text-decoration: none;
+  padding: var(--base-size-4) var(--base-size-8);
+  border-radius: var(--radius-small);
+}
+
+.topnav a:hover {
+  color: var(--fgColor-default);
+  background: var(--bgColor-muted);
+}
+
+.topnav a[aria-current="page"] {
+  color: var(--fgColor-default);
+  font-weight: 600;
+}
+
+.locale-select {
+  padding: var(--base-size-4) var(--base-size-8);
+  border: 1px solid var(--borderColor-default);
+  border-radius: var(--radius-small);
+  background: var(--bgColor-default);
+  font-size: var(--text-sm);
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--toc-width);
+  gap: var(--base-size-32);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--base-size-32) var(--base-size-24);
+  align-items: start;
+}
+
+.sidebar,
+.toc {
+  position: sticky;
+  top: calc(var(--header-height) + var(--base-size-24));
+  max-height: calc(100vh - var(--header-height) - var(--base-size-48));
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--base-size-12);
+}
+
+.sidebar-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--base-size-8);
+  padding-bottom: var(--base-size-8);
+  border-bottom: 1px solid var(--borderColor-muted);
+}
+
+.sidebar-heading > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fgColor-muted);
+}
+
+.content {
+  min-width: 0;
+  max-width: var(--content-width);
+}
+
+.content:focus {
+  outline: none;
+}
+
+.toc-header {
+  display: flex;
+  align-items: center;
+  gap: var(--base-size-8);
+  font-size: var(--text-sm);
+  color: var(--fgColor-muted);
+  padding-bottom: var(--base-size-8);
+  border-bottom: 1px solid var(--borderColor-muted);
+  margin-bottom: var(--base-size-12);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .app-shell {
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  }
+
+  .toc {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .topbar {
+    padding: 0 var(--base-size-16);
+    gap: var(--base-size-8);
+  }
+
+  .topnav,
+  .locale-select {
+    display: none;
+  }
+
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--base-size-16);
+  }
+
+  .mobile-menu {
+    display: inline-grid;
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: var(--header-height) auto 0 0;
+    width: min(var(--sidebar-width), 88vw);
+    max-height: none;
+    padding: var(--base-size-16);
+    background: var(--overlay-bgColor);
+    border-right: 1px solid var(--borderColor-default);
+    transform: translateX(-100%);
+    transition: transform var(--motion-medium) ease;
+    z-index: 25;
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: var(--header-height) 0 0 0;
+    background: rgba(1, 4, 9, 0.6);
+    z-index: 20;
+  }
+
+  .sidebar-backdrop[hidden] {
+    display: none;
+  }
+}
+
+@media (min-width: 861px) {
+  .mobile-menu {
+    display: none;
+  }
+}

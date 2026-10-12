@@ -1,0 +1,53 @@
+{
+  "a11y": {
+    "skipToContent": "Pular para o conteúdo",
+    "themeToggle": "Alternar tema"
+  },
+  "nav": {
+    "documentation": "documentação",
+    "roadmap": "roadmap",
+    "about": "sobre",
+    "reference": "Referência técnica",
+    "collapse": "recolher",
+    "index": "Índice da documentação"
+  },
+  "site": {
+    "language": "Idioma",
+    "loading": "Carregando documentação…",
+    "noscript": "Esta documentação precisa de JavaScript habilitado para carregar os arquivos Markdown.",
+    "onThisPage": "Nesta página",
+    "openMenu": "Abrir navegação",
+    "closeMenu": "Fechar navegação"
+  },
+  "theme": {
+    "toDark": "Ativar tema escuro",
+    "toLight": "Ativar tema claro"
+  },
+  "search": {
+    "label": "Buscar na documentação",
+    "placeholder": "Buscar na documentação",
+    "results": "Resultados da busca",
+    "noResults": "Nenhum resultado para “{query}”.",
+    "unavailable": "Busca avançada indisponível; usando busca textual."
+  },
+  "doc": {
+    "home": "Início",
+    "about": "Sobre",
+    "overview": "Visão geral",
+    "documentation": "Documentação",
+    "loading": "Não foi possível carregar a página.",
+    "manifestMissing": "Manifesto da documentação indisponível.",
+    "bootstrapFailed": "Falha ao iniciar a documentação.",
+    "httpHint": "Sirva a pasta website/ por HTTP; navegadores normalmente bloqueiam fetch() em file://.",
+    "copyCode": "Copiar código",
+    "codeCopied": "Código copiado",
+    "copyFailed": "Não foi possível copiar",
+    "anchorLabel": "Link para {title}"
+  },
+  "roadmap": {
+    "title": "Roadmap de implementação",
+    "phase": "Fase",
+    "scope": "Escopo",
+    "status": "Situação"
+  }
+}
