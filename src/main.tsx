@@ -15,6 +15,7 @@ import type { PreviewCache } from "./core/preview/cache";
 import { createPreviewCache } from "./core/preview/cache";
 import { glyph, type IconSet } from "./core/theme/icons";
 import { palettes, type ThemeName } from "./core/theme/palette";
+import { type ClipboardStore, createClipboardStore, createQueueStore, type QueueStore } from "./state/operations";
 import { createSessionStore, type SessionState, visibleEntries } from "./state/session";
 import { createUiStore, type UiState } from "./state/ui";
 
@@ -52,6 +53,7 @@ function initialSession(cwd: string): SessionState {
 function initialUi(theme: ThemeName, locale: LocaleCode, iconSet: IconSet, splitPane: boolean): UiState {
   return {
     mode: "normal",
+    properties: undefined,
     theme,
     locale,
     iconSet,
@@ -75,6 +77,8 @@ function buildPlaces(home: string, t: Translator): Place[] {
 
 function Root(props: {
   previewCache: PreviewCache;
+  clipboard: ClipboardStore;
+  queue: QueueStore;
   session: ReturnType<typeof createSessionStore>;
   ui: ReturnType<typeof createUiStore>;
   places: Place[];
@@ -88,6 +92,8 @@ function Root(props: {
   useCommandLayer({
     session: props.session,
     ui: props.ui,
+    clipboard: props.clipboard,
+    queue: props.queue,
     currentEntryPath: () => visibleEntries(props.session.state)[props.session.state.cursor]?.path,
     overrides: props.keymapOverrides,
     onQuit: () => props.ui.actions.quit(),
@@ -97,6 +103,7 @@ function Root(props: {
     <KeymapProvider keymap={keymap}>
       <App
         previewCache={props.previewCache}
+        queue={props.queue}
         session={props.session}
         ui={props.ui}
         places={props.places}
@@ -123,6 +130,8 @@ const ui = createUiStore({
 });
 const places = buildPlaces(home, translators[config.locale]);
 const previewCache = createPreviewCache({ maxTextBytes: config.preview.maxTextBytes });
+const clipboard = createClipboardStore();
+const queue = createQueueStore();
 
 await session.actions.load(startDirectory);
 const freeSpace = await freeSpaceOf(startDirectory);
@@ -131,6 +140,8 @@ await render(
   () => (
     <Root
       previewCache={previewCache}
+      clipboard={clipboard}
+      queue={queue}
       session={session}
       ui={ui}
       places={places}

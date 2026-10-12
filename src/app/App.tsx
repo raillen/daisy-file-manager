@@ -1,11 +1,14 @@
 import { SyntaxStyle } from "@opentui/core";
 import { useRenderer, useTerminalDimensions } from "@opentui/solid";
 import { createEffect, createMemo, Show } from "solid-js";
+import type { Entry } from "../core/entries/directory";
 import { segmentsFor } from "../core/entries/path";
 import type { PreviewCache } from "../core/preview/cache";
+import type { QueueStore } from "../state/operations";
 import type { SessionStore } from "../state/session";
 import { visibleEntries } from "../state/session";
 import type { UiStore } from "../state/ui";
+import { PropertiesDialog } from "./dialogs/PropertiesDialog";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
 import { PreviewPane } from "./PreviewPane";
@@ -16,6 +19,7 @@ import { TitleBar } from "./TitleBar";
 
 export type AppProps = {
   previewCache: PreviewCache;
+  queue: QueueStore;
   session: SessionStore;
   ui: UiStore;
   places: Place[];
@@ -122,6 +126,16 @@ export function App(props: AppProps) {
         />
       </Show>
 
+      <Show when={props.ui.state.properties !== undefined}>
+        <PropertiesDialog
+          palette={palette()}
+          entry={props.ui.state.properties as Entry}
+          locale={props.ui.state.locale}
+          t={props.ui.translate}
+          onClose={() => props.ui.actions.hideProperties()}
+        />
+      </Show>
+
       <StatusBar
         palette={palette()}
         total={props.session.state.entries.length}
@@ -130,7 +144,7 @@ export function App(props: AppProps) {
         selectedSize={markedSize()}
         freeSpace={props.freeSpace}
         loading={props.session.state.loading}
-        message={props.session.state.error}
+        message={props.session.state.error ?? props.queue.state.error ?? props.queue.state.message}
         t={props.ui.translate}
         hints={hints()}
       />

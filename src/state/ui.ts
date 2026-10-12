@@ -1,5 +1,6 @@
 import { createStore } from "solid-js/store";
 
+import type { Entry } from "../core/entries/directory";
 import type { LocaleCode, Translator } from "../core/i18n/translator";
 import type { IconSet } from "../core/theme/icons";
 import type { Palette, ThemeName } from "../core/theme/palette";
@@ -8,6 +9,7 @@ export type UiMode = "normal" | "search" | "visual";
 
 export type UiState = {
   mode: UiMode;
+  properties: Entry | undefined;
   theme: ThemeName;
   locale: LocaleCode;
   iconSet: IconSet;
@@ -19,6 +21,8 @@ export type UiState = {
 
 export type UiActions = {
   setMode: (mode: UiMode) => void;
+  showProperties: (entry: Entry) => void;
+  hideProperties: () => void;
   openSearch: () => void;
   closeSearch: () => void;
   toggleVisual: () => void;
@@ -47,6 +51,12 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
   const [state, setState] = createStore<UiState>(initial);
 
   const actions: UiActions = {
+    showProperties(entry) {
+      setState("properties", entry);
+    },
+    hideProperties() {
+      setState("properties", undefined);
+    },
     setMode(mode) {
       setState("mode", mode);
     },

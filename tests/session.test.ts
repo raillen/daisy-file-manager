@@ -28,6 +28,7 @@ function uiStore() {
   return createUiStore({
     initial: {
       mode: "normal",
+      properties: undefined,
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",
