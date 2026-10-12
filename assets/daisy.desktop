@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Daisy File Manager
+Comment=Nautilus-style TUI File Manager built with OpenTUI and Solid.js
+Exec=daisy %F
+Terminal=true
+Type=Application
+Icon=daisy
+Categories=System;FileManager;Utility;Core;
+Keywords=file;manager;explorer;browser;terminal;tui;nautilus;

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2a2e37" />
+      <stop offset="100%" stop-color="#181a1f" />
+    </radialGradient>
+    <radialGradient id="center" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#fdd835" />
+      <stop offset="100%" stop-color="#f57f17" />
+    </radialGradient>
+    <linearGradient id="petal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e0e0e0" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)" />
+  <g transform="translate(64,64)">
+    <g id="p"><ellipse cx="0" cy="-36" rx="9" ry="20" fill="url(#petal)" /></g>
+    <use href="#p" transform="rotate(30)" />
+    <use href="#p" transform="rotate(60)" />
+    <use href="#p" transform="rotate(90)" />
+    <use href="#p" transform="rotate(120)" />
+    <use href="#p" transform="rotate(150)" />
+    <use href="#p" transform="rotate(180)" />
+    <use href="#p" transform="rotate(210)" />
+    <use href="#p" transform="rotate(240)" />
+    <use href="#p" transform="rotate(270)" />
+    <use href="#p" transform="rotate(300)" />
+    <use href="#p" transform="rotate(330)" />
+    <circle cx="0" cy="0" r="18" fill="url(#center)" />
+  </g>
+</svg>
