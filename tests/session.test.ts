@@ -253,5 +253,24 @@ describe("store de ui", () => {
     expect(ui.state.targetFolderDialog?.sources).toEqual(["/tmp/a"]);
     ui.actions.closeTargetFolderDialog();
     expect(ui.state.targetFolderDialog).toBeUndefined();
+
+    const fakePdf = {
+      name: "document.pdf",
+      path: "/tmp/document.pdf",
+      kind: "pdf" as const,
+      isDirectory: false,
+      isSymlink: false,
+      size: 1024,
+      modifiedMs: Date.now(),
+      permissions: "-rw-r--r--",
+    };
+    ui.actions.openPdfViewer(fakePdf, 5);
+    expect(ui.state.viewerModal?.kind).toBe("pdf");
+    if (ui.state.viewerModal?.kind === "pdf") {
+      expect(ui.state.viewerModal.totalPages).toBe(5);
+      expect(ui.state.viewerModal.initialPage).toBe(1);
+    }
+    ui.actions.closeViewer();
+    expect(ui.state.viewerModal).toBeUndefined();
   });
 });

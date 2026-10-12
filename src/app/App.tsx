@@ -27,6 +27,7 @@ import type { UiStore } from "../state/ui";
 import { CommandLine } from "./CommandLine";
 import { ImageViewerDialog } from "./dialogs/ImageViewerDialog";
 import { InputDialog } from "./dialogs/InputDialog";
+import { PdfViewerDialog } from "./dialogs/PdfViewerDialog";
 import { PropertiesDialog } from "./dialogs/PropertiesDialog";
 import { TargetFolderDialog } from "./dialogs/TargetFolderDialog";
 import { TextViewerDialog } from "./dialogs/TextViewerDialog";
@@ -181,6 +182,10 @@ export function App(props: AppProps) {
     }
     if (preview.kind === "text") {
       props.ui.actions.openTextViewer(entry, preview.content, preview.filetype);
+      return;
+    }
+    if (preview.kind === "pdf") {
+      props.ui.actions.openPdfViewer(entry, preview.pdfPages ?? 1);
       return;
     }
     openExternally(entry.path);
@@ -478,6 +483,19 @@ export function App(props: AppProps) {
                 content={modal.content}
                 filetype={modal.filetype}
                 syntaxStyle={syntaxStyle()}
+                t={props.ui.translate}
+                onClose={() => props.ui.actions.closeViewer()}
+              />
+            );
+          }
+          if (modal?.kind === "pdf") {
+            return (
+              <PdfViewerDialog
+                palette={palette()}
+                iconSet={props.ui.state.iconSet}
+                entry={modal.entry}
+                totalPages={modal.totalPages}
+                initialPage={modal.initialPage}
                 t={props.ui.translate}
                 onClose={() => props.ui.actions.closeViewer()}
               />

@@ -204,8 +204,15 @@
   "viewer": {
     "imageTitle": "Image Viewer",
     "textTitle": "Text Viewer",
+    "pdfTitle": "PDF Viewer",
     "close": "Close [Esc]",
-    "lines": "{count} lines"
+    "lines": "{count} lines",
+    "pdfPage": "Page {current} of {total}",
+    "prevPage": "Previous [p]",
+    "nextPage": "Next [n]",
+    "toggleText": "Text Mode [t]",
+    "toggleVisual": "Visual Mode [t]",
+    "noRenderer": "pdftoppm not available. Displaying extracted text."
   },
   "modes": {
     "normal": "NORMAL",

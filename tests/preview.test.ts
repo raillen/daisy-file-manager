@@ -75,6 +75,17 @@ describe("previewFor", () => {
     expect(preview.folderCount).toBe(1);
     expect(preview.childCount).toBe(2);
   });
+
+  test("pdf gera preview com kind pdf e páginas", async () => {
+    const minimalPdf =
+      "%PDF-1.4\n1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n2 0 obj << /Type /Pages /Kids [] /Count 1 >> endobj\ntrailer << /Size 3 /Root 1 0 R >>\n%%EOF";
+    await writeFile(join(root, "doc.pdf"), minimalPdf, "utf8");
+    const preview = await previewFor(await entryFor("doc.pdf"), limits);
+
+    expect(preview.kind).toBe("pdf");
+    expect(preview.filetype).toBe("pdf");
+    expect(preview.pdfPages).toBe(1);
+  });
 });
 
 describe("cache de preview", () => {

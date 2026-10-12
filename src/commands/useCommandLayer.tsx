@@ -108,6 +108,10 @@ async function handleEnter(runtime: CommandRuntime) {
       runtime.ui.actions.openTextViewer(entry, preview.content, preview.filetype);
       return;
     }
+    if (preview.kind === "pdf") {
+      runtime.ui.actions.openPdfViewer(entry, preview.pdfPages ?? 1);
+      return;
+    }
   }
 
   openExternally(entry.path);

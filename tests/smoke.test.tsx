@@ -385,3 +385,47 @@ test("F5 or Shift+C triggers file.copyTo and opens TargetFolderDialog", async ()
 
   await setup.dispose();
 });
+
+test("App renders PdfViewerDialog when viewerModal is pdf", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  const entry: Entry = {
+    name: "manual.pdf",
+    path: `${cwd}/manual.pdf`,
+    kind: "pdf",
+    isDirectory: false,
+    isSymlink: false,
+    size: 2048,
+    modifiedMs: Date.now(),
+    permissions: "-rw-r--r--",
+  };
+
+  ui.actions.openPdfViewer(entry, 10);
+
+  const setup = await testRender(() => (
+    <App
+      keymapOverrides={{}}
+      previewCache={previewCache}
+      clipboard={clipboard}
+      queue={queue}
+      session={session}
+      ui={ui}
+      places={[]}
+      home={cwd}
+      separator="/"
+      freeSpace={undefined}
+    />
+  ));
+  await setup.renderOnce();
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("manual");
+  expect(frame).toContain("Página 1");
+  expect(frame).toContain("Modo Texto");
+  await setup.dispose();
+});

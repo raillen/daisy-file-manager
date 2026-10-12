@@ -2,14 +2,17 @@ import { readdir, readFile, stat } from "node:fs/promises";
 
 import type { Entry } from "../entries/directory";
 import { type EntryKind, kindFromName } from "../entries/kind";
+import { getPdfInfo, renderPdfPage } from "../pdf/pdf";
 
 export type PreviewSource = {
-  kind: "image" | "text" | "directory" | "metadata";
+  kind: "image" | "text" | "directory" | "metadata" | "pdf";
   path: string;
   content: string;
   filetype: string;
   childCount: number;
   folderCount: number;
+  pdfPages?: number;
+  coverImage?: string;
 };
 
 export type PreviewLimits = {
@@ -111,6 +114,21 @@ export async function previewFor(entry: Entry, limits: PreviewLimits): Promise<P
   const extension = extensionOf(entry.name);
   if (imageExtensions.has(extension)) {
     return { kind: "image", path: entry.path, content: "", filetype: extension, childCount: 0, folderCount: 0 };
+  }
+
+  if (extension === "pdf") {
+    const info = await getPdfInfo(entry.path);
+    const coverImage = await renderPdfPage(entry.path, 1, 100);
+    return {
+      kind: "pdf",
+      path: entry.path,
+      content: "",
+      filetype: "pdf",
+      childCount: 0,
+      folderCount: 0,
+      pdfPages: info.pages,
+      coverImage,
+    };
   }
 
   const kind: EntryKind = kindFromName(entry.name);

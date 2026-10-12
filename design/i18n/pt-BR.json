@@ -204,8 +204,15 @@
   "viewer": {
     "imageTitle": "Visualizador de Imagem",
     "textTitle": "Visualizador de Texto",
+    "pdfTitle": "Visualizador de PDF",
     "close": "Fechar [Esc]",
-    "lines": "{count} linhas"
+    "lines": "{count} linhas",
+    "pdfPage": "Página {current} de {total}",
+    "prevPage": "Anterior [p]",
+    "nextPage": "Próxima [n]",
+    "toggleText": "Modo Texto [t]",
+    "toggleVisual": "Modo Visual [t]",
+    "noRenderer": "pdftoppm não disponível. Exibindo texto extraído."
   },
   "modes": {
     "normal": "NORMAL",

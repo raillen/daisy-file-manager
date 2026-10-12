@@ -22,7 +22,8 @@ export type TargetFolderDialogState = {
 
 export type ViewerModalState =
   | { kind: "image"; entry: Entry }
-  | { kind: "text"; entry: Entry; content: string; filetype: string };
+  | { kind: "text"; entry: Entry; content: string; filetype: string }
+  | { kind: "pdf"; entry: Entry; totalPages: number; initialPage: number };
 
 export type UiState = {
   mode: UiMode;
@@ -52,6 +53,7 @@ export type UiActions = {
   closeCommandLine: () => void;
   openImageViewer: (entry: Entry) => void;
   openTextViewer: (entry: Entry, content: string, filetype: string) => void;
+  openPdfViewer: (entry: Entry, totalPages: number, initialPage?: number) => void;
   closeViewer: () => void;
   openTargetFolderDialog: (mode: "copy" | "move", sources: string[]) => void;
   closeTargetFolderDialog: () => void;
@@ -111,6 +113,9 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     openTextViewer(entry, content, filetype) {
       setState("viewerModal", { kind: "text", entry, content, filetype });
+    },
+    openPdfViewer(entry, totalPages, initialPage = 1) {
+      setState("viewerModal", { kind: "pdf", entry, totalPages, initialPage });
     },
     closeViewer() {
       setState("viewerModal", undefined);

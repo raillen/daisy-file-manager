@@ -96,6 +96,15 @@ export function PreviewPane(props: PreviewPaneProps) {
                     {props.t("preview.binary.summary")}
                   </text>
                 </Show>
+
+                <Show when={current.kind === "pdf"}>
+                  <text fg={props.palette["fg.accent"]} marginTop={1}>
+                    {props.t("viewer.pdfPage", { current: 1, total: current.pdfPages ?? 1 })}
+                  </text>
+                  <Show when={current.coverImage !== undefined}>
+                    <image source={current.coverImage ?? ""} fit="fit" flexGrow={1} marginTop={1} />
+                  </Show>
+                </Show>
               </>
             )}
           </Show>
