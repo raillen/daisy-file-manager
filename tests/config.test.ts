@@ -61,6 +61,22 @@ describe("parseTomlConfig", () => {
     expect(config.colors).toEqual({});
     expect(warnings).toHaveLength(1);
   });
+
+  test("aceita theme = default e mapeia para dark sem aviso", () => {
+    const { config, warnings } = parseTomlConfig('theme = "default"');
+    expect(config.theme).toBe("dark");
+    expect(warnings).toHaveLength(0);
+  });
+
+  test("aceita tabela [editor] com command ou tolera opcoes de editor sem aviso", () => {
+    const withCmd = parseTomlConfig('[editor]\ncommand = "hx"\ntab_size = 4');
+    expect(withCmd.config.editor).toBe("hx");
+    expect(withCmd.warnings).toHaveLength(0);
+
+    const withoutCmd = parseTomlConfig("[editor]\ntab_size = 4\nauto_pairs = true");
+    expect(withoutCmd.config.editor).toBeUndefined();
+    expect(withoutCmd.warnings).toHaveLength(0);
+  });
 });
 
 describe("mergeConfig", () => {

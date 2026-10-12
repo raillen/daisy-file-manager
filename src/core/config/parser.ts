@@ -138,14 +138,28 @@ export function parseTomlConfig(source: string): ParseResult {
   }
 
   const config: ConfigOverride = {};
-  const theme = readEnum(parsed, "theme", THEMES, warnings);
-  if (theme !== undefined) config.theme = theme;
+  if (parsed.theme === "default") {
+    config.theme = "dark";
+  } else {
+    const theme = readEnum(parsed, "theme", THEMES, warnings);
+    if (theme !== undefined) config.theme = theme;
+  }
   const locale = readEnum(parsed, "locale", LOCALES, warnings);
   if (locale !== undefined) config.locale = locale;
   const iconSet = readEnum(parsed, "iconSet", ICON_SETS, warnings);
   if (iconSet !== undefined) config.iconSet = iconSet;
-  const editor = readString(parsed, "editor", warnings);
-  if (editor !== undefined) config.editor = editor;
+
+  if (typeof parsed.editor === "string") {
+    config.editor = parsed.editor;
+  } else if (typeof parsed.editor === "object" && parsed.editor !== null && !Array.isArray(parsed.editor)) {
+    const table = parsed.editor as Record<string, unknown>;
+    const cmd = table.command ?? table.program ?? table.path ?? table.bin;
+    if (typeof cmd === "string") {
+      config.editor = cmd;
+    }
+  } else if (parsed.editor !== undefined) {
+    warnings.push(`config.editor: esperado texto, recebido ${typeof parsed.editor}`);
+  }
   const defaultView = readEnum(parsed, "defaultView", VIEW_MODES, warnings);
   if (defaultView !== undefined) config.defaultView = defaultView;
   const showHidden = readBoolean(parsed, "showHidden", warnings);
