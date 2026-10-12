@@ -31,7 +31,7 @@ Antes de qualquer trabalho, consulte o agent/skill adequado em `.agents/workforc
 
 | Tipo de trabalho | Usar |
 | --- | --- |
-|(tokens, cores, ícones, temas, traduções | `design-system-engineer`, skills `design-tokens`, `icon-system`, `typography-system`, `color-science` |
+| Tokens, cores, ícones, temas, traduções | `design-system-engineer`, skills `design-tokens`, `icon-system`, `typography-system`, `color-science` |
 | Interface, layout, fluxo, copy | `ux-architect`, `ui-component-engineer`, `design-researcher`, skills `wireframing`, `interaction-design`, `user-flows` |
 | Acessibilidade | `accessibility-reviewer`, skills `accessibility`, `contrast`, `keyboard-accessibility`, `focus-management`, `screen-reader`, `zoom-reflow` |
 | Comunicação/documentação | skill `cognitive-clarity` |
@@ -41,9 +41,11 @@ Antes de qualquer trabalho, consulte o agent/skill adequado em `.agents/workforc
 
 ```sh
 bun run dev        # roda a TUI
+bun run build      # compila binários nativos standalone (glibc + musl)
 bun test           # testes
 bun run typecheck  # tsc --noEmit
 bun run lint       # biome check
 bun run verify     # test + typecheck + lint
-bun run scripts/sync-workforce.mjs --dry-run
+bun run website    # servidor local de documentação
+bun run workforce  # sincroniza workforce
 ```

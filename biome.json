@@ -9,7 +9,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "complexity": {
         "noForEach": "error",
         "noUselessFragments": "error"
@@ -41,6 +41,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["index.tsx", "src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts", "tests/**/*.tsx", "scripts/**/*.mjs"]
+    "includes": [
+      "index.tsx",
+      "build.ts",
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "tests/**/*.ts",
+      "tests/**/*.tsx",
+      "scripts/**/*.mjs"
+    ]
   }
 }

@@ -1,5 +1,4 @@
 import { TextAttributes } from "@opentui/core";
-import { Show } from "solid-js";
 
 import type { Palette } from "../core/theme/palette";
 

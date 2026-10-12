@@ -1,6 +1,6 @@
 import { statfs } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui";
 import { KeymapProvider } from "@opentui/keymap/solid";
@@ -129,9 +129,43 @@ function Root(props: {
   );
 }
 
+const args = process.argv.slice(2);
+
+if (args.includes("--help") || args.includes("-h")) {
+  console.log(`daisy — Gerenciador de arquivos TUI elegante e acessível
+
+Uso:
+  daisy [caminho]
+  daisy --help
+  daisy --version
+
+Opções:
+  -h, --help       Mostra esta mensagem de ajuda
+  -v, --version    Mostra a versão do daisy
+
+Atalhos principais:
+  j/k, setas       Navegar pela lista/grade
+  Enter, l         Abrir pasta / arquivo
+  h                Voltar ao diretório pai
+  /                Buscar itens na pasta atual
+  v                Alternar entre lista e grade
+  y / d / p        Copiar / cortar / colar
+  i                Painel de propriedades do item
+  ?                Tela de ajuda com todos os atalhos
+  q, ctrl+c        Sair
+`);
+  process.exit(0);
+}
+
+if (args.includes("--version") || args.includes("-v")) {
+  console.log("daisy 0.1.0");
+  process.exit(0);
+}
+
 const { config, warnings } = await loadConfig();
 const home = homedir();
-const startDirectory = process.cwd();
+const requestedDir = args.find((arg) => !arg.startsWith("-"));
+const startDirectory = requestedDir ? resolve(process.cwd(), requestedDir) : process.cwd();
 
 for (const warning of warnings) console.error(`[daisy] ${warning}`);
 
