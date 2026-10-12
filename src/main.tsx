@@ -11,6 +11,8 @@ import type { Place } from "./app/Sidebar";
 import { useCommandLayer } from "./commands/useCommandLayer";
 import { loadConfig } from "./core/config/loader";
 import { createTranslator, type LocaleCode, type Translator } from "./core/i18n/translator";
+import type { PreviewCache } from "./core/preview/cache";
+import { createPreviewCache } from "./core/preview/cache";
 import { glyph, type IconSet } from "./core/theme/icons";
 import { palettes, type ThemeName } from "./core/theme/palette";
 import { createSessionStore, type SessionState, visibleEntries } from "./state/session";
@@ -72,6 +74,7 @@ function buildPlaces(home: string, t: Translator): Place[] {
 }
 
 function Root(props: {
+  previewCache: PreviewCache;
   session: ReturnType<typeof createSessionStore>;
   ui: ReturnType<typeof createUiStore>;
   places: Place[];
@@ -93,6 +96,7 @@ function Root(props: {
   return (
     <KeymapProvider keymap={keymap}>
       <App
+        previewCache={props.previewCache}
         session={props.session}
         ui={props.ui}
         places={props.places}
@@ -118,13 +122,22 @@ const ui = createUiStore({
   palettes,
 });
 const places = buildPlaces(home, translators[config.locale]);
+const previewCache = createPreviewCache({ maxTextBytes: config.preview.maxTextBytes });
 
 await session.actions.load(startDirectory);
 const freeSpace = await freeSpaceOf(startDirectory);
 
 await render(
   () => (
-    <Root session={session} ui={ui} places={places} home={home} freeSpace={freeSpace} keymapOverrides={config.keymap} />
+    <Root
+      previewCache={previewCache}
+      session={session}
+      ui={ui}
+      places={places}
+      home={home}
+      freeSpace={freeSpace}
+      keymapOverrides={config.keymap}
+    />
   ),
   {
     exitOnCtrlC: false,

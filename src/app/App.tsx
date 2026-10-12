@@ -1,17 +1,21 @@
+import { SyntaxStyle } from "@opentui/core";
 import { useRenderer, useTerminalDimensions } from "@opentui/solid";
 import { createEffect, createMemo, Show } from "solid-js";
 import { segmentsFor } from "../core/entries/path";
+import type { PreviewCache } from "../core/preview/cache";
 import type { SessionStore } from "../state/session";
 import { visibleEntries } from "../state/session";
 import type { UiStore } from "../state/ui";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
+import { PreviewPane } from "./PreviewPane";
 import { SearchBar } from "./SearchBar";
 import { type Place, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
 import { TitleBar } from "./TitleBar";
 
 export type AppProps = {
+  previewCache: PreviewCache;
   session: SessionStore;
   ui: UiStore;
   places: Place[];
@@ -23,6 +27,7 @@ export type AppProps = {
 export function App(props: AppProps) {
   const renderer = useRenderer();
   const dimensions = useTerminalDimensions();
+  const syntaxStyle = createMemo(() => SyntaxStyle.create(renderer.nativeScene.resourceContext));
   const palette = createMemo(() => props.ui.palette());
   const visible = createMemo(() => visibleEntries(props.session.state));
   const segments = createMemo(() => segmentsFor(props.session.state.cwd, props.home));
@@ -30,6 +35,7 @@ export function App(props: AppProps) {
     const usable = props.ui.state.sidebarVisible ? dimensions().width - 22 : dimensions().width;
     return Math.max(1, Math.floor(usable / 18));
   });
+  const currentEntry = createMemo(() => visible()[props.session.state.cursor]);
   const markedSize = createMemo(() => {
     const marked = props.session.state.marked;
     if (marked.length === 0) return undefined;
@@ -90,6 +96,18 @@ export function App(props: AppProps) {
             marked={props.session.state.marked}
             iconSet={props.ui.state.iconSet}
             columns={gridColumns()}
+          />
+        </Show>
+
+        <Show when={props.ui.state.previewVisible}>
+          <PreviewPane
+            palette={palette()}
+            entry={currentEntry()}
+            cache={props.previewCache}
+            syntaxStyle={syntaxStyle()}
+            t={props.ui.translate}
+            locale={props.ui.state.locale}
+            width={40}
           />
         </Show>
       </box>

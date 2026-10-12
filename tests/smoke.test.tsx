@@ -4,6 +4,7 @@ import { testRender } from "@opentui/solid";
 
 import { App } from "../src/app/App";
 import { createTranslator } from "../src/core/i18n/translator";
+import { createPreviewCache } from "../src/core/preview/cache";
 import { defaultTheme, palettes } from "../src/core/theme/palette";
 import { createSessionStore, type SessionState } from "../src/state/session";
 import { createUiStore, type UiState } from "../src/state/ui";
@@ -47,8 +48,18 @@ test("App renders headlessly", async () => {
   const { session, ui } = testStores(cwd);
   await session.actions.load(cwd);
 
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+
   const setup = await testRender(() => (
-    <App session={session} ui={ui} places={[]} home={cwd} separator="/" freeSpace={undefined} />
+    <App
+      previewCache={previewCache}
+      session={session}
+      ui={ui}
+      places={[]}
+      home={cwd}
+      separator="/"
+      freeSpace={undefined}
+    />
   ));
   await setup.renderOnce();
 
