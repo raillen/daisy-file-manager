@@ -91,6 +91,7 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "view.sort.size", run: () => curSession().actions.setSort("size") },
     { name: "view.sort.modified", run: () => curSession().actions.setSort("modified") },
 
+    { name: "ui.contextMenu", run: () => openContextMenuCurrent(runtime) },
     { name: "ui.quit", run: runtime.onQuit },
   ];
 }
@@ -195,6 +196,10 @@ function openMoveTo(runtime: CommandRuntime) {
 }
 
 function handleEscape(runtime: CommandRuntime) {
+  if (runtime.ui.state.contextMenu !== undefined) {
+    runtime.ui.actions.closeContextMenu();
+    return;
+  }
   if (runtime.ui.state.targetFolderDialog !== undefined) {
     runtime.ui.actions.closeTargetFolderDialog();
     return;
@@ -278,6 +283,23 @@ function toggleBookmarkCurrent(runtime: CommandRuntime) {
   } else {
     runtime.queue.actions.succeed(runtime.ui.translate("bookmarks.pinned"));
   }
+}
+
+function openContextMenuCurrent(runtime: CommandRuntime) {
+  if (runtime.ui.state.contextMenu !== undefined) {
+    runtime.ui.actions.closeContextMenu();
+    return;
+  }
+  const cur = runtime.activeSession?.() ?? runtime.session;
+  const currentPath = runtime.currentEntryPath();
+  const visible = visibleEntries(cur.state);
+  const entry = (currentPath ? visible.find((e) => e.path === currentPath) : undefined) ?? visible[cur.state.cursor];
+  if (entry === undefined) return;
+  const isRightPane = runtime.ui.state.splitPane && runtime.ui.state.activePane === "right";
+  const sidebarOffset = runtime.ui.state.sidebarVisible ? runtime.ui.state.sidebarWidth : 0;
+  const x = isRightPane ? sidebarOffset + 40 : sidebarOffset + 6;
+  const y = Math.min(3 + cur.state.cursor, 16);
+  runtime.ui.actions.openContextMenu({ x, y, entry });
 }
 
 function openCurrent(runtime: CommandRuntime) {

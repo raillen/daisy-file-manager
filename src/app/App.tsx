@@ -16,15 +16,16 @@ import {
   runOperation,
   TargetExists,
 } from "../core/operations/operations";
-import { openExternally } from "../core/operations/system";
+import { openExternally, openWith } from "../core/operations/system";
 import type { PreviewCache } from "../core/preview/cache";
 import { glyph } from "../core/theme/icons";
 import type { ClipboardStore, QueueStore } from "../state/operations";
-import { selectedPaths } from "../state/operations";
+import { selectedPaths, trashSelection } from "../state/operations";
 import { createSessionStore, type SessionState, type SessionStore, visibleEntries } from "../state/session";
 import type { UiStore } from "../state/ui";
 
 import { CommandLine } from "./CommandLine";
+import { ContextMenu } from "./ContextMenu";
 import { ImageViewerDialog } from "./dialogs/ImageViewerDialog";
 import { InputDialog } from "./dialogs/InputDialog";
 import { PdfViewerDialog } from "./dialogs/PdfViewerDialog";
@@ -153,6 +154,11 @@ export function App(props: AppProps) {
         const dest = join(dirname(dialog.targetPath), value);
         await renameEntry(dialog.targetPath, dest);
         props.queue.actions.succeed(props.ui.translate("operation.rename.done"));
+      } else if (dialog.kind === "openWith" && dialog.targetPath !== undefined) {
+        const ok = openWith(value, dialog.targetPath);
+        if (!ok) {
+          props.queue.actions.fail(props.ui.translate("operation.open.failed", { name: basename(dialog.targetPath) }));
+        }
       } else if (dialog.kind === "newFile") {
         await createEmptyFile(join(activeSession().state.cwd, value));
         props.queue.actions.succeed(props.ui.translate("operation.newFile.done"));
@@ -164,9 +170,31 @@ export function App(props: AppProps) {
           ? "operation.mkdir.failed"
           : dialog.kind === "rename"
             ? "operation.rename.failed"
-            : "operation.newFile.failed";
-      props.queue.actions.fail(props.ui.translate(failKey));
+            : dialog.kind === "openWith"
+              ? "operation.open.failed"
+              : "operation.newFile.failed";
+      props.queue.actions.fail(
+        props.ui.translate(failKey, { name: dialog.targetPath ? basename(dialog.targetPath) : "" }),
+      );
     }
+  }
+
+  function handleContextMenu(entry: Entry, index: number, pane: "left" | "right", x: number, y: number) {
+    props.ui.actions.setActivePane(pane);
+    const sess = pane === "left" ? props.session : rightSession();
+    sess.actions.cursorTo(index);
+    props.ui.actions.openContextMenu({ x, y, entry });
+  }
+
+  async function handleExtract(entry: Entry) {
+    props.queue.actions.succeed(props.ui.translate("operation.extract.started", { name: entry.name }));
+    const result = await extractArchive(entry.path);
+    if (result.success) {
+      props.queue.actions.succeed(props.ui.translate("operation.extract.done"));
+    } else {
+      props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name: entry.name }));
+    }
+    await activeSession().actions.load(activeSession().state.cwd);
   }
 
   async function handleTargetFolderConfirm(destPath: string) {
@@ -213,14 +241,7 @@ export function App(props: AppProps) {
     }
 
     if (isArchive(entry.name)) {
-      props.queue.actions.succeed(props.ui.translate("operation.extract.started", { name: entry.name }));
-      const result = await extractArchive(entry.path);
-      if (result.success) {
-        props.queue.actions.succeed(props.ui.translate("operation.extract.done"));
-      } else {
-        props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name: entry.name }));
-      }
-      await sess.actions.load(sess.state.cwd);
+      await handleExtract(entry);
       return;
     }
 
@@ -458,6 +479,7 @@ export function App(props: AppProps) {
                     props.session.actions.toggleMarked(path);
                   }}
                   onOpen={(entry) => void handleOpen(entry, props.session)}
+                  onContextMenu={(entry, index, x, y) => handleContextMenu(entry, index, "left", x, y)}
                   onMoveCursor={(delta) => {
                     props.ui.actions.setActivePane("left");
                     props.session.actions.moveCursor(delta);
@@ -487,6 +509,7 @@ export function App(props: AppProps) {
                   props.session.actions.toggleMarked(path);
                 }}
                 onOpen={(entry) => void handleOpen(entry, props.session)}
+                onContextMenu={(entry, index, x, y) => handleContextMenu(entry, index, "left", x, y)}
               />
             </Show>
           </box>
@@ -556,6 +579,7 @@ export function App(props: AppProps) {
                     rightSession().actions.toggleMarked(path);
                   }}
                   onOpen={(entry) => void handleOpen(entry, rightSession())}
+                  onContextMenu={(entry, index, x, y) => handleContextMenu(entry, index, "right", x, y)}
                   onMoveCursor={(delta) => {
                     props.ui.actions.setActivePane("right");
                     rightSession().actions.moveCursor(delta);
@@ -585,6 +609,7 @@ export function App(props: AppProps) {
                   rightSession().actions.toggleMarked(path);
                 }}
                 onOpen={(entry) => void handleOpen(entry, rightSession())}
+                onContextMenu={(entry, index, x, y) => handleContextMenu(entry, index, "right", x, y)}
               />
             </Show>
           </box>
@@ -630,6 +655,74 @@ export function App(props: AppProps) {
         t={props.ui.translate}
         entries={helpEntries(props.keymapOverrides)}
       />
+
+      <Show when={props.ui.state.contextMenu !== undefined}>
+        {(() => {
+          const menu = props.ui.state.contextMenu;
+          return menu !== undefined ? (
+            <ContextMenu
+              palette={palette()}
+              iconSet={props.ui.state.iconSet}
+              entry={menu.entry}
+              x={menu.x}
+              y={menu.y}
+              terminalWidth={dimensions().width}
+              terminalHeight={dimensions().height}
+              isBookmarked={props.ui.state.bookmarks.includes(menu.entry.path)}
+              t={props.ui.translate}
+              onOpen={() => void handleOpen(menu.entry, activeSession())}
+              onOpenWith={() => {
+                props.ui.actions.closeContextMenu();
+                props.ui.actions.openInputDialog({
+                  kind: "openWith",
+                  initialValue: "xdg-open",
+                  targetPath: menu.entry.path,
+                });
+              }}
+              onRename={() => {
+                props.ui.actions.closeContextMenu();
+                props.ui.actions.openInputDialog({
+                  kind: "rename",
+                  initialValue: menu.entry.name,
+                  targetPath: menu.entry.path,
+                });
+              }}
+              onCopy={() => {
+                props.clipboard.actions.set("copy", [menu.entry.path]);
+                props.queue.actions.succeed(props.ui.translate("operation.copy.started", { count: 1 }));
+              }}
+              onCut={() => {
+                props.clipboard.actions.set("cut", [menu.entry.path]);
+                props.queue.actions.succeed(props.ui.translate("operation.cut.started", { count: 1 }));
+              }}
+              onDelete={() => {
+                void trashSelection(
+                  {
+                    session: activeSession(),
+                    clipboard: props.clipboard,
+                    queue: props.queue,
+                    translate: props.ui.translate,
+                    reload: () => activeSession().actions.load(activeSession().state.cwd),
+                  },
+                  [menu.entry.path],
+                );
+              }}
+              onBookmark={() => {
+                const isPinned = props.ui.state.bookmarks.includes(menu.entry.path);
+                props.ui.actions.toggleBookmark(menu.entry.path);
+                props.queue.actions.succeed(props.ui.translate(isPinned ? "bookmarks.unpinned" : "bookmarks.pinned"));
+              }}
+              onExtract={() => {
+                void handleExtract(menu.entry);
+              }}
+              onProperties={() => {
+                props.ui.actions.showProperties(menu.entry);
+              }}
+              onClose={() => props.ui.actions.closeContextMenu()}
+            />
+          ) : null;
+        })()}
+      </Show>
 
       <Show when={props.ui.state.inputDialog !== undefined}>
         {(() => {

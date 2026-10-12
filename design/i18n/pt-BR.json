@@ -24,10 +24,25 @@
     "pinned": "Pasta fixada nos marcadores",
     "unpinned": "Pasta removida dos marcadores"
   },
+  "contextMenu": {
+    "title": "Ações",
+    "open": "Abrir",
+    "openWith": "Abrir com…",
+    "rename": "Renomear",
+    "copy": "Copiar",
+    "cut": "Recortar",
+    "delete": "Mover para a Lixeira",
+    "bookmark": "Fixar nos Marcadores",
+    "unbookmark": "Remover dos Marcadores",
+    "extract": "Extrair aqui",
+    "properties": "Propriedades"
+  },
   "drives": {
     "title": "Volumes",
     "empty": "Nenhum volume montado",
-    "unmounted": "Não montado"
+    "unmounted": "Não montado",
+    "unmount": "Desmontar",
+    "unmountFailed": "Falha ao desmontar volume"
   },
   "navigation": {
     "back": "Voltar",
@@ -153,6 +168,10 @@
     "newFile": {
       "title": "Novo arquivo",
       "label": "Nome do arquivo"
+    },
+    "openWith": {
+      "title": "Abrir com",
+      "label": "Comando ou aplicativo (ex: xdg-open, code, vim)"
     },
     "progress": {
       "title": "Operação em andamento",

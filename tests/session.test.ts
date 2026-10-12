@@ -30,6 +30,7 @@ function uiStore() {
       mode: "normal",
       properties: undefined,
       inputDialog: undefined,
+      contextMenu: undefined,
       viewerModal: undefined,
       targetFolderDialog: undefined,
       helpOpen: false,
@@ -280,5 +281,13 @@ describe("store de ui", () => {
     expect(ui.state.bookmarks).toEqual(["/tmp/my-folder"]);
     ui.actions.toggleBookmark("/tmp/my-folder");
     expect(ui.state.bookmarks).toEqual([]);
+
+    ui.actions.openContextMenu({ x: 10, y: 5, entry: fakePdf });
+    expect(ui.state.contextMenu).toBeDefined();
+    expect(ui.state.contextMenu?.entry.name).toBe("document.pdf");
+    expect(ui.state.contextMenu?.x).toBe(10);
+    expect(ui.state.contextMenu?.y).toBe(5);
+    ui.actions.closeContextMenu();
+    expect(ui.state.contextMenu).toBeUndefined();
   });
 });

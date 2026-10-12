@@ -20,6 +20,7 @@ export type FileGridProps = {
   onSelectRange?: (fromIndex: number, toIndex: number) => void;
   onToggleMark?: (path: string, index: number) => void;
   onOpen?: (entry: Entry) => void;
+  onContextMenu?: (entry: Entry, index: number, x: number, y: number) => void;
 };
 
 export function FileGrid(props: FileGridProps) {
@@ -62,6 +63,11 @@ export function FileGrid(props: FileGridProps) {
               paddingTop={1}
               backgroundColor={tileBackground(entry, index())}
               onMouseDown={(event: MouseEvent) => {
+                if (event.button === 2) {
+                  props.onSelect?.(index());
+                  props.onContextMenu?.(entry, index(), event.x, event.y);
+                  return;
+                }
                 const now = Date.now();
                 const isDouble = lastClick.index === index() && now - lastClick.time < 350;
                 lastClick = { index: index(), time: now };

@@ -12,7 +12,7 @@ import { createTranslator } from "../src/core/i18n/translator";
 import { createPreviewCache } from "../src/core/preview/cache";
 import { defaultTheme, palettes } from "../src/core/theme/palette";
 import { createClipboardStore, createQueueStore } from "../src/state/operations";
-import { createSessionStore, type SessionState } from "../src/state/session";
+import { createSessionStore, type SessionState, visibleEntries } from "../src/state/session";
 import { createUiStore, type UiState } from "../src/state/ui";
 
 function emptySession(cwd: string): SessionState {
@@ -37,6 +37,7 @@ function testStores(cwd: string) {
       mode: "normal",
       properties: undefined,
       inputDialog: undefined,
+      contextMenu: undefined,
       viewerModal: undefined,
       targetFolderDialog: undefined,
       helpOpen: false,
@@ -720,6 +721,104 @@ test("Pressing 'b' pins current folder to bookmarks in sidebar and toggles unpin
   await setup.renderOnce();
 
   expect(ui.state.bookmarks).not.toContain(cwd);
+
+  await setup.dispose();
+});
+
+test("Pressing 'm' opens ContextMenu and Escape closes it", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  function RootWrapper() {
+    const renderer = useRenderer();
+    const keymap = createDefaultOpenTuiKeymap(renderer);
+
+    function Inner() {
+      useCommandLayer({
+        session,
+        ui,
+        clipboard,
+        queue,
+        currentEntryPath: () => visibleEntries(session.state)[session.state.cursor]?.path,
+        onQuit: () => {},
+      });
+      return (
+        <App
+          keymapOverrides={{}}
+          previewCache={previewCache}
+          clipboard={clipboard}
+          queue={queue}
+          session={session}
+          ui={ui}
+          places={[]}
+          home={cwd}
+          separator="/"
+          freeSpace={undefined}
+        />
+      );
+    }
+
+    return (
+      <KeymapProvider keymap={keymap}>
+        <Inner />
+      </KeymapProvider>
+    );
+  }
+
+  const setup = await testRender(() => <RootWrapper />, { width: 120, height: 35 });
+  await setup.renderOnce();
+
+  expect(ui.state.contextMenu).toBeUndefined();
+
+  // Press 'm' to open context menu
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "m",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "m",
+      raw: "m",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.contextMenu).toBeDefined();
+
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("Abrir");
+  expect(frame).toContain("Renomear");
+  expect(frame).toContain("Copiar");
+
+  // Press 'escape' to close
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "escape",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+      sequence: "\x1b",
+      raw: "\x1b",
+      eventType: "press",
+      source: "raw",
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.contextMenu).toBeUndefined();
 
   await setup.dispose();
 });

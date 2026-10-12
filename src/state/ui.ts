@@ -7,12 +7,18 @@ import type { Palette, ThemeName } from "../core/theme/palette";
 
 export type UiMode = "normal" | "search" | "visual" | "command";
 
-export type InputDialogKind = "mkdir" | "rename" | "newFile";
+export type InputDialogKind = "mkdir" | "rename" | "newFile" | "openWith";
 
 export type InputDialogState = {
   kind: InputDialogKind;
   initialValue: string;
   targetPath?: string;
+};
+
+export type ContextMenuState = {
+  x: number;
+  y: number;
+  entry: Entry;
 };
 
 export type TargetFolderDialogState = {
@@ -29,6 +35,7 @@ export type UiState = {
   mode: UiMode;
   properties: Entry | undefined;
   inputDialog: InputDialogState | undefined;
+  contextMenu: ContextMenuState | undefined;
   viewerModal: ViewerModalState | undefined;
   targetFolderDialog: TargetFolderDialogState | undefined;
   helpOpen: boolean;
@@ -52,6 +59,8 @@ export type UiActions = {
   hideProperties: () => void;
   openInputDialog: (dialog: InputDialogState) => void;
   closeInputDialog: () => void;
+  openContextMenu: (menu: ContextMenuState) => void;
+  closeContextMenu: () => void;
   openCommandLine: () => void;
   closeCommandLine: () => void;
   openImageViewer: (entry: Entry) => void;
@@ -109,6 +118,12 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     closeInputDialog() {
       setState("inputDialog", undefined);
+    },
+    openContextMenu(menu) {
+      setState("contextMenu", menu);
+    },
+    closeContextMenu() {
+      setState("contextMenu", undefined);
     },
     openCommandLine() {
       setState("mode", "command");

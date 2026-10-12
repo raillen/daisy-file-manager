@@ -52,3 +52,16 @@ export function revealInFileManager(path: string): boolean {
 
   return openExternally(path);
 }
+
+export function openWith(command: string, path: string): boolean {
+  try {
+    const parts = command.trim().split(/\s+/).filter(Boolean);
+    const cmd = parts[0];
+    if (!cmd) return false;
+    const args = [...parts.slice(1), path];
+    launchDetached(cmd, args);
+    return true;
+  } catch {
+    return false;
+  }
+}

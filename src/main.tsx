@@ -64,6 +64,7 @@ function initialUi(
     mode: "normal",
     properties: undefined,
     inputDialog: undefined,
+    contextMenu: undefined,
     viewerModal: undefined,
     targetFolderDialog: undefined,
     helpOpen: false,

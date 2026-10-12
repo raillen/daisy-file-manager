@@ -17,12 +17,14 @@ export type InputDialogProps = {
 function titleFor(kind: InputDialogKind, t: Translator): string {
   if (kind === "mkdir") return t("dialog.newFolder.title");
   if (kind === "rename") return t("dialog.rename.title");
+  if (kind === "openWith") return t("dialog.openWith.title");
   return t("dialog.newFile.title");
 }
 
 function labelFor(kind: InputDialogKind, t: Translator): string {
   if (kind === "mkdir") return t("dialog.newFolder.label");
   if (kind === "rename") return t("dialog.rename.label");
+  if (kind === "openWith") return t("dialog.openWith.label");
   return t("dialog.newFile.label");
 }
 

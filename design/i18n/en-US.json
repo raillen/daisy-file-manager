@@ -24,10 +24,25 @@
     "pinned": "Folder pinned to bookmarks",
     "unpinned": "Folder unpinned from bookmarks"
   },
+  "contextMenu": {
+    "title": "Actions",
+    "open": "Open",
+    "openWith": "Open with…",
+    "rename": "Rename",
+    "copy": "Copy",
+    "cut": "Cut",
+    "delete": "Move to Trash",
+    "bookmark": "Pin to Bookmarks",
+    "unbookmark": "Remove from Bookmarks",
+    "extract": "Extract here",
+    "properties": "Properties"
+  },
   "drives": {
     "title": "Volumes",
     "empty": "No mounted volumes",
-    "unmounted": "Not mounted"
+    "unmounted": "Not mounted",
+    "unmount": "Unmount",
+    "unmountFailed": "Failed to unmount volume"
   },
   "navigation": {
     "back": "Back",
@@ -153,6 +168,10 @@
     "newFile": {
       "title": "New file",
       "label": "File name"
+    },
+    "openWith": {
+      "title": "Open with",
+      "label": "Command or application (e.g. xdg-open, code, vim)"
     },
     "progress": {
       "title": "Operation in progress",

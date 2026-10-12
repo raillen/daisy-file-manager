@@ -11,6 +11,7 @@
     { "name": "ui.videos", "phosphor": "ph-film-slate", "unicode": "▶", "nerd": "", "color": "fg.accent" },
     { "name": "ui.trash", "phosphor": "ph-trash", "unicode": "🗑", "nerd": "", "color": "fg.danger" },
     { "name": "ui.drive", "phosphor": "ph-hard-drives", "unicode": "▣", "nerd": "", "color": "fg.muted" },
+    { "name": "ui.usb", "phosphor": "ph-usb", "unicode": "⛯", "nerd": "", "color": "fg.accent" },
 
     { "name": "nav.back", "phosphor": "ph-arrow-left", "unicode": "←", "nerd": "", "color": "fg.default" },
     { "name": "nav.forward", "phosphor": "ph-arrow-right", "unicode": "→", "nerd": "", "color": "fg.default" },
@@ -30,6 +31,8 @@
     { "name": "action.paste", "phosphor": "ph-clipboard", "unicode": "⎘", "nerd": "", "color": "fg.default" },
     { "name": "action.delete", "phosphor": "ph-trash", "unicode": "🗑", "nerd": "", "color": "fg.danger" },
     { "name": "action.open", "phosphor": "ph-arrow-square-out", "unicode": "↗", "nerd": "", "color": "fg.default" },
+    { "name": "action.openWith", "phosphor": "ph-arrow-square-out", "unicode": "↗", "nerd": "", "color": "fg.accent" },
+    { "name": "action.extract", "phosphor": "ph-archive", "unicode": "▧", "nerd": "", "color": "fg.attention" },
     { "name": "action.refresh", "phosphor": "ph-arrows-clockwise", "unicode": "↻", "nerd": "", "color": "fg.default" },
     { "name": "action.properties", "phosphor": "ph-info", "unicode": "ℹ", "nerd": "", "color": "fg.muted" },
     { "name": "action.confirm", "phosphor": "ph-check", "unicode": "✓", "nerd": "", "color": "fg.success" },
