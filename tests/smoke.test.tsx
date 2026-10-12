@@ -10,6 +10,7 @@ import { useCommandLayer } from "../src/commands/useCommandLayer";
 import type { Entry } from "../src/core/entries/directory";
 import { createTranslator } from "../src/core/i18n/translator";
 import { createPreviewCache } from "../src/core/preview/cache";
+import type { DriveDevice } from "../src/core/system/drives";
 import { defaultTheme, palettes } from "../src/core/theme/palette";
 import { createClipboardStore, createQueueStore } from "../src/state/operations";
 import { createSessionStore, type SessionState, visibleEntries } from "../src/state/session";
@@ -819,6 +820,66 @@ test("Pressing 'm' opens ContextMenu and Escape closes it", async () => {
   await setup.renderOnce();
 
   expect(ui.state.contextMenu).toBeUndefined();
+
+  await setup.dispose();
+});
+
+test("App renders external and mounted drives in sidebar", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  const fakeDrives: DriveDevice[] = [
+    {
+      name: "sdb1",
+      path: "/dev/sdb1",
+      mountpoint: "/run/media/user/PendriveUSB",
+      label: "PendriveUSB",
+      size: "64G",
+      isRemovable: true,
+      fstype: "vfat",
+    },
+    {
+      name: "sda3",
+      path: "/dev/sda3",
+      mountpoint: "/home/raillen/Dados",
+      label: "Dados",
+      size: "1TB",
+      isRemovable: false,
+      fstype: "ext4",
+    },
+  ];
+
+  const setup = await testRender(
+    () => (
+      <App
+        keymapOverrides={{}}
+        previewCache={previewCache}
+        clipboard={clipboard}
+        queue={queue}
+        session={session}
+        ui={ui}
+        places={[]}
+        drives={fakeDrives}
+        home={cwd}
+        separator="/"
+        freeSpace={undefined}
+        onUnmountDrive={() => {}}
+      />
+    ),
+    { width: 120, height: 35 },
+  );
+  await setup.renderOnce();
+
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("Volumes");
+  expect(frame).toContain("PendriveUSB");
+  expect(frame).toContain("Dados");
+  expect(frame).toContain("⏏");
 
   await setup.dispose();
 });

@@ -18,12 +18,12 @@ import {
 } from "../core/operations/operations";
 import { openExternally, openWith } from "../core/operations/system";
 import type { PreviewCache } from "../core/preview/cache";
+import type { DriveDevice } from "../core/system/drives";
 import { glyph } from "../core/theme/icons";
 import type { ClipboardStore, QueueStore } from "../state/operations";
 import { selectedPaths, trashSelection } from "../state/operations";
 import { createSessionStore, type SessionState, type SessionStore, visibleEntries } from "../state/session";
 import type { UiStore } from "../state/ui";
-
 import { CommandLine } from "./CommandLine";
 import { ContextMenu } from "./ContextMenu";
 import { ImageViewerDialog } from "./dialogs/ImageViewerDialog";
@@ -52,9 +52,11 @@ export type AppProps = {
   secondarySession?: SessionStore;
   ui: UiStore;
   places: Place[];
+  drives?: DriveDevice[];
   home: string;
   separator: string;
   freeSpace: number | undefined;
+  onUnmountDrive?: (drive: DriveDevice) => void;
 };
 
 function fallbackSession(cwd: string): SessionState {
@@ -370,10 +372,12 @@ export function App(props: AppProps) {
             t={props.ui.translate}
             places={props.places}
             bookmarks={props.ui.state.bookmarks}
+            drives={props.drives}
             activePath={activeSession().state.cwd}
             width={props.ui.state.sidebarWidth}
             onNavigate={(path) => void activeSession().actions.load(path)}
             onToggleBookmark={(path) => props.ui.actions.toggleBookmark(path)}
+            onUnmountDrive={props.onUnmountDrive}
           />
           <Resizer palette={palette()} onDrag={(x) => props.ui.actions.setSidebarWidth(x)} />
         </Show>
@@ -398,6 +402,7 @@ export function App(props: AppProps) {
                   onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
                   onToggleMark={(path) => props.session.actions.toggleMarked(path)}
                   onOpen={(entry) => void handleOpen(entry, props.session)}
+                  onContextMenu={(entry, index, x, y) => handleContextMenu(entry, index, "left", x, y)}
                   onMoveCursor={(delta) => props.session.actions.moveCursor(delta)}
                 />
               }
@@ -415,6 +420,7 @@ export function App(props: AppProps) {
                 onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
                 onToggleMark={(path) => props.session.actions.toggleMarked(path)}
                 onOpen={(entry) => void handleOpen(entry, props.session)}
+                onContextMenu={(entry, index, x, y) => handleContextMenu(entry, index, "left", x, y)}
               />
             </Show>
           }

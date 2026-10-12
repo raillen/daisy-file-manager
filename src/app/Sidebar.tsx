@@ -1,8 +1,9 @@
 import { basename } from "node:path";
-import { TextAttributes } from "@opentui/core";
+import { type MouseEvent, TextAttributes } from "@opentui/core";
 import { For, Show } from "solid-js";
 
 import type { Translator } from "../core/i18n/translator";
+import type { DriveDevice } from "../core/system/drives";
 import type { IconSet } from "../core/theme/icons";
 import { glyph } from "../core/theme/icons";
 import type { Palette } from "../core/theme/palette";
@@ -20,10 +21,12 @@ export type SidebarProps = {
   t: Translator;
   places: Place[];
   bookmarks?: string[];
+  drives?: DriveDevice[];
   activePath: string;
   width?: number;
   onNavigate: (path: string) => void;
   onToggleBookmark?: (path: string) => void;
+  onUnmountDrive?: (drive: DriveDevice) => void;
 };
 
 export function Sidebar(props: SidebarProps) {
@@ -96,6 +99,54 @@ export function Sidebar(props: SidebarProps) {
                 <Show when={props.onToggleBookmark !== undefined}>
                   <box onMouseDown={() => props.onToggleBookmark?.(bmPath)}>
                     <text fg={props.palette["fg.muted"]}>✕</text>
+                  </box>
+                </Show>
+              </box>
+            );
+          }}
+        </For>
+      </Show>
+
+      {/* Dispositivos e Volumes / Drives */}
+      <Show when={(props.drives ?? []).length > 0}>
+        <box flexDirection="row" height={1} paddingLeft={1} marginTop={1}>
+          <text fg={props.palette["fg.muted"]} attributes={TextAttributes.BOLD}>
+            {props.t("drives.title")}
+          </text>
+        </box>
+
+        <For each={props.drives}>
+          {(drive) => {
+            const active = () => drive.mountpoint === props.activePath;
+            const iconName = () => (drive.isRemovable ? "ui.usb" : "ui.drive");
+            return (
+              <box
+                flexDirection="row"
+                height={1}
+                paddingLeft={1}
+                paddingRight={1}
+                justifyContent="space-between"
+                onMouseDown={() => props.onNavigate(drive.mountpoint)}
+              >
+                <box flexDirection="row" gap={1}>
+                  <text fg={props.palette[drive.isRemovable ? "fg.accent" : "fg.muted"]} width={2}>
+                    {glyph(iconName(), props.iconSet)}
+                  </text>
+                  <text
+                    fg={active() ? props.palette["fg.default"] : props.palette["fg.muted"]}
+                    attributes={active() ? TextAttributes.BOLD : TextAttributes.NONE}
+                  >
+                    {drive.label}
+                  </text>
+                </box>
+                <Show when={drive.isRemovable && props.onUnmountDrive !== undefined}>
+                  <box
+                    onMouseDown={(e: MouseEvent) => {
+                      e.stopPropagation?.();
+                      props.onUnmountDrive?.(drive);
+                    }}
+                  >
+                    <text fg={props.palette["fg.muted"]}>⏏</text>
                   </box>
                 </Show>
               </box>

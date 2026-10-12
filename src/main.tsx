@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui";
 import { KeymapProvider } from "@opentui/keymap/solid";
 import { render, useRenderer } from "@opentui/solid";
-import { createEffect, onCleanup } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 
 import { App } from "./app/App";
 import type { Place } from "./app/Sidebar";
@@ -15,6 +15,7 @@ import { loadConfig } from "./core/config/loader";
 import { createTranslator, type LocaleCode, type Translator } from "./core/i18n/translator";
 import type { PreviewCache } from "./core/preview/cache";
 import { createPreviewCache } from "./core/preview/cache";
+import { createDrivesWatcher, type DriveDevice, unmountDrive } from "./core/system/drives";
 import { glyph, type IconSet } from "./core/theme/icons";
 import { palettes, type ThemeName } from "./core/theme/palette";
 import { createDirectoryWatcher } from "./core/watch/watcher";
@@ -102,9 +103,11 @@ type RootProps = {
   secondarySession: ReturnType<typeof createSessionStore>;
   ui: ReturnType<typeof createUiStore>;
   places: Place[];
+  drives: DriveDevice[];
   home: string;
   freeSpace: number | undefined;
   keymapOverrides: Record<string, string[]>;
+  onUnmountDrive: (drive: DriveDevice) => void;
 };
 
 function CommandLayerApp(props: RootProps) {
@@ -134,9 +137,11 @@ function CommandLayerApp(props: RootProps) {
       secondarySession={props.secondarySession}
       ui={props.ui}
       places={props.places}
+      drives={props.drives}
       home={props.home}
       separator={glyph("nav.expand", props.ui.state.iconSet)}
       freeSpace={props.freeSpace}
+      onUnmountDrive={props.onUnmountDrive}
     />
   );
 }
@@ -234,6 +239,24 @@ await session.actions.load(startDirectory);
 await secondarySession.actions.load(startDirectory);
 const freeSpace = await freeSpaceOf(startDirectory);
 
+const [drives, setDrives] = createSignal<DriveDevice[]>([]);
+
+const stopDrivesWatcher = createDrivesWatcher((updatedDrives) => {
+  setDrives(updatedDrives);
+});
+
+async function handleUnmountDrive(drive: DriveDevice) {
+  const result = await unmountDrive(drive);
+  if (result.success) {
+    queue.actions.succeed(ui.translate("drives.unmounted"));
+    if (session.state.cwd.startsWith(drive.mountpoint)) {
+      await session.actions.load(home);
+    }
+  } else {
+    queue.actions.fail(result.error ?? ui.translate("drives.unmountFailed"));
+  }
+}
+
 await render(
   () => (
     <Root
@@ -244,9 +267,11 @@ await render(
       secondarySession={secondarySession}
       ui={ui}
       places={places}
+      drives={drives()}
       home={home}
       freeSpace={freeSpace}
       keymapOverrides={config.keymap}
+      onUnmountDrive={(drive) => void handleUnmountDrive(drive)}
     />
   ),
   {
@@ -254,3 +279,5 @@ await render(
     useMouse: true,
   },
 );
+
+stopDrivesWatcher();
