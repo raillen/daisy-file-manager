@@ -5,11 +5,20 @@ import type { LocaleCode, Translator } from "../core/i18n/translator";
 import type { IconSet } from "../core/theme/icons";
 import type { Palette, ThemeName } from "../core/theme/palette";
 
-export type UiMode = "normal" | "search" | "visual";
+export type UiMode = "normal" | "search" | "visual" | "command";
+
+export type InputDialogKind = "mkdir" | "rename" | "newFile";
+
+export type InputDialogState = {
+  kind: InputDialogKind;
+  initialValue: string;
+  targetPath?: string;
+};
 
 export type UiState = {
   mode: UiMode;
   properties: Entry | undefined;
+  inputDialog: InputDialogState | undefined;
   helpOpen: boolean;
   theme: ThemeName;
   locale: LocaleCode;
@@ -23,8 +32,12 @@ export type UiState = {
 export type UiActions = {
   setMode: (mode: UiMode) => void;
   showProperties: (entry: Entry) => void;
-  toggleHelp: () => void;
   hideProperties: () => void;
+  openInputDialog: (dialog: InputDialogState) => void;
+  closeInputDialog: () => void;
+  openCommandLine: () => void;
+  closeCommandLine: () => void;
+  toggleHelp: () => void;
   openSearch: () => void;
   closeSearch: () => void;
   toggleVisual: () => void;
@@ -58,6 +71,18 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     hideProperties() {
       setState("properties", undefined);
+    },
+    openInputDialog(dialog) {
+      setState("inputDialog", dialog);
+    },
+    closeInputDialog() {
+      setState("inputDialog", undefined);
+    },
+    openCommandLine() {
+      setState("mode", "command");
+    },
+    closeCommandLine() {
+      setState("mode", "normal");
     },
     toggleHelp() {
       setState("helpOpen", (open) => !open);

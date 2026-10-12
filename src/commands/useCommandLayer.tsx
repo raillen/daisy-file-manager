@@ -44,9 +44,13 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "file.trash", run: () => void trashSelection(deps, selectedPaths(session)) },
     { name: "file.open", run: () => openCurrent(runtime) },
     { name: "file.properties", run: () => toggleProperties(runtime) },
+    { name: "file.mkdir", run: () => openMkdir(runtime) },
+    { name: "file.rename", run: () => openRename(runtime) },
+    { name: "file.newFile", run: () => openNewFile(runtime) },
 
+    { name: "ui.commandLine", run: () => runtime.ui.actions.openCommandLine() },
     { name: "ui.search", run: () => openSearch(runtime) },
-    { name: "ui.escape", run: () => closeSearch(runtime) },
+    { name: "ui.escape", run: () => handleEscape(runtime) },
     { name: "ui.clear", run: () => session.actions.setQuery("") },
 
     { name: "view.toggle", run: session.actions.toggleView },
@@ -61,6 +65,59 @@ function commandsFor(runtime: CommandRuntime): Command[] {
 
     { name: "ui.quit", run: runtime.onQuit },
   ];
+}
+
+function openMkdir(runtime: CommandRuntime) {
+  runtime.ui.actions.openInputDialog({
+    kind: "mkdir",
+    initialValue: "",
+  });
+}
+
+function openRename(runtime: CommandRuntime) {
+  const current = runtime.currentEntryPath();
+  if (current === undefined) return;
+  const entry = visibleEntries(runtime.session.state).find((item) => item.path === current);
+  if (entry === undefined) return;
+
+  runtime.ui.actions.openInputDialog({
+    kind: "rename",
+    initialValue: entry.name,
+    targetPath: entry.path,
+  });
+}
+
+function openNewFile(runtime: CommandRuntime) {
+  runtime.ui.actions.openInputDialog({
+    kind: "newFile",
+    initialValue: "",
+  });
+}
+
+function handleEscape(runtime: CommandRuntime) {
+  if (runtime.ui.state.inputDialog !== undefined) {
+    runtime.ui.actions.closeInputDialog();
+    return;
+  }
+  if (runtime.ui.state.mode === "command") {
+    runtime.ui.actions.closeCommandLine();
+    return;
+  }
+  if (runtime.ui.state.mode === "search") {
+    closeSearch(runtime);
+    return;
+  }
+  if (runtime.ui.state.properties !== undefined) {
+    runtime.ui.actions.hideProperties();
+    return;
+  }
+  if (runtime.ui.state.helpOpen) {
+    runtime.ui.actions.toggleHelp();
+    return;
+  }
+  if (runtime.session.state.marked.length > 0) {
+    runtime.session.actions.clearMarked();
+  }
 }
 
 function toggleMarked(runtime: CommandRuntime) {

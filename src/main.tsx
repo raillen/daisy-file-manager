@@ -56,6 +56,7 @@ function initialUi(theme: ThemeName, locale: LocaleCode, iconSet: IconSet, split
   return {
     mode: "normal",
     properties: undefined,
+    inputDialog: undefined,
     helpOpen: false,
     theme,
     locale,
@@ -117,6 +118,7 @@ function Root(props: {
       <App
         keymapOverrides={props.keymapOverrides}
         previewCache={props.previewCache}
+        clipboard={props.clipboard}
         queue={props.queue}
         session={props.session}
         ui={props.ui}

@@ -29,6 +29,7 @@ function uiStore() {
     initial: {
       mode: "normal",
       properties: undefined,
+      inputDialog: undefined,
       helpOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
@@ -165,5 +166,16 @@ describe("store de ui", () => {
 
     ui.actions.setLocale("en-US");
     expect(ui.translate("places.home")).toBe("Home");
+
+    ui.actions.openInputDialog({ kind: "mkdir", initialValue: "teste" });
+    expect(ui.state.inputDialog?.kind).toBe("mkdir");
+    expect(ui.state.inputDialog?.initialValue).toBe("teste");
+    ui.actions.closeInputDialog();
+    expect(ui.state.inputDialog).toBeUndefined();
+
+    ui.actions.openCommandLine();
+    expect(ui.state.mode).toBe("command");
+    ui.actions.closeCommandLine();
+    expect(ui.state.mode).toBe("normal");
   });
 });

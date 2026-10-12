@@ -15,6 +15,10 @@ export type CommandName =
   | "file.trash"
   | "file.open"
   | "file.properties"
+  | "file.mkdir"
+  | "file.rename"
+  | "file.newFile"
+  | "ui.commandLine"
   | "ui.search"
   | "ui.escape"
   | "ui.clear"
@@ -49,6 +53,10 @@ export const defaultBindings: readonly BindingSpec[] = [
   { command: "file.trash", keys: ["D"] },
   { command: "file.open", keys: ["o"] },
   { command: "file.properties", keys: ["i"] },
+  { command: "file.mkdir", keys: ["ctrl+n"] },
+  { command: "file.rename", keys: ["a"] },
+  { command: "file.newFile", keys: ["ctrl+t"] },
+  { command: "ui.commandLine", keys: [":"] },
   { command: "ui.search", keys: ["/"] },
   { command: "ui.escape", keys: ["escape"] },
   { command: "ui.clear", keys: ["ctrl+r"] },

@@ -1,13 +1,21 @@
+import { dirname, join } from "node:path";
+
 import { SyntaxStyle } from "@opentui/core";
 import { useRenderer, useTerminalDimensions } from "@opentui/solid";
 import { createEffect, createMemo, Show } from "solid-js";
-import type { Entry } from "../core/entries/directory";
+
+import { parseExCommand } from "../core/commands/exCommand";
 import { segmentsFor } from "../core/entries/path";
+import { createDirectory, createEmptyFile, renameEntry } from "../core/operations/operations";
 import type { PreviewCache } from "../core/preview/cache";
-import type { QueueStore } from "../state/operations";
+import type { ClipboardStore, QueueStore } from "../state/operations";
+import { selectedPaths, trashSelection } from "../state/operations";
 import type { SessionStore } from "../state/session";
 import { visibleEntries } from "../state/session";
 import type { UiStore } from "../state/ui";
+
+import { CommandLine } from "./CommandLine";
+import { InputDialog } from "./dialogs/InputDialog";
 import { PropertiesDialog } from "./dialogs/PropertiesDialog";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
@@ -21,6 +29,7 @@ import { TitleBar } from "./TitleBar";
 export type AppProps = {
   keymapOverrides: Record<string, string[]>;
   previewCache: PreviewCache;
+  clipboard: ClipboardStore;
   queue: QueueStore;
   session: SessionStore;
   ui: UiStore;
@@ -57,8 +66,120 @@ export function App(props: AppProps) {
   const hints = createMemo(() => [
     { key: "j/k", label: props.ui.translate("navigation.back") },
     { key: "v", label: props.ui.translate("view.list") },
+    { key: ":", label: props.ui.translate("modes.command") },
     { key: "?", label: props.ui.translate("help.title") },
   ]);
+
+  async function handleInputConfirm(value: string) {
+    const dialog = props.ui.state.inputDialog;
+    if (dialog === undefined) return;
+    props.ui.actions.closeInputDialog();
+
+    try {
+      if (dialog.kind === "mkdir") {
+        await createDirectory(join(props.session.state.cwd, value));
+        props.queue.actions.succeed(props.ui.translate("operation.mkdir.done"));
+      } else if (dialog.kind === "rename" && dialog.targetPath !== undefined) {
+        const dest = join(dirname(dialog.targetPath), value);
+        await renameEntry(dialog.targetPath, dest);
+        props.queue.actions.succeed(props.ui.translate("operation.rename.done"));
+      } else if (dialog.kind === "newFile") {
+        await createEmptyFile(join(props.session.state.cwd, value));
+        props.queue.actions.succeed(props.ui.translate("operation.newFile.done"));
+      }
+      await props.session.actions.load(props.session.state.cwd);
+    } catch {
+      const failKey =
+        dialog.kind === "mkdir"
+          ? "operation.mkdir.failed"
+          : dialog.kind === "rename"
+            ? "operation.rename.failed"
+            : "operation.newFile.failed";
+      props.queue.actions.fail(props.ui.translate(failKey));
+    }
+  }
+
+  async function handleExCommand(input: string) {
+    props.ui.actions.closeCommandLine();
+    const parsed = parseExCommand(input);
+
+    switch (parsed.kind) {
+      case "cd": {
+        const dest = parsed.args[0] ?? props.home;
+        await props.session.actions.load(dest);
+        break;
+      }
+      case "mkdir": {
+        const name = parsed.args[0];
+        if (name !== undefined) {
+          try {
+            await createDirectory(join(props.session.state.cwd, name));
+            props.queue.actions.succeed(props.ui.translate("operation.mkdir.done"));
+            await props.session.actions.load(props.session.state.cwd);
+          } catch {
+            props.queue.actions.fail(props.ui.translate("operation.mkdir.failed"));
+          }
+        }
+        break;
+      }
+      case "touch": {
+        const name = parsed.args[0];
+        if (name !== undefined) {
+          try {
+            await createEmptyFile(join(props.session.state.cwd, name));
+            props.queue.actions.succeed(props.ui.translate("operation.newFile.done"));
+            await props.session.actions.load(props.session.state.cwd);
+          } catch {
+            props.queue.actions.fail(props.ui.translate("operation.newFile.failed"));
+          }
+        }
+        break;
+      }
+      case "trash": {
+        const paths = selectedPaths(props.session);
+        await trashSelection(
+          {
+            session: props.session,
+            clipboard: props.clipboard,
+            queue: props.queue,
+            translate: props.ui.translate,
+            reload: () => props.session.actions.load(props.session.state.cwd),
+          },
+          paths,
+        );
+        break;
+      }
+      case "theme": {
+        props.ui.actions.toggleTheme();
+        break;
+      }
+      case "help": {
+        props.ui.actions.toggleHelp();
+        break;
+      }
+      case "sort": {
+        const field = parsed.args[0];
+        if (field === "name" || field === "size" || field === "modified") {
+          props.session.actions.setSort(field);
+        }
+        break;
+      }
+      case "view": {
+        props.session.actions.toggleView();
+        break;
+      }
+      case "quit": {
+        props.ui.actions.quit();
+        break;
+      }
+      case "unknown": {
+        if (parsed.name !== "") {
+          props.queue.actions.fail(props.ui.translate("commandLine.unknownCommand", { name: parsed.name }));
+        }
+        break;
+      }
+    }
+  }
 
   return (
     <box flexDirection="column" width="100%" height="100%">
@@ -105,6 +226,21 @@ export function App(props: AppProps) {
           />
         </Show>
 
+        <Show when={props.ui.state.splitPane}>
+          <box width={1} backgroundColor={palette()["bg.default"]}>
+            <text fg={palette()["fg.muted"]}>{"│"}</text>
+          </box>
+          <FileList
+            palette={palette()}
+            entries={visible()}
+            cursor={props.session.state.cursor}
+            marked={props.session.state.marked}
+            iconSet={props.ui.state.iconSet}
+            locale={props.ui.state.locale}
+            t={props.ui.translate}
+          />
+        </Show>
+
         <Show when={props.ui.state.previewVisible}>
           <PreviewPane
             palette={palette()}
@@ -128,6 +264,16 @@ export function App(props: AppProps) {
         />
       </Show>
 
+      <Show when={props.ui.state.mode === "command"}>
+        <CommandLine
+          palette={palette()}
+          prompt={props.ui.translate("commandLine.prompt")}
+          placeholder={props.ui.translate("commandLine.hint")}
+          onExecute={(cmd) => void handleExCommand(cmd)}
+          onCancel={() => props.ui.actions.closeCommandLine()}
+        />
+      </Show>
+
       <HelpOverlay
         open={props.ui.state.helpOpen}
         palette={palette()}
@@ -135,14 +281,35 @@ export function App(props: AppProps) {
         entries={helpEntries(props.keymapOverrides)}
       />
 
+      <Show when={props.ui.state.inputDialog !== undefined}>
+        {(() => {
+          const dialog = props.ui.state.inputDialog;
+          return dialog !== undefined ? (
+            <InputDialog
+              palette={palette()}
+              kind={dialog.kind}
+              initialValue={dialog.initialValue}
+              t={props.ui.translate}
+              onConfirm={(val) => void handleInputConfirm(val)}
+              onCancel={() => props.ui.actions.closeInputDialog()}
+            />
+          ) : null;
+        })()}
+      </Show>
+
       <Show when={props.ui.state.properties !== undefined}>
-        <PropertiesDialog
-          palette={palette()}
-          entry={props.ui.state.properties as Entry}
-          locale={props.ui.state.locale}
-          t={props.ui.translate}
-          onClose={() => props.ui.actions.hideProperties()}
-        />
+        {(() => {
+          const properties = props.ui.state.properties;
+          return properties !== undefined ? (
+            <PropertiesDialog
+              palette={palette()}
+              entry={properties}
+              locale={props.ui.state.locale}
+              t={props.ui.translate}
+              onClose={() => props.ui.actions.hideProperties()}
+            />
+          ) : null;
+        })()}
       </Show>
 
       <StatusBar

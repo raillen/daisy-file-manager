@@ -22,6 +22,7 @@ export type SessionActions = {
   setQuery: (query: string) => void;
   toggleHidden: () => void;
   toggleMarked: (path: string) => void;
+  clearMarked: () => void;
   toggleView: () => void;
   setSort: (field: SortOptions["field"]) => void;
   moveCursor: (delta: number) => void;
@@ -96,6 +97,10 @@ export function createSessionStore(initial: SessionState): SessionStore {
           else draft.marked.push(path);
         }),
       );
+    },
+
+    clearMarked() {
+      setState("marked", []);
     },
 
     toggleView() {

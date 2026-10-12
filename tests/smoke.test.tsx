@@ -6,7 +6,7 @@ import { App } from "../src/app/App";
 import { createTranslator } from "../src/core/i18n/translator";
 import { createPreviewCache } from "../src/core/preview/cache";
 import { defaultTheme, palettes } from "../src/core/theme/palette";
-import { createQueueStore } from "../src/state/operations";
+import { createClipboardStore, createQueueStore } from "../src/state/operations";
 import { createSessionStore, type SessionState } from "../src/state/session";
 import { createUiStore, type UiState } from "../src/state/ui";
 
@@ -31,6 +31,7 @@ function testStores(cwd: string) {
     initial: {
       mode: "normal",
       properties: undefined,
+      inputDialog: undefined,
       helpOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
@@ -52,12 +53,14 @@ test("App renders headlessly", async () => {
   await session.actions.load(cwd);
 
   const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
   const queue = createQueueStore();
 
   const setup = await testRender(() => (
     <App
       keymapOverrides={{}}
       previewCache={previewCache}
+      clipboard={clipboard}
       queue={queue}
       session={session}
       ui={ui}
