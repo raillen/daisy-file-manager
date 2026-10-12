@@ -62,7 +62,38 @@ Gerenciador de arquivos TUI elegante, ágil e acessível estilo Nautilus (GNOME 
 
 ## 🚀 Instalação e Execução
 
-### Pré-requisitos
+### ⚡ Instalação Rápida (One-Line Installer)
+
+Instale ou atualize o Daisy com um único comando no terminal:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash
+```
+
+*(Ou usando `wget`: `wget -qO- https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash`)*
+
+O instalador interativo oferece:
+- **Escolha da versão**: Instala a versão estável mais recente (`v0.1.0`) ou permite escolher qualquer versão/tag do projeto.
+- **Escolha do formato**:
+  - **Binário Standalone** *(Recomendado)*: Instalação rápida em `~/.local/bin/daisy` sem necessidade de permissões root.
+  - **Pacote Nativo**: Detecta automaticamente sua distro e instala via gerenciador nativo (`.pkg.tar.zst` no Arch, `.deb` no Debian/Ubuntu, `.rpm` no Fedora).
+  - **AppImage**: Executável autocontido portátil.
+  - **Flatpak Bundle**: Pacote de sandbox isolado.
+- **Verificação criptográfica**: Valida a integridade do arquivo baixado via hash **SHA-256**.
+- **Integração com Desktop**: Cria automaticamente o atalho `.desktop` e instala o ícone no seu lançador de aplicativos (GNOME, KDE, Rofi, etc.).
+
+#### Instalação Não Interativa / Automação
+```sh
+# Instalar a versão recomendada diretamente sem perguntas
+curl -fsSL https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash -s -- --yes
+
+# Escolher versão e formato via parâmetros
+curl -fsSL https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash -s -- --version v0.1.0 --format binary
+```
+
+---
+
+### Pré-requisitos (para desenvolvimento ou compilação)
 - **Bun** ≥ 1.4 (`curl -fsSL https://bun.sh/install | bash`)
 - **Terminal com UTF-8** (recomendado emuladores modernos como Ghostty, WezTerm, Kitty ou Alacritty com Nerd Font)
 - *(Opcional)* `poppler-utils` (`pdftoppm`, `pdfinfo`) para renderização visual de PDFs.
