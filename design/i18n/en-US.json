@@ -166,6 +166,10 @@
       "done": "Copy finished",
       "failed": "Failed to copy {name}"
     },
+    "cut": {
+      "started": "Cutting {count} items…",
+      "done": "Cut finished"
+    },
     "move": {
       "started": "Moving {count} items…",
       "done": "Move finished",

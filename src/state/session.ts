@@ -9,6 +9,7 @@ export type SessionState = {
   entries: Entry[];
   cursor: number;
   marked: string[];
+  selectionAnchor?: number;
   query: string;
   showHidden: boolean;
   view: ViewMode;
@@ -23,6 +24,9 @@ export type SessionActions = {
   toggleHidden: () => void;
   toggleMarked: (path: string) => void;
   clearMarked: () => void;
+  extendSelection: (delta: number) => void;
+  selectRange: (fromIndex: number, toIndex: number) => void;
+  selectAll: () => void;
   toggleView: () => void;
   setSort: (field: SortOptions["field"]) => void;
   moveCursor: (delta: number) => void;
@@ -100,7 +104,58 @@ export function createSessionStore(initial: SessionState): SessionStore {
     },
 
     clearMarked() {
-      setState("marked", []);
+      setState(
+        produce((draft) => {
+          draft.marked = [];
+          draft.selectionAnchor = undefined;
+        }),
+      );
+    },
+
+    extendSelection(delta) {
+      const visible = visibleEntries(state);
+      if (visible.length === 0) return;
+
+      setState(
+        produce((draft) => {
+          const anchor = draft.selectionAnchor ?? draft.cursor;
+          draft.selectionAnchor = anchor;
+          const nextCursor = clampCursor(visible, draft.cursor + delta);
+          draft.cursor = nextCursor;
+
+          const start = Math.min(anchor, nextCursor);
+          const end = Math.max(anchor, nextCursor);
+          draft.marked = visible.slice(start, end + 1).map((entry) => entry.path);
+        }),
+      );
+    },
+
+    selectRange(fromIndex, toIndex) {
+      const visible = visibleEntries(state);
+      if (visible.length === 0) return;
+
+      setState(
+        produce((draft) => {
+          const clampedFrom = clampCursor(visible, fromIndex);
+          const clampedTo = clampCursor(visible, toIndex);
+          draft.selectionAnchor = clampedFrom;
+          draft.cursor = clampedTo;
+
+          const start = Math.min(clampedFrom, clampedTo);
+          const end = Math.max(clampedFrom, clampedTo);
+          draft.marked = visible.slice(start, end + 1).map((entry) => entry.path);
+        }),
+      );
+    },
+
+    selectAll() {
+      const visible = visibleEntries(state);
+      setState(
+        produce((draft) => {
+          draft.marked = visible.map((entry) => entry.path);
+          draft.selectionAnchor = 0;
+        }),
+      );
     },
 
     toggleView() {
@@ -117,11 +172,21 @@ export function createSessionStore(initial: SessionState): SessionStore {
     },
 
     moveCursor(delta) {
-      setState("cursor", (cursor) => clampCursor(visibleEntries(state), cursor + delta));
+      setState(
+        produce((draft) => {
+          draft.cursor = clampCursor(visibleEntries(draft), draft.cursor + delta);
+          draft.selectionAnchor = undefined;
+        }),
+      );
     },
 
     cursorTo(index) {
-      setState("cursor", () => clampCursor(visibleEntries(state), index));
+      setState(
+        produce((draft) => {
+          draft.cursor = clampCursor(visibleEntries(draft), index);
+          draft.selectionAnchor = undefined;
+        }),
+      );
     },
 
     async enter() {

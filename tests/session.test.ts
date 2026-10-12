@@ -113,6 +113,54 @@ describe("store de sessão", () => {
     expect(session.state.marked).toEqual([]);
   });
 
+  test("extendSelection seleciona intervalo com shift", async () => {
+    const session = createSessionStore(blankSession(root));
+    await session.actions.load(root);
+    const visible = visibleEntries(session.state);
+    expect(visible.length).toBeGreaterThanOrEqual(3);
+
+    const p0 = visible[0]?.path;
+    const p1 = visible[1]?.path;
+    const p2 = visible[2]?.path;
+    expect(p0).toBeDefined();
+    expect(p1).toBeDefined();
+    expect(p2).toBeDefined();
+    if (p0 === undefined || p1 === undefined || p2 === undefined) return;
+
+    session.actions.cursorTo(0);
+    session.actions.extendSelection(1);
+    expect(session.state.cursor).toBe(1);
+    expect(session.state.marked).toEqual([p0, p1]);
+
+    session.actions.extendSelection(1);
+    expect(session.state.cursor).toBe(2);
+    expect(session.state.marked).toEqual([p0, p1, p2]);
+
+    session.actions.extendSelection(-1);
+    expect(session.state.cursor).toBe(1);
+    expect(session.state.marked).toEqual([p0, p1]);
+
+    session.actions.clearMarked();
+    expect(session.state.marked).toEqual([]);
+    expect(session.state.selectionAnchor).toBeUndefined();
+  });
+
+  test("selectRange e selectAll selecionam múltiplos itens", async () => {
+    const session = createSessionStore(blankSession(root));
+    await session.actions.load(root);
+    const visible = visibleEntries(session.state);
+
+    session.actions.selectRange(0, 2);
+    expect(session.state.marked.length).toBe(3);
+    expect(session.state.cursor).toBe(2);
+
+    session.actions.clearMarked();
+    expect(session.state.marked.length).toBe(0);
+
+    session.actions.selectAll();
+    expect(session.state.marked.length).toBe(visible.length);
+  });
+
   test("toggleView alterna lista e grade", async () => {
     const session = createSessionStore(blankSession(root));
     expect(session.state.view).toBe("list");

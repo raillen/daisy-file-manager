@@ -9,6 +9,9 @@ export type CommandName =
   | "nav.parent"
   | "select.toggle"
   | "select.visual"
+  | "select.down"
+  | "select.up"
+  | "select.all"
   | "file.yank"
   | "file.cut"
   | "file.paste"
@@ -48,9 +51,12 @@ export const defaultBindings: readonly BindingSpec[] = [
   { command: "nav.parent", keys: ["h", "left"] },
   { command: "select.toggle", keys: ["space"] },
   { command: "select.visual", keys: ["V"] },
-  { command: "file.yank", keys: ["y"] },
-  { command: "file.cut", keys: ["d"] },
-  { command: "file.paste", keys: ["p"] },
+  { command: "select.down", keys: ["shift+down", "shift+j", "J"] },
+  { command: "select.up", keys: ["shift+up", "shift+k", "K"] },
+  { command: "select.all", keys: ["ctrl+a"] },
+  { command: "file.yank", keys: ["y", "ctrl+c"] },
+  { command: "file.cut", keys: ["d", "ctrl+x"] },
+  { command: "file.paste", keys: ["p", "ctrl+v"] },
   { command: "file.trash", keys: ["D"] },
   { command: "file.open", keys: ["o"] },
   { command: "file.properties", keys: ["i"] },

@@ -5,9 +5,11 @@ import { useRenderer, useTerminalDimensions } from "@opentui/solid";
 import { createEffect, createMemo, Show } from "solid-js";
 
 import { parseExCommand } from "../core/commands/exCommand";
+import type { Entry } from "../core/entries/directory";
 import { segmentsFor } from "../core/entries/path";
 import { extractArchive, isArchive } from "../core/operations/archive";
 import { createDirectory, createEmptyFile, renameEntry } from "../core/operations/operations";
+import { openExternally } from "../core/operations/system";
 import type { PreviewCache } from "../core/preview/cache";
 import type { ClipboardStore, QueueStore } from "../state/operations";
 import { selectedPaths, trashSelection } from "../state/operations";
@@ -100,6 +102,36 @@ export function App(props: AppProps) {
             : "operation.newFile.failed";
       props.queue.actions.fail(props.ui.translate(failKey));
     }
+  }
+
+  async function handleOpen(entry: Entry) {
+    if (entry.isDirectory) {
+      await props.session.actions.enter();
+      return;
+    }
+    if (isArchive(entry.name)) {
+      const name = basename(entry.path);
+      props.queue.actions.succeed(props.ui.translate("operation.extract.started", { name }));
+      const result = await extractArchive(entry.path);
+      if (result.success) {
+        props.queue.actions.succeed(props.ui.translate("operation.extract.done"));
+      } else {
+        props.queue.actions.fail(props.ui.translate("operation.extract.failed", { name }));
+      }
+      await props.session.actions.load(props.session.state.cwd);
+      return;
+    }
+
+    const preview = await props.previewCache.get(entry);
+    if (preview.kind === "image") {
+      props.ui.actions.openImageViewer(entry);
+      return;
+    }
+    if (preview.kind === "text") {
+      props.ui.actions.openTextViewer(entry, preview.content, preview.filetype);
+      return;
+    }
+    openExternally(entry.path);
   }
 
   async function handleExCommand(input: string) {
@@ -233,9 +265,15 @@ export function App(props: AppProps) {
               entries={visible()}
               cursor={props.session.state.cursor}
               marked={props.session.state.marked}
+              clipboard={props.clipboard.state}
               iconSet={props.ui.state.iconSet}
               locale={props.ui.state.locale}
               t={props.ui.translate}
+              onSelect={(index) => props.session.actions.cursorTo(index)}
+              onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
+              onToggleMark={(path) => props.session.actions.toggleMarked(path)}
+              onOpen={(entry) => void handleOpen(entry)}
+              onMoveCursor={(delta) => props.session.actions.moveCursor(delta)}
             />
           }
         >
@@ -244,8 +282,13 @@ export function App(props: AppProps) {
             entries={visible()}
             cursor={props.session.state.cursor}
             marked={props.session.state.marked}
+            clipboard={props.clipboard.state}
             iconSet={props.ui.state.iconSet}
             columns={gridColumns()}
+            onSelect={(index) => props.session.actions.cursorTo(index)}
+            onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
+            onToggleMark={(path) => props.session.actions.toggleMarked(path)}
+            onOpen={(entry) => void handleOpen(entry)}
           />
         </Show>
 
@@ -258,9 +301,15 @@ export function App(props: AppProps) {
             entries={visible()}
             cursor={props.session.state.cursor}
             marked={props.session.state.marked}
+            clipboard={props.clipboard.state}
             iconSet={props.ui.state.iconSet}
             locale={props.ui.state.locale}
             t={props.ui.translate}
+            onSelect={(index) => props.session.actions.cursorTo(index)}
+            onSelectRange={(from, to) => props.session.actions.selectRange(from, to)}
+            onToggleMark={(path) => props.session.actions.toggleMarked(path)}
+            onOpen={(entry) => void handleOpen(entry)}
+            onMoveCursor={(delta) => props.session.actions.moveCursor(delta)}
           />
         </Show>
 

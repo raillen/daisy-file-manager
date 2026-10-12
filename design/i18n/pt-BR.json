@@ -166,6 +166,10 @@
       "done": "Cópia concluída",
       "failed": "Falha ao copiar {name}"
     },
+    "cut": {
+      "started": "Recortando {count} itens…",
+      "done": "Recorte concluído"
+    },
     "move": {
       "started": "Movendo {count} itens…",
       "done": "Movimentação concluída",

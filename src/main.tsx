@@ -212,5 +212,6 @@ await render(
   ),
   {
     exitOnCtrlC: false,
+    useMouse: true,
   },
 );

@@ -148,6 +148,7 @@ export function pasteInto(deps: TransferDeps, destination: string): Promise<void
   })
     .promise.then(async () => {
       if (kind === "move") deps.clipboard.actions.clear();
+      deps.session.actions.clearMarked();
       deps.queue.actions.succeed(deps.translate(`operation.${kind}.done`));
       await deps.reload();
     })

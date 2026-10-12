@@ -42,6 +42,9 @@ function commandsFor(runtime: CommandRuntime): Command[] {
 
     { name: "select.toggle", run: () => toggleMarked(runtime) },
     { name: "select.visual", run: ui.actions.toggleVisual },
+    { name: "select.down", run: () => session.actions.extendSelection(1) },
+    { name: "select.up", run: () => session.actions.extendSelection(-1) },
+    { name: "select.all", run: () => session.actions.selectAll() },
 
     { name: "file.yank", run: () => copySelection(runtime, "copy") },
     { name: "file.cut", run: () => copySelection(runtime, "cut") },
@@ -191,7 +194,7 @@ function copySelection(runtime: CommandRuntime, mode: "copy" | "cut") {
   if (paths.length === 0) return;
   runtime.clipboard.actions.set(mode, paths);
   runtime.queue.actions.succeed(
-    runtime.ui.translate(mode === "copy" ? "operation.copy.started" : "operation.move.started", {
+    runtime.ui.translate(mode === "copy" ? "operation.copy.started" : "operation.cut.started", {
       count: paths.length,
     }),
   );
