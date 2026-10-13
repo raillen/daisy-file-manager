@@ -34,6 +34,7 @@ function uiStore() {
       viewerModal: undefined,
       targetFolderDialog: undefined,
       helpOpen: false,
+      themeSelectorOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",

@@ -32,6 +32,7 @@ import { PdfViewerDialog } from "./dialogs/PdfViewerDialog";
 import { PropertiesDialog } from "./dialogs/PropertiesDialog";
 import { TargetFolderDialog } from "./dialogs/TargetFolderDialog";
 import { TextViewerDialog } from "./dialogs/TextViewerDialog";
+import { ThemeSelectorDialog } from "./dialogs/ThemeSelectorDialog";
 import { FileGrid } from "./FileGrid";
 import { FileList } from "./FileList";
 import { HelpOverlay, helpEntries } from "./HelpOverlay";
@@ -127,7 +128,7 @@ export function App(props: AppProps) {
     { key: "j/k", label: props.ui.translate("navigation.back") },
     { key: "v", label: props.ui.translate("view.list") },
     { key: "F3", label: props.ui.translate("view.splitPane") },
-    { key: "Tab", label: `${props.ui.translate("view.leftPane")}/${props.ui.translate("view.rightPane")}` },
+    { key: "t", label: props.ui.translate("themeSelector.title") },
     { key: ":", label: props.ui.translate("modes.command") },
     { key: "?", label: props.ui.translate("help.title") },
   ]);
@@ -300,7 +301,7 @@ export function App(props: AppProps) {
         ) {
           props.ui.actions.setTheme(target);
         } else {
-          props.ui.actions.toggleTheme();
+          props.ui.actions.openThemeSelector();
         }
         break;
       }
@@ -832,6 +833,20 @@ export function App(props: AppProps) {
             />
           ) : null;
         })()}
+      </Show>
+
+      <Show when={props.ui.state.themeSelectorOpen}>
+        <ThemeSelectorDialog
+          palette={palette()}
+          currentTheme={props.ui.state.theme}
+          t={props.ui.translate}
+          onPreview={(theme) => props.ui.actions.setTheme(theme)}
+          onConfirm={(theme) => {
+            props.ui.actions.setTheme(theme);
+            props.ui.actions.closeThemeSelector();
+          }}
+          onCancel={() => props.ui.actions.closeThemeSelector()}
+        />
       </Show>
 
       <ToastNotification

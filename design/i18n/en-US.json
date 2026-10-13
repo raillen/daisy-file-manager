@@ -290,5 +290,34 @@
     "gigabytes": "GB",
     "terabytes": "TB",
     "unknown": "?"
+  },
+  "themeSelector": {
+    "title": "Theme Selector",
+    "subtitle": "Navigate to preview live in real time",
+    "confirm": "Confirm [Enter]",
+    "cancel": "Cancel [Esc]",
+    "hint": "Enter: confirm · Esc: cancel · j/k: navigate · 1-5: quick select",
+    "themes": {
+      "wired": {
+        "name": "The Wired (Lain)",
+        "description": "Cobalt Blue, Acid Yellow and Deep Void"
+      },
+      "cyberpunk": {
+        "name": "Cyberpunk Neon",
+        "description": "Hot Magenta Pink, Vivid Purple and Cyan"
+      },
+      "retro": {
+        "name": "Retro 98 (Paper)",
+        "description": "Classic Desktop Paper, Cobalt and Bevel"
+      },
+      "dark": {
+        "name": "Dark Minimal",
+        "description": "Neutral dark theme with soft accents"
+      },
+      "light": {
+        "name": "Light Minimal",
+        "description": "Neutral light theme with high contrast"
+      }
+    }
   }
 }

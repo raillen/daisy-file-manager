@@ -31,6 +31,7 @@ const knownCommands: Record<string, ExCommandKind> = {
   q: "quit",
   quit: "quit",
   theme: "theme",
+  t: "theme",
   help: "help",
   h: "help",
   sort: "sort",

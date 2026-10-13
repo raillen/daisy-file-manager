@@ -53,7 +53,13 @@ Gerenciador de arquivos TUI elegante, ágil e acessível estilo Nautilus (GNOME 
 - **Lixeira do Sistema**: Integração com `gio trash` para exclusão recuperável.
 
 ### 🎨 Design System, Temas & Acessibilidade
-- **Paletas Semânticas Tokenizadas**: Temas `wired` (estilo *The Wired / Serial Experiments Lain* em Azul Cobalto elétrico e Amarelo Ácido), `cyberpunk` (Rosa Neon `#ff2a85` e Roxo Vibrante `#9d4edd`), `retro` (estilo desktop clássico 1998 em Paper `#f1eee9` e Azul Cobalto), `dark` e `light`.
+- **Seletor de Temas Interativo em Tempo Real**: Pressione `t` ou `F10` para abrir o menu `themes.exe` com visualização ao vivo imediata das cores enquanto você navega pelas opções com as setas (`↑`/`↓`), `j`/`k` ou teclas de atalho numéricas (`1` a `5`).
+- **Paletas Semânticas Tokenizadas**:
+  - `wired`: Estilo *The Wired / Serial Experiments Lain* em Azul Cobalto elétrico (`#00126b`) e Amarelo Ácido (`#ffe500`).
+  - `cyberpunk`: Estilo neon futurista em Rosa Hot Magenta (`#ff2a85`) e Roxo Neon (`#9d4edd`).
+  - `retro`: Estilo desktop clássico 1998 em Paper claro (`#f1eee9`) e Azul Cobalto (`#11379f`).
+  - `dark`: Modo escuro padrão limpo e balanceado.
+  - `light`: Modo claro limpo e de alto contraste.
 - **Micro-HUDs Técnicos & Sinais**: Barra de sinal VU-Meter `▰▰▰▰▰▱▱▱`, leitor de status `WIRED_ONLINE // SYSTEM 98`, numeração técnica na barra lateral (`01 //`, `02 //`, `03 //`) e molduras de janela retro `[ _ ] [ □ ] [ × ]`.
 - **Sistema de Ícones**: Suporte a Nerd Fonts com fallback automático para Unicode em qualquer terminal.
 - **Internacionalização (i18n)**: Suporte completo e paritário em Português (`pt-BR`) e Inglês (`en-US`).
@@ -167,7 +173,7 @@ bun run build
 | | `t` | Alternar entre modo visual e texto extraído |
 | **Interface** | `F9` | Mostrar / ocultar barra lateral |
 | | `F3` | Alternar painel duplo (split-pane) |
-| | `Shift + T` / `F10` | Alternar entre temas (`dark`, `wired`, `cyberpunk`, `retro`, `light`) |
+| | `t` / `Shift + T` / `F10` | Abrir Seletor de Temas com preview em tempo real (`dark`, `wired`, `cyberpunk`, `retro`, `light`) |
 | | `?` | Abrir painel de Ajuda e atalhos |
 | | `q` / `Ctrl + C` | Sair do Daisy |
 
@@ -179,7 +185,7 @@ Você pode personalizar o comportamento do Daisy criando um arquivo em `~/.confi
 
 ```toml
 [theme]
-name = "dark"          # "dark" | "light" | "nord" | "dracula"
+name = "dark"          # "dark" | "wired" | "cyberpunk" | "retro" | "light"
 icons = "nerd"         # "nerd" (ícones Nerd Font) ou "unicode"
 
 [locale]

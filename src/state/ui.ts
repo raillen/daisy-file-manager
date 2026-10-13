@@ -39,6 +39,7 @@ export type UiState = {
   viewerModal: ViewerModalState | undefined;
   targetFolderDialog: TargetFolderDialogState | undefined;
   helpOpen: boolean;
+  themeSelectorOpen: boolean;
   theme: ThemeName;
   locale: LocaleCode;
   iconSet: IconSet;
@@ -70,6 +71,8 @@ export type UiActions = {
   openTargetFolderDialog: (mode: "copy" | "move", sources: string[]) => void;
   closeTargetFolderDialog: () => void;
   toggleHelp: () => void;
+  openThemeSelector: () => void;
+  closeThemeSelector: () => void;
   openSearch: () => void;
   closeSearch: () => void;
   toggleVisual: () => void;
@@ -152,6 +155,12 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
     },
     toggleHelp() {
       setState("helpOpen", (open) => !open);
+    },
+    openThemeSelector() {
+      setState("themeSelectorOpen", true);
+    },
+    closeThemeSelector() {
+      setState("themeSelectorOpen", false);
     },
     setMode(mode) {
       setState("mode", mode);

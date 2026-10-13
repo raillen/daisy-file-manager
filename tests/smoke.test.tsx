@@ -42,6 +42,7 @@ function testStores(cwd: string) {
       viewerModal: undefined,
       targetFolderDialog: undefined,
       helpOpen: false,
+      themeSelectorOpen: false,
       theme: defaultTheme,
       locale: "pt-BR",
       iconSet: "unicode",
@@ -949,4 +950,44 @@ test("Theme cycling and switching via ui.actions works cleanly", async () => {
   ui.actions.setTheme("retro");
   expect(ui.state.theme).toBe("retro");
   expect(ui.palette()["fg.accent"]).toBe("#11379f");
+});
+
+test("App renders ThemeSelectorDialog when themeSelectorOpen is true", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  ui.actions.openThemeSelector();
+  expect(ui.state.themeSelectorOpen).toBe(true);
+
+  const setup = await testRender(
+    () => (
+      <App
+        keymapOverrides={{}}
+        previewCache={previewCache}
+        clipboard={clipboard}
+        queue={queue}
+        session={session}
+        ui={ui}
+        places={[]}
+        home={cwd}
+        separator="/"
+        freeSpace={undefined}
+      />
+    ),
+    { width: 100, height: 30 },
+  );
+  await setup.renderOnce();
+
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("themes.exe");
+  expect(frame).toContain("The Wired");
+  expect(frame).toContain("Cyberpunk Neon");
+  expect(frame).toContain("Retro 98");
+
+  await setup.dispose();
 });

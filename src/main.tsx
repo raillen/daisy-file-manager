@@ -69,6 +69,7 @@ function initialUi(
     viewerModal: undefined,
     targetFolderDialog: undefined,
     helpOpen: false,
+    themeSelectorOpen: false,
     theme,
     locale,
     iconSet,

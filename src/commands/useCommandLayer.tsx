@@ -93,6 +93,7 @@ function commandsFor(runtime: CommandRuntime): Command[] {
 
     { name: "ui.contextMenu", run: () => openContextMenuCurrent(runtime) },
     { name: "ui.toggleTheme", run: () => runtime.ui.actions.toggleTheme() },
+    { name: "ui.themeSelector", run: () => runtime.ui.actions.openThemeSelector() },
     { name: "ui.quit", run: runtime.onQuit },
   ];
 }
