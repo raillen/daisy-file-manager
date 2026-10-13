@@ -246,6 +246,14 @@ daisy-file-manager/
 
 ---
 
+## 🗺️ Roadmap de Versões
+
+Para acompanhar o planejamento das próximas funcionalidades (como Player de Áudio Embutido, Comparador de Diff, Busca Global e Integração com Git), consulte o documento oficial:
+
+👉 **[ROADMAP.md](ROADMAP.md)**
+
+---
+
 ## 📄 Licença
 
 Este projeto está sob a licença [MIT](LICENSE).
