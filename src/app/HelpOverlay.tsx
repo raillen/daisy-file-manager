@@ -1,4 +1,4 @@
-import { TextAttributes } from "@opentui/core";
+import { type MouseEvent, TextAttributes } from "@opentui/core";
 import { useTerminalDimensions } from "@opentui/solid";
 import { createMemo, For, Show } from "solid-js";
 
@@ -23,6 +23,7 @@ export type HelpOverlayProps = {
   palette: Palette;
   t: Translator;
   entries: HelpEntry[];
+  onClose?: () => void;
 };
 
 export function HelpOverlay(props: HelpOverlayProps) {
@@ -35,6 +36,9 @@ export function HelpOverlay(props: HelpOverlayProps) {
 
   return (
     <Show when={props.open}>
+      {/* Full-screen backdrop capturing mouse clicks */}
+      <box position="absolute" top={0} left={0} width="100%" height="100%" onMouseDown={props.onClose} />
+
       <box
         position="absolute"
         top="5%"
@@ -46,6 +50,9 @@ export function HelpOverlay(props: HelpOverlayProps) {
         backgroundColor={props.palette["bg.overlay"]}
         padding={1}
         flexDirection="column"
+        onMouseDown={(e: MouseEvent) => {
+          e.stopPropagation?.();
+        }}
       >
         <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1} flexShrink={0}>
           <box flexDirection="row">
@@ -54,8 +61,13 @@ export function HelpOverlay(props: HelpOverlayProps) {
             </text>
           </box>
           <box flexDirection="row" gap={1}>
-            <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ] [ × ]"}</text>
-            <text fg={props.palette["fg.muted"]}>{props.t("help.pressClose")}</text>
+            <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ]"}</text>
+            <box onMouseDown={props.onClose}>
+              <text fg={props.palette["fg.muted"]}>{"[ × ]"}</text>
+            </box>
+            <box onMouseDown={props.onClose}>
+              <text fg={props.palette["fg.muted"]}>{props.t("help.pressClose")}</text>
+            </box>
           </box>
         </box>
 

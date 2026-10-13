@@ -122,6 +122,31 @@ describe("core drives service", () => {
     expect(parseLsblkJson("{}")).toEqual([]);
   });
 
+  test("parseLsblkJson resolves multi-mountpoint devices (btrfs subvolumes) to root mount", () => {
+    const fixture = JSON.stringify({
+      blockdevices: [
+        {
+          name: "sda",
+          children: [
+            {
+              name: "sda2",
+              mountpoint: "/var/log",
+              mountpoints: ["/var/log", "/var/cache/pacman/pkg", "/home", "/"],
+              label: "Sistema",
+              size: "195G",
+              rm: false,
+            },
+          ],
+        },
+      ],
+    });
+
+    const drives = parseLsblkJson(fixture);
+    expect(drives.length).toBe(1);
+    expect(drives[0]?.mountpoint).toBe("/");
+    expect(drives[0]?.label).toBe("Sistema");
+  });
+
   test("listDrives runs without throwing error", async () => {
     const drives = await listDrives();
     expect(Array.isArray(drives)).toBe(true);

@@ -672,6 +672,7 @@ export function App(props: AppProps) {
         open={props.ui.state.helpOpen}
         t={props.ui.translate}
         entries={helpEntries(props.keymapOverrides)}
+        onClose={() => props.ui.actions.toggleHelp()}
       />
 
       <Show when={props.ui.state.contextMenu !== undefined}>

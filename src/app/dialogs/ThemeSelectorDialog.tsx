@@ -1,4 +1,4 @@
-import { TextAttributes } from "@opentui/core";
+import { type MouseEvent, TextAttributes } from "@opentui/core";
 import { useBindings } from "@opentui/keymap/solid";
 import { createSignal, For } from "solid-js";
 import type { Translator } from "../../core/i18n/translator";
@@ -141,101 +141,109 @@ export function ThemeSelectorDialog(props: ThemeSelectorDialogProps) {
   }
 
   return (
-    <box
-      position="absolute"
-      top="12%"
-      left="18%"
-      width="64%"
-      border
-      borderColor={props.palette["border.focus"]}
-      backgroundColor={props.palette["bg.overlay"]}
-      padding={1}
-      flexDirection="column"
-    >
-      {/* Retro Titlebar */}
-      <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1}>
-        <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
-          {"✳ DAISY // themes.exe "}
-        </text>
-        <box flexDirection="row" gap={1}>
-          <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ]"}</text>
-          <text fg={props.palette["fg.muted"]} onMouseDown={handleCancel}>
-            {"[Esc]"}
+    <>
+      {/* Full-screen backdrop capturing mouse clicks */}
+      <box position="absolute" top={0} left={0} width="100%" height="100%" onMouseDown={handleCancel} />
+
+      <box
+        position="absolute"
+        top="12%"
+        left="18%"
+        width="64%"
+        border
+        borderColor={props.palette["border.focus"]}
+        backgroundColor={props.palette["bg.overlay"]}
+        padding={1}
+        flexDirection="column"
+        onMouseDown={(e: MouseEvent) => {
+          e.stopPropagation?.();
+        }}
+      >
+        {/* Retro Titlebar */}
+        <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1}>
+          <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
+            {"✳ DAISY // themes.exe "}
           </text>
+          <box flexDirection="row" gap={1}>
+            <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ]"}</text>
+            <text fg={props.palette["fg.muted"]} onMouseDown={handleCancel}>
+              {"[Esc]"}
+            </text>
+          </box>
         </box>
-      </box>
 
-      {/* Theme List */}
-      <box flexDirection="column" gap={0}>
-        <For each={THEME_OPTIONS}>
-          {(option, index) => {
-            const isSelected = () => index() === cursor();
-            const isCurrent = () => option.id === initialTheme;
-            const name = () => props.t(`themeSelector.themes.${option.key}.name`);
-            const desc = () => props.t(`themeSelector.themes.${option.key}.description`);
+        {/* Theme List */}
+        <box flexDirection="column" gap={0}>
+          <For each={THEME_OPTIONS}>
+            {(option, index) => {
+              const isSelected = () => index() === cursor();
+              const isCurrent = () => option.id === initialTheme;
+              const name = () => props.t(`themeSelector.themes.${option.key}.name`);
+              const desc = () => props.t(`themeSelector.themes.${option.key}.description`);
 
-            return (
-              <box
-                flexDirection="row"
-                height={2}
-                paddingLeft={1}
-                paddingRight={1}
-                alignItems="center"
-                backgroundColor={isSelected() ? props.palette["bg.selectedRow"] : undefined}
-                onMouseDown={() => {
-                  moveTo(index());
-                  handleConfirm();
-                }}
-              >
-                {/* Radio / Index */}
-                <text
-                  fg={isSelected() ? props.palette["fg.accent"] : props.palette["fg.muted"]}
-                  attributes={isSelected() ? TextAttributes.BOLD : TextAttributes.NONE}
-                  width={6}
+              return (
+                <box
+                  flexDirection="row"
+                  height={2}
+                  paddingLeft={1}
+                  paddingRight={1}
+                  alignItems="center"
+                  backgroundColor={isSelected() ? props.palette["bg.selectedRow"] : undefined}
+                  onMouseDown={() => {
+                    moveTo(index());
+                    handleConfirm();
+                  }}
                 >
-                  {`${isSelected() ? "▶" : " "} [${index() + 1}]`}
-                </text>
-
-                {/* Theme Name & Indicator */}
-                <box flexDirection="column" width={22}>
+                  {/* Radio / Index */}
                   <text
-                    fg={isSelected() ? props.palette["fg.accent"] : props.palette["fg.default"]}
+                    fg={isSelected() ? props.palette["fg.accent"] : props.palette["fg.muted"]}
                     attributes={isSelected() ? TextAttributes.BOLD : TextAttributes.NONE}
+                    width={6}
                   >
-                    {`${name()} ${isCurrent() ? "*" : ""}`}
+                    {`${isSelected() ? "▶" : " "} [${index() + 1}]`}
                   </text>
-                  <text fg={props.palette["fg.muted"]} attributes={TextAttributes.DIM}>
-                    {option.id}
-                  </text>
-                </box>
 
-                {/* Description */}
-                <box flexGrow={1} flexDirection="row">
-                  <text fg={props.palette["fg.muted"]}>{desc()}</text>
-                </box>
+                  {/* Theme Name & Indicator */}
+                  <box flexDirection="column" width={22}>
+                    <text
+                      fg={isSelected() ? props.palette["fg.accent"] : props.palette["fg.default"]}
+                      attributes={isSelected() ? TextAttributes.BOLD : TextAttributes.NONE}
+                    >
+                      {`${name()} ${isCurrent() ? "*" : ""}`}
+                    </text>
+                    <text fg={props.palette["fg.muted"]} attributes={TextAttributes.DIM}>
+                      {option.id}
+                    </text>
+                  </box>
 
-                {/* Color Swatch Badges */}
-                <box flexDirection="row" gap={0} marginLeft={1}>
-                  <For each={option.swatches}>{(hex) => <text fg={hex}>{"■"}</text>}</For>
-                </box>
-              </box>
-            );
-          }}
-        </For>
-      </box>
+                  {/* Description */}
+                  <box flexGrow={1} flexDirection="row">
+                    <text fg={props.palette["fg.muted"]}>{desc()}</text>
+                  </box>
 
-      {/* Footer controls hint */}
-      <box flexDirection="row" justifyContent="space-between" height={1} marginTop={1} paddingTop={0}>
-        <text fg={props.palette["fg.muted"]}>{props.t("themeSelector.hint")}</text>
-        <box flexDirection="row" gap={1}>
-          <text fg={props.palette["fg.accent"]} onMouseDown={handleConfirm}>
-            {props.t("themeSelector.confirm")}
-          </text>
-          <text fg={props.palette["fg.muted"]} onMouseDown={handleCancel}>
-            {props.t("themeSelector.cancel")}
-          </text>
+                  {/* Color Swatch Badges */}
+                  <box flexDirection="row" gap={0} marginLeft={1}>
+                    <For each={option.swatches}>{(hex) => <text fg={hex}>{"■"}</text>}</For>
+                  </box>
+                </box>
+              );
+            }}
+          </For>
+        </box>
+
+        {/* Footer controls hint */}
+        <box flexDirection="row" justifyContent="space-between" height={1} marginTop={1} paddingTop={0}>
+          <text fg={props.palette["fg.muted"]}>{props.t("themeSelector.hint")}</text>
+          <box flexDirection="row" gap={1}>
+            <text fg={props.palette["fg.accent"]} onMouseDown={handleConfirm}>
+              {props.t("themeSelector.confirm")}
+            </text>
+            <text fg={props.palette["fg.muted"]} onMouseDown={handleCancel}>
+              {props.t("themeSelector.cancel")}
+            </text>
+          </box>
         </box>
       </box>
-    </box>
+    </>
   );
 }

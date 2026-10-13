@@ -42,14 +42,28 @@ export function createDirectoryWatcher(onChange: () => void, options: WatcherOpt
 
       const next = chokidar.watch(path, {
         ignoreInitial: true,
-        depth: 1,
+        depth: 0,
         awaitWriteFinish: { stabilityThreshold: 80, pollInterval: 20 },
       });
       watcher = next;
+
+      // Silently catch errors so permission issues or special nodes never crash the process
+      next.on("error", () => {
+        // Ignored safely
+      });
       next.on("add", schedule).on("addDir", schedule).on("unlink", schedule).on("unlinkDir", schedule);
 
       await new Promise<void>((resolve) => {
-        next.on("ready", resolve);
+        let finished = false;
+        const done = () => {
+          if (!finished) {
+            finished = true;
+            resolve();
+          }
+        };
+        next.once("ready", done);
+        next.once("error", done);
+        setTimeout(done, 300);
       });
     },
 

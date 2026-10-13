@@ -192,8 +192,12 @@ export function createSessionStore(initial: SessionState): SessionStore {
     async enter() {
       const target = visibleEntries(state)[state.cursor];
       if (target === undefined || !target.isDirectory) return;
+      const prevCursor = state.cursor;
       setState("cursor", 0);
       await load(target.path);
+      if (state.error !== undefined) {
+        setState("cursor", prevCursor);
+      }
     },
 
     async goUp() {

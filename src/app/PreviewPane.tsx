@@ -31,11 +31,17 @@ export function PreviewPane(props: PreviewPaneProps) {
 
     let cancelled = false;
     setLoading(true);
-    void props.cache.get(entry).then((next) => {
-      if (cancelled) return;
-      setSource(next);
-      setLoading(false);
-    });
+    props.cache
+      .get(entry)
+      .then((next) => {
+        if (cancelled) return;
+        setSource(next);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoading(false);
+      });
 
     return () => {
       cancelled = true;
@@ -72,12 +78,19 @@ export function PreviewPane(props: PreviewPaneProps) {
 
                 <Show when={current.kind === "text"}>
                   <box flexGrow={1} marginTop={1}>
-                    <code
-                      content={current.content}
-                      filetype={current.filetype}
-                      syntaxStyle={props.syntaxStyle}
-                      flexGrow={1}
-                    />
+                    <Show
+                      when={current.filetype === "md" || current.filetype === "markdown"}
+                      fallback={
+                        <code
+                          content={current.content}
+                          filetype={current.filetype}
+                          syntaxStyle={props.syntaxStyle}
+                          flexGrow={1}
+                        />
+                      }
+                    >
+                      <markdown content={current.content} syntaxStyle={props.syntaxStyle} />
+                    </Show>
                   </box>
                 </Show>
 

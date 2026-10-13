@@ -69,87 +69,118 @@ function filetypeFor(name: string): string {
 }
 
 async function previewDirectory(entry: Entry): Promise<PreviewSource> {
-  const childCount = (await readdir(entry.path)).length;
-  let folderCount = 0;
-  for (const name of await readdir(entry.path)) {
-    try {
-      const info = await stat(`${entry.path}/${name}`);
-      if (info.isDirectory()) folderCount += 1;
-    } catch {
-      // Item inacessível não invalida a contagem.
+  try {
+    const names = await readdir(entry.path);
+    const childCount = names.length;
+    let folderCount = 0;
+    for (const name of names) {
+      try {
+        const info = await stat(`${entry.path}/${name}`);
+        if (info.isDirectory()) folderCount += 1;
+      } catch {
+        // Item inacessível não invalida a contagem.
+      }
     }
-  }
 
-  return {
-    kind: "directory",
-    path: entry.path,
-    content: "",
-    filetype: "directory",
-    childCount,
-    folderCount,
-  };
+    return {
+      kind: "directory",
+      path: entry.path,
+      content: "",
+      filetype: "directory",
+      childCount,
+      folderCount,
+    };
+  } catch {
+    return {
+      kind: "directory",
+      path: entry.path,
+      content: "",
+      filetype: "directory",
+      childCount: 0,
+      folderCount: 0,
+    };
+  }
 }
 
 async function previewText(entry: Entry, limits: PreviewLimits): Promise<PreviewSource | undefined> {
-  const info = await stat(entry.path);
-  if (info.size > limits.maxTextBytes) return undefined;
+  try {
+    const info = await stat(entry.path);
+    if (info.size > limits.maxTextBytes) return undefined;
 
-  const buffer = await readFile(entry.path);
-  const head = buffer.subarray(0, 4096);
-  if (head.includes(0)) return undefined;
+    const buffer = await readFile(entry.path);
+    const head = buffer.subarray(0, 4096);
+    if (head.includes(0)) return undefined;
 
-  return {
-    kind: "text",
-    path: entry.path,
-    content: buffer.toString("utf8"),
-    filetype: filetypeFor(entry.name),
-    childCount: 0,
-    folderCount: 0,
-  };
+    return {
+      kind: "text",
+      path: entry.path,
+      content: buffer.toString("utf8"),
+      filetype: filetypeFor(entry.name),
+      childCount: 0,
+      folderCount: 0,
+    };
+  } catch {
+    return undefined;
+  }
 }
 
 export async function previewFor(entry: Entry, limits: PreviewLimits): Promise<PreviewSource> {
-  if (entry.isDirectory) return previewDirectory(entry);
+  try {
+    if (entry.isDirectory) return await previewDirectory(entry);
 
-  const extension = extensionOf(entry.name);
-  if (imageExtensions.has(extension)) {
-    return { kind: "image", path: entry.path, content: "", filetype: extension, childCount: 0, folderCount: 0 };
-  }
+    const extension = extensionOf(entry.name);
+    if (imageExtensions.has(extension)) {
+      return { kind: "image", path: entry.path, content: "", filetype: extension, childCount: 0, folderCount: 0 };
+    }
 
-  if (extension === "pdf") {
-    const info = await getPdfInfo(entry.path);
-    const coverImage = await renderPdfPage(entry.path, 1, 100);
+    if (extension === "pdf") {
+      try {
+        const info = await getPdfInfo(entry.path);
+        const coverImage = await renderPdfPage(entry.path, 1, 100);
+        return {
+          kind: "pdf",
+          path: entry.path,
+          content: "",
+          filetype: "pdf",
+          childCount: 0,
+          folderCount: 0,
+          pdfPages: info.pages,
+          coverImage,
+        };
+      } catch {
+        // Fallback para metadados se poppler falhar
+      }
+    }
+
+    const kind: EntryKind = kindFromName(entry.name);
+    const isTextual =
+      codeExtensions.has(extension) ||
+      kind === "text" ||
+      kind === "code" ||
+      kind === "json" ||
+      kind === "config" ||
+      kind === "markdown";
+    if (isTextual) {
+      const text = await previewText(entry, limits);
+      if (text !== undefined) return text;
+    }
+
     return {
-      kind: "pdf",
+      kind: "metadata",
       path: entry.path,
       content: "",
-      filetype: "pdf",
+      filetype: extension === "" ? "binary" : extension,
       childCount: 0,
       folderCount: 0,
-      pdfPages: info.pages,
-      coverImage,
+    };
+  } catch {
+    return {
+      kind: "metadata",
+      path: entry.path,
+      content: "",
+      filetype: "unknown",
+      childCount: 0,
+      folderCount: 0,
     };
   }
-
-  const kind: EntryKind = kindFromName(entry.name);
-  const isTextual =
-    codeExtensions.has(extension) ||
-    kind === "text" ||
-    kind === "code" ||
-    kind === "json" ||
-    kind === "config" ||
-    kind === "markdown";
-  if (isTextual) {
-    const text = await previewText(entry, limits);
-    if (text !== undefined) return text;
-  }
-
-  return {
-    kind: "metadata",
-    path: entry.path,
-    content: "",
-    filetype: extension === "" ? "binary" : extension,
-    childCount: 0,
-    folderCount: 0,
-  };
 }

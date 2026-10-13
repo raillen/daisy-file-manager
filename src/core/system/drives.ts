@@ -6,6 +6,7 @@ export type LsblkDevice = {
   name: string;
   path?: string;
   mountpoint: string | null;
+  mountpoints?: (string | null)[];
   label: string | null;
   size?: string;
   rm?: boolean;
@@ -39,25 +40,62 @@ export function parseLsblkJson(json: string): DriveDevice[] {
         Boolean(dev.rm) ||
         Boolean(dev.hotplug) ||
         dev.tran === "usb" ||
-        (dev.mountpoint !== null && (dev.mountpoint.startsWith("/run/media") || dev.mountpoint.startsWith("/media")));
+        (typeof dev.mountpoint === "string" &&
+          (dev.mountpoint.startsWith("/run/media") || dev.mountpoint.startsWith("/media")));
 
-      if (dev.mountpoint && dev.mountpoint !== "[SWAP]" && !dev.mountpoint.startsWith("/boot")) {
-        const label =
-          dev.label && dev.label.trim() !== ""
-            ? dev.label.trim()
-            : dev.mountpoint === "/"
-              ? "Sistema (/)"
-              : basename(dev.mountpoint);
+      // Extract all candidate mountpoints from mountpoints array and mountpoint scalar
+      const allMountpoints: string[] = [];
+      if (Array.isArray(dev.mountpoints)) {
+        for (const mp of dev.mountpoints) {
+          if (typeof mp === "string" && mp !== "[SWAP]" && !mp.startsWith("/boot")) {
+            allMountpoints.push(mp);
+          }
+        }
+      }
+      if (typeof dev.mountpoint === "string" && dev.mountpoint !== "[SWAP]" && !dev.mountpoint.startsWith("/boot")) {
+        if (!allMountpoints.includes(dev.mountpoint)) {
+          allMountpoints.push(dev.mountpoint);
+        }
+      }
 
-        result.push({
-          name: dev.name,
-          path: dev.path ?? `/dev/${dev.name}`,
-          mountpoint: dev.mountpoint,
-          label,
-          size: dev.size ?? "",
-          isRemovable,
-          fstype: dev.fstype ?? undefined,
-        });
+      if (allMountpoints.length > 0) {
+        // If device has root mountpoint "/", that ALWAYS takes precedence as primary
+        let primaryMount = allMountpoints[0] ?? "";
+        if (allMountpoints.includes("/")) {
+          primaryMount = "/";
+        } else {
+          // Check for user-facing mounts
+          const userMount = allMountpoints.find(
+            (m) =>
+              m.startsWith("/run/media") || m.startsWith("/media") || m.startsWith("/mnt") || m.startsWith("/home"),
+          );
+          if (userMount) {
+            primaryMount = userMount;
+          }
+        }
+
+        // Only exclude pure internal log/cache mountpoints if the device is not removable and has no root
+        const isInternalLogOrCache =
+          (primaryMount.startsWith("/var/log") || primaryMount.startsWith("/var/cache")) && !isRemovable;
+
+        if (!isInternalLogOrCache) {
+          const label =
+            dev.label && dev.label.trim() !== ""
+              ? dev.label.trim()
+              : primaryMount === "/"
+                ? "Sistema (/)"
+                : basename(primaryMount);
+
+          result.push({
+            name: dev.name,
+            path: dev.path ?? `/dev/${dev.name}`,
+            mountpoint: primaryMount,
+            label,
+            size: dev.size ?? "",
+            isRemovable,
+            fstype: dev.fstype ?? undefined,
+          });
+        }
       }
 
       if (dev.children && Array.isArray(dev.children)) {
@@ -94,9 +132,21 @@ function runCommand(cmd: string, args: string[]): Promise<{ code: number; stdout
 }
 
 export async function listDrives(): Promise<DriveDevice[]> {
-  const result = await runCommand("lsblk", ["-J", "-o", "NAME,PATH,MOUNTPOINT,LABEL,SIZE,RM,HOTPLUG,TRAN,TYPE,FSTYPE"]);
-  if (result.code !== 0) return [];
-  return parseLsblkJson(result.stdout);
+  const result = await runCommand("lsblk", [
+    "-J",
+    "-o",
+    "NAME,PATH,MOUNTPOINT,MOUNTPOINTS,LABEL,SIZE,RM,HOTPLUG,TRAN,TYPE,FSTYPE",
+  ]);
+  if (result.code === 0) {
+    return parseLsblkJson(result.stdout);
+  }
+  const fallback = await runCommand("lsblk", [
+    "-J",
+    "-o",
+    "NAME,PATH,MOUNTPOINT,LABEL,SIZE,RM,HOTPLUG,TRAN,TYPE,FSTYPE",
+  ]);
+  if (fallback.code !== 0) return [];
+  return parseLsblkJson(fallback.stdout);
 }
 
 export async function unmountDrive(drive: DriveDevice): Promise<{ success: boolean; error?: string }> {

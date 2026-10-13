@@ -220,216 +220,231 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
   }
 
   return (
-    <box
-      position="absolute"
-      top="3%"
-      left="4%"
-      width="92%"
-      height="94%"
-      border
-      borderColor={props.palette["border.focus"]}
-      backgroundColor={props.palette["bg.overlay"]}
-      padding={1}
-      flexDirection="column"
-    >
-      {/* Header: Title and Close button */}
-      <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1}>
-        <box flexDirection="row" gap={1}>
-          <text fg={props.palette["fg.danger"]} attributes={TextAttributes.BOLD}>
-            {`${glyph("file.pdf", props.iconSet)} `}
-          </text>
-          <text fg={props.palette["fg.default"]} attributes={TextAttributes.BOLD}>
-            {`✳ ${props.entry.name}`}
-          </text>
-          <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]}>
-            <text fg={props.palette["fg.muted"]}>{formatBytes(props.entry.size, props.t)}</text>
-          </box>
-        </box>
+    <>
+      {/* Full-screen backdrop capturing mouse clicks */}
+      <box position="absolute" top={0} left={0} width="100%" height="100%" onMouseDown={props.onClose} />
 
-        <box flexDirection="row" gap={1}>
-          <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]} onMouseDown={toggleMode}>
-            <text fg={props.palette["fg.accent"]}>
-              {mode() === "visual"
-                ? `${glyph("file.text", props.iconSet)} ${props.t("viewer.toggleText")}`
-                : `${glyph("view.preview", props.iconSet)} ${props.t("viewer.toggleVisual")}`}
-            </text>
-          </box>
-
-          <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]}>
-            <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ]"}</text>
-          </box>
-
-          <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]} onMouseDown={props.onClose}>
-            <text fg={props.palette["fg.muted"]}>
-              {`${glyph("action.cancel", props.iconSet)} ${props.t("viewer.close")}`}
-            </text>
-          </box>
-        </box>
-      </box>
-
-      {/* Toolbar: Navigation and Controls */}
-      <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1}>
-        {/* Navigation buttons */}
-        <box flexDirection="row" gap={1}>
-          <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]} onMouseDown={prevPage}>
-            <text fg={props.palette["fg.accent"]}>
-              {`${glyph("nav.back", props.iconSet)} ${props.t("viewer.prevPage")}`}
-            </text>
-          </box>
-
-          <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]}>
-            <text fg={props.palette["fg.default"]} attributes={TextAttributes.BOLD}>
-              {props.t("viewer.pdfPage", {
-                current: page(),
-                total: props.totalPages,
-              })}
-            </text>
-          </box>
-
-          <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]} onMouseDown={nextPage}>
-            <text fg={props.palette["fg.accent"]}>
-              {`${props.t("viewer.nextPage")} ${glyph("nav.forward", props.iconSet)}`}
-            </text>
-          </box>
-        </box>
-
-        {/* Zoom and Fit buttons */}
-        <Show when={mode() === "visual" && hasRenderer()}>
+      <box
+        position="absolute"
+        top="3%"
+        left="4%"
+        width="92%"
+        height="94%"
+        border
+        borderColor={props.palette["border.focus"]}
+        backgroundColor={props.palette["bg.overlay"]}
+        padding={1}
+        flexDirection="column"
+        onMouseDown={(e: MouseEvent) => {
+          e.stopPropagation?.();
+        }}
+      >
+        {/* Header: Title and Close button */}
+        <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1}>
           <box flexDirection="row" gap={1}>
-            <box
-              paddingLeft={1}
-              paddingRight={1}
-              backgroundColor={props.palette["bg.inset"]}
-              onMouseDown={zoomOut}
-              onMouseScroll={(event: MouseEvent) => {
-                if (event.scroll?.direction === "up") zoomIn();
-                else if (event.scroll?.direction === "down") zoomOut();
-              }}
-            >
-              <text fg={props.palette["fg.accent"]}>{glyph("action.zoomOut", props.iconSet)}</text>
+            <text fg={props.palette["fg.danger"]} attributes={TextAttributes.BOLD}>
+              {`${glyph("file.pdf", props.iconSet)} `}
+            </text>
+            <text fg={props.palette["fg.default"]} attributes={TextAttributes.BOLD}>
+              {`✳ ${props.entry.name}`}
+            </text>
+            <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]}>
+              <text fg={props.palette["fg.muted"]}>{formatBytes(props.entry.size, props.t)}</text>
+            </box>
+          </box>
+
+          <box flexDirection="row" gap={1}>
+            <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]} onMouseDown={toggleMode}>
+              <text fg={props.palette["fg.accent"]}>
+                {mode() === "visual"
+                  ? `${glyph("file.text", props.iconSet)} ${props.t("viewer.toggleText")}`
+                  : `${glyph("view.preview", props.iconSet)} ${props.t("viewer.toggleVisual")}`}
+              </text>
+            </box>
+
+            <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]}>
+              <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ]"}</text>
             </box>
 
             <box
               paddingLeft={1}
               paddingRight={1}
               backgroundColor={props.palette["bg.inset"]}
-              onMouseDown={toggleFit}
-              onMouseScroll={(event: MouseEvent) => {
-                if (event.scroll?.direction === "up") zoomIn();
-                else if (event.scroll?.direction === "down") zoomOut();
-              }}
+              onMouseDown={props.onClose}
             >
+              <text fg={props.palette["fg.muted"]}>
+                {`${glyph("action.cancel", props.iconSet)} ${props.t("viewer.close")}`}
+              </text>
+            </box>
+          </box>
+        </box>
+
+        {/* Toolbar: Navigation and Controls */}
+        <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1}>
+          {/* Navigation buttons */}
+          <box flexDirection="row" gap={1}>
+            <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]} onMouseDown={prevPage}>
+              <text fg={props.palette["fg.accent"]}>
+                {`${glyph("nav.back", props.iconSet)} ${props.t("viewer.prevPage")}`}
+              </text>
+            </box>
+
+            <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]}>
               <text fg={props.palette["fg.default"]} attributes={TextAttributes.BOLD}>
-                {props.t("viewer.zoomLevel", { zoom: zoom() })}
+                {props.t("viewer.pdfPage", {
+                  current: page(),
+                  total: props.totalPages,
+                })}
               </text>
             </box>
 
-            <box
-              paddingLeft={1}
-              paddingRight={1}
-              backgroundColor={props.palette["bg.inset"]}
-              onMouseDown={zoomIn}
-              onMouseScroll={(event: MouseEvent) => {
-                if (event.scroll?.direction === "up") zoomIn();
-                else if (event.scroll?.direction === "down") zoomOut();
-              }}
-            >
-              <text fg={props.palette["fg.accent"]}>{glyph("action.zoomIn", props.iconSet)}</text>
+            <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]} onMouseDown={nextPage}>
+              <text fg={props.palette["fg.accent"]}>
+                {`${props.t("viewer.nextPage")} ${glyph("nav.forward", props.iconSet)}`}
+              </text>
             </box>
+          </box>
 
-            <box
-              paddingLeft={1}
-              paddingRight={1}
-              backgroundColor={isFit() ? props.palette["bg.accent"] : props.palette["bg.inset"]}
-              onMouseDown={toggleFit}
-            >
-              <text
-                fg={isFit() ? props.palette["fg.onEmphasis"] : props.palette["fg.accent"]}
-                attributes={isFit() ? TextAttributes.BOLD : TextAttributes.NONE}
+          {/* Zoom and Fit buttons */}
+          <Show when={mode() === "visual" && hasRenderer()}>
+            <box flexDirection="row" gap={1}>
+              <box
+                paddingLeft={1}
+                paddingRight={1}
+                backgroundColor={props.palette["bg.inset"]}
+                onMouseDown={zoomOut}
+                onMouseScroll={(event: MouseEvent) => {
+                  if (event.scroll?.direction === "up") zoomIn();
+                  else if (event.scroll?.direction === "down") zoomOut();
+                }}
               >
-                {`${glyph("action.zoomFit", props.iconSet)} ${props.t("viewer.zoomFit")}`}
-              </text>
+                <text fg={props.palette["fg.accent"]}>{glyph("action.zoomOut", props.iconSet)}</text>
+              </box>
+
+              <box
+                paddingLeft={1}
+                paddingRight={1}
+                backgroundColor={props.palette["bg.inset"]}
+                onMouseDown={toggleFit}
+                onMouseScroll={(event: MouseEvent) => {
+                  if (event.scroll?.direction === "up") zoomIn();
+                  else if (event.scroll?.direction === "down") zoomOut();
+                }}
+              >
+                <text fg={props.palette["fg.default"]} attributes={TextAttributes.BOLD}>
+                  {props.t("viewer.zoomLevel", { zoom: zoom() })}
+                </text>
+              </box>
+
+              <box
+                paddingLeft={1}
+                paddingRight={1}
+                backgroundColor={props.palette["bg.inset"]}
+                onMouseDown={zoomIn}
+                onMouseScroll={(event: MouseEvent) => {
+                  if (event.scroll?.direction === "up") zoomIn();
+                  else if (event.scroll?.direction === "down") zoomOut();
+                }}
+              >
+                <text fg={props.palette["fg.accent"]}>{glyph("action.zoomIn", props.iconSet)}</text>
+              </box>
+
+              <box
+                paddingLeft={1}
+                paddingRight={1}
+                backgroundColor={isFit() ? props.palette["bg.accent"] : props.palette["bg.inset"]}
+                onMouseDown={toggleFit}
+              >
+                <text
+                  fg={isFit() ? props.palette["fg.onEmphasis"] : props.palette["fg.accent"]}
+                  attributes={isFit() ? TextAttributes.BOLD : TextAttributes.NONE}
+                >
+                  {`${glyph("action.zoomFit", props.iconSet)} ${props.t("viewer.zoomFit")}`}
+                </text>
+              </box>
             </box>
+          </Show>
+        </box>
+
+        <Show when={!hasRenderer()}>
+          <box height={1} marginBottom={1} backgroundColor={props.palette["bg.inset"]} paddingLeft={1}>
+            <text fg={props.palette["fg.attention"]}>{props.t("viewer.noRenderer")}</text>
           </box>
         </Show>
-      </box>
 
-      <Show when={!hasRenderer()}>
-        <box height={1} marginBottom={1} backgroundColor={props.palette["bg.inset"]} paddingLeft={1}>
-          <text fg={props.palette["fg.attention"]}>{props.t("viewer.noRenderer")}</text>
-        </box>
-      </Show>
-
-      {/* Main Content Viewer */}
-      <Show
-        when={mode() === "visual" && hasRenderer()}
-        fallback={
+        {/* Main Content Viewer */}
+        <Show
+          when={mode() === "visual" && hasRenderer()}
+          fallback={
+            <scrollbox
+              flexGrow={1}
+              width="100%"
+              backgroundColor={props.palette["bg.inset"]}
+              paddingLeft={1}
+              paddingRight={1}
+            >
+              <text fg={props.palette["fg.default"]}>
+                {currentText() || (hasRenderer() ? props.t("status.loading") : props.t("viewer.noRenderer"))}
+              </text>
+            </scrollbox>
+          }
+        >
           <scrollbox
+            ref={(r) => {
+              scrollBoxRef = r;
+            }}
             flexGrow={1}
             width="100%"
             backgroundColor={props.palette["bg.inset"]}
-            paddingLeft={1}
-            paddingRight={1}
+            contentOptions={{
+              maxWidth: undefined,
+              alignItems: "center",
+            }}
+            onMouseScroll={handleViewerScroll}
           >
-            <text fg={props.palette["fg.default"]}>
-              {currentText() || (hasRenderer() ? props.t("status.loading") : props.t("viewer.noRenderer"))}
-            </text>
+            <Show
+              when={currentPng() !== undefined}
+              fallback={
+                <box flexGrow={1} width="100%" alignItems="center" justifyContent="center">
+                  <text fg={props.palette["fg.muted"]}>{props.t("status.loading")}</text>
+                </box>
+              }
+            >
+              <image
+                source={currentPng()}
+                width={imageWidth()}
+                height={imageHeight()}
+                fit="fill"
+                onLoad={(img) => {
+                  if (img.width > 0 && img.height > 0) {
+                    setAspectRatio(img.height / img.width);
+                  }
+                }}
+              />
+            </Show>
           </scrollbox>
-        }
-      >
-        <scrollbox
-          ref={(r) => {
-            scrollBoxRef = r;
-          }}
-          flexGrow={1}
-          width="100%"
-          backgroundColor={props.palette["bg.inset"]}
-          contentOptions={{
-            maxWidth: undefined,
-            alignItems: "center",
-          }}
-          onMouseScroll={handleViewerScroll}
-        >
-          <Show
-            when={currentPng() !== undefined}
-            fallback={
-              <box flexGrow={1} width="100%" alignItems="center" justifyContent="center">
-                <text fg={props.palette["fg.muted"]}>{props.t("status.loading")}</text>
-              </box>
-            }
-          >
-            <image
-              source={currentPng()}
-              width={imageWidth()}
-              height={imageHeight()}
-              fit="fill"
-              onLoad={(img) => {
-                if (img.width > 0 && img.height > 0) {
-                  setAspectRatio(img.height / img.width);
-                }
-              }}
-            />
-          </Show>
-        </scrollbox>
-      </Show>
-
-      {/* Footer: Shortcut Hints and Status */}
-      <box
-        flexDirection="row"
-        justifyContent="space-between"
-        height={1}
-        marginTop={1}
-        paddingLeft={1}
-        paddingRight={1}
-        backgroundColor={props.palette["bg.inset"]}
-      >
-        <text fg={props.palette["fg.muted"]}>{props.t("viewer.controlsHint")}</text>
-        <Show when={mode() === "visual" && hasRenderer()}>
-          <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
-            {isFit() ? props.t("viewer.statusFit") : props.t("viewer.statusZoom", { zoom: zoom(), dpi: currentDpi() })}
-          </text>
         </Show>
+
+        {/* Footer: Shortcut Hints and Status */}
+        <box
+          flexDirection="row"
+          justifyContent="space-between"
+          height={1}
+          marginTop={1}
+          paddingLeft={1}
+          paddingRight={1}
+          backgroundColor={props.palette["bg.inset"]}
+        >
+          <text fg={props.palette["fg.muted"]}>{props.t("viewer.controlsHint")}</text>
+          <Show when={mode() === "visual" && hasRenderer()}>
+            <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
+              {isFit()
+                ? props.t("viewer.statusFit")
+                : props.t("viewer.statusZoom", { zoom: zoom(), dpi: currentDpi() })}
+            </text>
+          </Show>
+        </box>
       </box>
-    </box>
+    </>
   );
 }

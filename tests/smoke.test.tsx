@@ -991,3 +991,46 @@ test("App renders ThemeSelectorDialog when themeSelectorOpen is true", async () 
 
   await setup.dispose();
 });
+
+test("App renders TextViewerDialog with rich markdown when viewerModal is markdown", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  const entry: Entry = {
+    name: "DOCUMENTATION.md",
+    path: `${cwd}/DOCUMENTATION.md`,
+    kind: "markdown",
+    isDirectory: false,
+    isSymlink: false,
+    size: 256,
+    modifiedMs: Date.now(),
+    permissions: "-rw-r--r--",
+  };
+
+  ui.actions.openTextViewer(entry, "# Main Title\n\n- item 1\n- item 2\n\n> Blockquote", "md");
+
+  const setup = await testRender(() => (
+    <App
+      keymapOverrides={{}}
+      previewCache={previewCache}
+      clipboard={clipboard}
+      queue={queue}
+      session={session}
+      ui={ui}
+      places={[]}
+      home={cwd}
+      separator="/"
+      freeSpace={undefined}
+    />
+  ));
+  await setup.renderOnce();
+  const frame = setup.captureCharFrame();
+  expect(frame).toContain("DOCUMENTATION.md");
+  expect(frame).toContain("Fechar [Esc]");
+  await setup.dispose();
+});

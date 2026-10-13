@@ -43,57 +43,73 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     reload,
   };
 
+  const isBlocked = () =>
+    ui.state.viewerModal !== undefined ||
+    ui.state.themeSelectorOpen ||
+    ui.state.targetFolderDialog !== undefined ||
+    ui.state.inputDialog !== undefined ||
+    ui.state.contextMenu !== undefined ||
+    ui.state.properties !== undefined ||
+    ui.state.helpOpen ||
+    ui.state.mode === "search" ||
+    ui.state.mode === "command";
+
+  const guard = (fn: () => void | Promise<void>) => () => {
+    if (isBlocked()) return;
+    void fn();
+  };
+
   return [
-    { name: "nav.down", run: () => curSession().actions.moveCursor(1) },
-    { name: "nav.up", run: () => curSession().actions.moveCursor(-1) },
-    { name: "nav.first", run: () => curSession().actions.cursorTo(0) },
-    { name: "nav.last", run: () => curSession().actions.cursorTo(Number.MAX_SAFE_INTEGER) },
-    { name: "nav.enter", run: () => void handleEnter(runtime) },
-    { name: "nav.parent", run: () => void curSession().actions.goUp() },
+    { name: "nav.down", run: guard(() => curSession().actions.moveCursor(1)) },
+    { name: "nav.up", run: guard(() => curSession().actions.moveCursor(-1)) },
+    { name: "nav.first", run: guard(() => curSession().actions.cursorTo(0)) },
+    { name: "nav.last", run: guard(() => curSession().actions.cursorTo(Number.MAX_SAFE_INTEGER)) },
+    { name: "nav.enter", run: guard(() => handleEnter(runtime)) },
+    { name: "nav.parent", run: guard(() => curSession().actions.goUp()) },
 
-    { name: "select.toggle", run: () => toggleMarked(runtime) },
-    { name: "select.visual", run: ui.actions.toggleVisual },
-    { name: "select.down", run: () => curSession().actions.extendSelection(1) },
-    { name: "select.up", run: () => curSession().actions.extendSelection(-1) },
-    { name: "select.all", run: () => curSession().actions.selectAll() },
+    { name: "select.toggle", run: guard(() => toggleMarked(runtime)) },
+    { name: "select.visual", run: guard(ui.actions.toggleVisual) },
+    { name: "select.down", run: guard(() => curSession().actions.extendSelection(1)) },
+    { name: "select.up", run: guard(() => curSession().actions.extendSelection(-1)) },
+    { name: "select.all", run: guard(() => curSession().actions.selectAll()) },
 
-    { name: "file.yank", run: () => copySelection(runtime, "copy") },
-    { name: "file.cut", run: () => copySelection(runtime, "cut") },
-    { name: "file.paste", run: () => void pasteInto(deps, curSession().state.cwd) },
-    { name: "file.copyTo", run: () => openCopyTo(runtime) },
-    { name: "file.moveTo", run: () => openMoveTo(runtime) },
-    { name: "file.trash", run: () => void trashSelection(deps, selectedPaths(curSession())) },
-    { name: "file.open", run: () => openCurrent(runtime) },
-    { name: "file.properties", run: () => toggleProperties(runtime) },
-    { name: "file.mkdir", run: () => openMkdir(runtime) },
-    { name: "file.rename", run: () => openRename(runtime) },
-    { name: "file.newFile", run: () => openNewFile(runtime) },
-    { name: "file.extract", run: () => void extractSelection(runtime) },
-    { name: "action.bookmark", run: () => toggleBookmarkCurrent(runtime) },
-    { name: "panel.sidebarDec", run: () => runtime.ui.actions.adjustSidebarWidth(-2) },
-    { name: "panel.sidebarInc", run: () => runtime.ui.actions.adjustSidebarWidth(2) },
-    { name: "panel.previewDec", run: () => runtime.ui.actions.adjustPreviewWidth(-4) },
-    { name: "panel.previewInc", run: () => runtime.ui.actions.adjustPreviewWidth(4) },
-    { name: "panel.switchPane", run: () => runtime.onSwitchPane?.() },
+    { name: "file.yank", run: guard(() => copySelection(runtime, "copy")) },
+    { name: "file.cut", run: guard(() => copySelection(runtime, "cut")) },
+    { name: "file.paste", run: guard(() => pasteInto(deps, curSession().state.cwd)) },
+    { name: "file.copyTo", run: guard(() => openCopyTo(runtime)) },
+    { name: "file.moveTo", run: guard(() => openMoveTo(runtime)) },
+    { name: "file.trash", run: guard(() => trashSelection(deps, selectedPaths(curSession()))) },
+    { name: "file.open", run: guard(() => openCurrent(runtime)) },
+    { name: "file.properties", run: guard(() => toggleProperties(runtime)) },
+    { name: "file.mkdir", run: guard(() => openMkdir(runtime)) },
+    { name: "file.rename", run: guard(() => openRename(runtime)) },
+    { name: "file.newFile", run: guard(() => openNewFile(runtime)) },
+    { name: "file.extract", run: guard(() => extractSelection(runtime)) },
+    { name: "action.bookmark", run: guard(() => toggleBookmarkCurrent(runtime)) },
+    { name: "panel.sidebarDec", run: guard(() => runtime.ui.actions.adjustSidebarWidth(-2)) },
+    { name: "panel.sidebarInc", run: guard(() => runtime.ui.actions.adjustSidebarWidth(2)) },
+    { name: "panel.previewDec", run: guard(() => runtime.ui.actions.adjustPreviewWidth(-4)) },
+    { name: "panel.previewInc", run: guard(() => runtime.ui.actions.adjustPreviewWidth(4)) },
+    { name: "panel.switchPane", run: guard(() => runtime.onSwitchPane?.()) },
 
-    { name: "ui.commandLine", run: () => runtime.ui.actions.openCommandLine() },
-    { name: "ui.search", run: () => openSearch(runtime) },
+    { name: "ui.commandLine", run: guard(() => runtime.ui.actions.openCommandLine()) },
+    { name: "ui.search", run: guard(() => openSearch(runtime)) },
     { name: "ui.escape", run: () => handleEscape(runtime) },
-    { name: "ui.clear", run: () => curSession().actions.setQuery("") },
+    { name: "ui.clear", run: guard(() => curSession().actions.setQuery("")) },
 
-    { name: "view.toggle", run: () => curSession().actions.toggleView() },
-    { name: "view.hidden", run: () => curSession().actions.toggleHidden() },
-    { name: "view.splitPane", run: ui.actions.toggleSplitPane },
-    { name: "view.sidebar", run: ui.actions.toggleSidebar },
-    { name: "view.preview", run: ui.actions.togglePreview },
-    { name: "view.help", run: ui.actions.toggleHelp },
-    { name: "view.sort.name", run: () => curSession().actions.setSort("name") },
-    { name: "view.sort.size", run: () => curSession().actions.setSort("size") },
-    { name: "view.sort.modified", run: () => curSession().actions.setSort("modified") },
+    { name: "view.toggle", run: guard(() => curSession().actions.toggleView()) },
+    { name: "view.hidden", run: guard(() => curSession().actions.toggleHidden()) },
+    { name: "view.splitPane", run: guard(ui.actions.toggleSplitPane) },
+    { name: "view.sidebar", run: guard(ui.actions.toggleSidebar) },
+    { name: "view.preview", run: guard(ui.actions.togglePreview) },
+    { name: "view.help", run: guard(ui.actions.toggleHelp) },
+    { name: "view.sort.name", run: guard(() => curSession().actions.setSort("name")) },
+    { name: "view.sort.size", run: guard(() => curSession().actions.setSort("size")) },
+    { name: "view.sort.modified", run: guard(() => curSession().actions.setSort("modified")) },
 
-    { name: "ui.contextMenu", run: () => openContextMenuCurrent(runtime) },
-    { name: "ui.toggleTheme", run: () => runtime.ui.actions.toggleTheme() },
-    { name: "ui.themeSelector", run: () => runtime.ui.actions.openThemeSelector() },
+    { name: "ui.contextMenu", run: guard(() => openContextMenuCurrent(runtime)) },
+    { name: "ui.toggleTheme", run: guard(() => runtime.ui.actions.toggleTheme()) },
+    { name: "ui.themeSelector", run: guard(() => runtime.ui.actions.openThemeSelector()) },
     { name: "ui.quit", run: runtime.onQuit },
   ];
 }
@@ -198,6 +214,10 @@ function openMoveTo(runtime: CommandRuntime) {
 }
 
 function handleEscape(runtime: CommandRuntime) {
+  if (runtime.ui.state.themeSelectorOpen) {
+    runtime.ui.actions.closeThemeSelector();
+    return;
+  }
   if (runtime.ui.state.contextMenu !== undefined) {
     runtime.ui.actions.closeContextMenu();
     return;
