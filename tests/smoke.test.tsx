@@ -1034,3 +1034,249 @@ test("App renders TextViewerDialog with rich markdown when viewerModal is markdo
   expect(frame).toContain("Fechar [Esc]");
   await setup.dispose();
 });
+
+test("Typing in search mode and command mode does not trigger shortcut commands", async () => {
+  const cwd = process.cwd();
+  const { session, ui } = testStores(cwd);
+  await session.actions.load(cwd);
+
+  const previewCache = createPreviewCache({ maxTextBytes: 1024 });
+  const clipboard = createClipboardStore();
+  const queue = createQueueStore();
+
+  function RootWrapper() {
+    const renderer = useRenderer();
+    const keymap = createDefaultOpenTuiKeymap(renderer);
+
+    function Inner() {
+      useCommandLayer({
+        session,
+        ui,
+        clipboard,
+        queue,
+        currentEntryPath: () => visibleEntries(session.state)[session.state.cursor]?.path,
+        onQuit: () => ui.actions.quit(),
+      });
+
+      return (
+        <App
+          keymapOverrides={{}}
+          previewCache={previewCache}
+          clipboard={clipboard}
+          queue={queue}
+          session={session}
+          ui={ui}
+          places={[]}
+          home={cwd}
+          separator="/"
+          freeSpace={undefined}
+        />
+      );
+    }
+
+    return (
+      <KeymapProvider keymap={keymap}>
+        <Inner />
+      </KeymapProvider>
+    );
+  }
+
+  const setup = await testRender(() => <RootWrapper />);
+  await setup.renderOnce();
+
+  // 1. Open search mode by pressing '/'
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "/",
+      sequence: "/",
+      raw: "/",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.mode).toBe("search");
+  const cursorBefore = session.state.cursor;
+
+  // Press 'j' (nav.down shortcut)
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "j",
+      sequence: "j",
+      raw: "j",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  // Should NOT move cursor down!
+  expect(session.state.cursor).toBe(cursorBefore);
+  expect(session.state.query).toBe("j");
+
+  // Press 'q' (ui.quit shortcut)
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "q",
+      sequence: "q",
+      raw: "q",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  // Should NOT quit! It should type 'q' into search!
+  expect(ui.state.quit).toBe(false);
+  expect(session.state.query).toBe("jq");
+
+  // Press 'escape' to exit search mode
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "escape",
+      sequence: "\x1b",
+      raw: "\x1b",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.mode).toBe("normal");
+  expect(session.state.query).toBe("");
+
+  // 2. Open command mode by pressing ':'
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: ":",
+      sequence: ":",
+      raw: ":",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.mode).toBe("command");
+
+  // Press 'd' (which is file.cut in normal mode)
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "d",
+      sequence: "d",
+      raw: "d",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  // Clipboard should NOT have cut paths!
+  expect(clipboard.state.paths).toEqual([]);
+
+  // Press 'escape' to exit command mode
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "escape",
+      sequence: "\x1b",
+      raw: "\x1b",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.mode).toBe("normal");
+
+  // 3. In InputDialog, typing does not trigger normal commands
+  ui.actions.openInputDialog({ kind: "mkdir", initialValue: "" });
+  await setup.renderOnce();
+
+  expect(ui.state.inputDialog).toBeDefined();
+
+  // Press 't' (which is themeSelector in normal mode)
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "t",
+      sequence: "t",
+      raw: "t",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  // Theme selector should NOT open!
+  expect(ui.state.themeSelectorOpen).toBe(false);
+
+  // Press 'escape' to close InputDialog
+  setup.renderer.keyInput.emit(
+    "keypress",
+    new KeyEvent({
+      name: "escape",
+      sequence: "\x1b",
+      raw: "\x1b",
+      eventType: "press",
+      source: "raw",
+      ctrl: false,
+      meta: false,
+      shift: false,
+      option: false,
+      number: false,
+    }),
+  );
+  await setup.renderOnce();
+
+  expect(ui.state.inputDialog).toBeUndefined();
+
+  await setup.dispose();
+});

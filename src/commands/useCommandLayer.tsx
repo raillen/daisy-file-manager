@@ -110,7 +110,7 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "ui.contextMenu", run: guard(() => openContextMenuCurrent(runtime)) },
     { name: "ui.toggleTheme", run: guard(() => runtime.ui.actions.toggleTheme()) },
     { name: "ui.themeSelector", run: guard(() => runtime.ui.actions.openThemeSelector()) },
-    { name: "ui.quit", run: runtime.onQuit },
+    { name: "ui.quit", run: guard(runtime.onQuit) },
   ];
 }
 
@@ -346,11 +346,25 @@ function closeSearch(runtime: CommandRuntime) {
 export function useCommandLayer(runtime: CommandRuntime) {
   const keymap = useKeymap();
 
-  useBindings(() => ({
-    priority: 0,
-    commands: commandsFor(runtime),
-    bindings: buildBindings(runtime.overrides),
-  }));
+  useBindings(() => {
+    if (
+      runtime.ui.state.mode === "search" ||
+      runtime.ui.state.mode === "command" ||
+      runtime.ui.state.inputDialog !== undefined
+    ) {
+      return {
+        priority: 0,
+        commands: [{ name: "ui.escape", run: () => handleEscape(runtime) }],
+        bindings: [{ key: "escape", cmd: "ui.escape" }],
+      };
+    }
+
+    return {
+      priority: 0,
+      commands: commandsFor(runtime),
+      bindings: buildBindings(runtime.overrides),
+    };
+  });
 
   createEffect(() => {
     if (runtime.ui.state.quit) runtime.onQuit();
