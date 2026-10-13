@@ -92,6 +92,7 @@ function commandsFor(runtime: CommandRuntime): Command[] {
     { name: "view.sort.modified", run: () => curSession().actions.setSort("modified") },
 
     { name: "ui.contextMenu", run: () => openContextMenuCurrent(runtime) },
+    { name: "ui.toggleTheme", run: () => runtime.ui.actions.toggleTheme() },
     { name: "ui.quit", run: runtime.onQuit },
   ];
 }

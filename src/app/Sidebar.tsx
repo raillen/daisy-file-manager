@@ -34,7 +34,7 @@ export function Sidebar(props: SidebarProps) {
     <box flexDirection="column" width={props.width ?? 22} paddingRight={1} backgroundColor={props.palette["bg.muted"]}>
       <box flexDirection="row" height={1} paddingLeft={1}>
         <text fg={props.palette["fg.muted"]} attributes={TextAttributes.BOLD}>
-          {props.t("places.title")}
+          {`01 // ${props.t("places.title")}`}
         </text>
       </box>
 
@@ -60,7 +60,7 @@ export function Sidebar(props: SidebarProps) {
       {/* Marcadores / Bookmarks */}
       <box flexDirection="row" height={1} paddingLeft={1} marginTop={1}>
         <text fg={props.palette["fg.muted"]} attributes={TextAttributes.BOLD}>
-          {props.t("bookmarks.title")}
+          {`02 // ${props.t("bookmarks.title")}`}
         </text>
       </box>
 
@@ -111,7 +111,7 @@ export function Sidebar(props: SidebarProps) {
       <Show when={(props.drives ?? []).length > 0}>
         <box flexDirection="row" height={1} paddingLeft={1} marginTop={1}>
           <text fg={props.palette["fg.muted"]} attributes={TextAttributes.BOLD}>
-            {props.t("drives.title")}
+            {`03 // ${props.t("drives.title")}`}
           </text>
         </box>
 

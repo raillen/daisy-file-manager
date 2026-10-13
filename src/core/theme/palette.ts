@@ -1,6 +1,8 @@
 import colorsSource from "../../../design/tokens/colors.json" with { type: "json" };
 
-export type ThemeName = "light" | "dark";
+export type ThemeName = "light" | "dark" | "wired" | "cyberpunk" | "retro";
+
+export const THEMES: readonly ThemeName[] = ["dark", "wired", "cyberpunk", "retro", "light"] as const;
 
 export type ColorToken =
   | "bg.default"
@@ -30,7 +32,14 @@ export type ColorToken =
 
 export type Palette = Record<ColorToken, string>;
 
-type PaletteRow = { name: string; dark: string; light: string };
+type PaletteRow = {
+  name: string;
+  dark: string;
+  light: string;
+  wired: string;
+  cyberpunk: string;
+  retro: string;
+};
 
 const rows = colorsSource.tokens as ReadonlyArray<PaletteRow>;
 
@@ -52,8 +61,11 @@ function pick(theme: ThemeName): Palette {
 }
 
 export const palettes: Record<ThemeName, Palette> = {
-  light: pick("light"),
   dark: pick("dark"),
+  light: pick("light"),
+  wired: pick("wired"),
+  cyberpunk: pick("cyberpunk"),
+  retro: pick("retro"),
 };
 
 export const defaultTheme: ThemeName = "dark";

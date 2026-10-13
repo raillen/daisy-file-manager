@@ -212,8 +212,10 @@ describe("store de ui", () => {
     const ui = uiStore();
 
     ui.actions.toggleTheme();
+    expect(ui.state.theme).toBe("wired");
+    ui.actions.setTheme("light");
     expect(ui.state.theme).toBe("light");
-    ui.actions.toggleTheme();
+    ui.actions.setTheme("dark");
     expect(ui.state.theme).toBe("dark");
 
     const sidebarBefore = ui.state.sidebarVisible;

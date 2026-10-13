@@ -84,6 +84,7 @@ export type UiActions = {
   adjustSidebarWidth: (delta: number) => void;
   adjustPreviewWidth: (delta: number) => void;
   toggleTheme: () => void;
+  setTheme: (theme: ThemeName) => void;
   setLocale: (locale: LocaleCode) => void;
   toggleBookmark: (path: string) => void;
   setBookmarks: (paths: string[]) => void;
@@ -198,7 +199,14 @@ export function createUiStore({ initial, translators, palettes }: UiStoreInput):
       setState("previewWidth", (w) => Math.max(20, Math.min(w + delta, 80)));
     },
     toggleTheme() {
-      setState("theme", (theme) => (theme === "dark" ? "light" : "dark"));
+      const themes: ThemeName[] = ["dark", "wired", "cyberpunk", "retro", "light"];
+      setState("theme", (current) => {
+        const nextIdx = (themes.indexOf(current) + 1) % themes.length;
+        return themes[nextIdx] ?? "dark";
+      });
+    },
+    setTheme(theme) {
+      setState("theme", theme);
     },
     setLocale(locale) {
       setState("locale", locale);

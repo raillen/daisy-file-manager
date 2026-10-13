@@ -44,6 +44,7 @@ export type CommandName =
   | "view.sort.size"
   | "view.sort.modified"
   | "ui.contextMenu"
+  | "ui.toggleTheme"
   | "ui.quit";
 
 export type BindingSpec = {
@@ -95,6 +96,7 @@ export const defaultBindings: readonly BindingSpec[] = [
   { command: "view.preview", keys: ["ctrl+p"] },
   { command: "view.help", keys: ["?"] },
   { command: "ui.contextMenu", keys: ["m"] },
+  { command: "ui.toggleTheme", keys: ["shift+t"] },
   { command: "ui.quit", keys: ["q"] },
 ];
 

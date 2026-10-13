@@ -26,34 +26,49 @@ export function StatusBar(props: StatusBarProps) {
     return items;
   };
 
+  const signalBars = () => {
+    // Cyberpunk VU-Meter bar inspired by daisyweblain
+    if (props.total === 0) return "▰▱▱▱▱▱";
+    const ratio = Math.min(1, props.visible / Math.max(1, props.total));
+    const filled = Math.max(1, Math.min(6, Math.round(ratio * 6)));
+    return "▰".repeat(filled) + "▱".repeat(6 - filled);
+  };
+
   return (
     <box flexDirection="row" height={1} paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.muted"]}>
-      <text fg={props.palette["fg.default"]}>{summary()}</text>
+      {/* LED & Status Summary */}
+      <box flexDirection="row" marginRight={1}>
+        <text fg={props.palette["fg.accent"]}>{"● "}</text>
+        <text fg={props.palette["fg.default"]}>{summary()}</text>
+      </box>
 
       <Show when={props.marked > 0}>
-        <text fg={props.palette["fg.accent"]}>{` · ${props.t("list.selectionCount", { count: props.marked })}`}</text>
+        <text fg={props.palette["fg.accent"]}>{` // ${props.t("list.selectionCount", { count: props.marked })}`}</text>
       </Show>
 
       <Show when={props.selectedSize !== undefined}>
-        <text fg={props.palette["fg.muted"]}>{` · ${formatBytes(props.selectedSize, props.t)}`}</text>
+        <text fg={props.palette["fg.muted"]}>{` // ${formatBytes(props.selectedSize, props.t)}`}</text>
       </Show>
 
       <Show when={props.message !== undefined}>
-        <text fg={props.palette["fg.attention"]}>{` · ${props.message}`}</text>
+        <text fg={props.palette["fg.attention"]}>{` // ${props.message}`}</text>
       </Show>
 
       <box flexGrow={1} />
 
-      <Show when={props.freeSpace !== undefined}>
-        <text fg={props.palette["fg.muted"]}>
-          {props.t("status.freeSpace", { size: formatBytes(props.freeSpace, props.t) })}
-        </text>
-      </Show>
+      {/* Signal VU Meter */}
+      <box flexDirection="row" marginRight={1}>
+        <text fg={props.palette["fg.accent"]}>{`${signalBars()} `}</text>
+        <Show when={props.freeSpace !== undefined}>
+          <text fg={props.palette["fg.muted"]}>
+            {props.t("status.freeSpace", { size: formatBytes(props.freeSpace, props.t) })}
+          </text>
+        </Show>
+      </box>
 
+      {/* Framed Cyber Shortcuts */}
       <Show when={props.hints.length > 0}>
-        <text
-          fg={props.palette["fg.muted"]}
-        >{`  ·  ${props.hints.map((hint) => `${hint.key} ${hint.label}`).join("  ")}`}</text>
+        <text fg={props.palette["fg.muted"]}>{props.hints.map((hint) => `[${hint.key} ${hint.label}]`).join(" ")}</text>
       </Show>
     </box>
   );

@@ -29,11 +29,14 @@ export function ImageViewerDialog(props: ImageViewerDialogProps) {
       <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1}>
         <box flexDirection="row">
           <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
-            {`${props.entry.name} `}
+            {`✳ ${props.entry.name} `}
           </text>
           <text fg={props.palette["fg.muted"]}>{`(${formatBytes(props.entry.size, props.t)})`}</text>
         </box>
-        <text fg={props.palette["fg.muted"]}>{props.t("viewer.close")}</text>
+        <box flexDirection="row" gap={1}>
+          <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ] [ × ]"}</text>
+          <text fg={props.palette["fg.muted"]}>{props.t("viewer.close")}</text>
+        </box>
       </box>
 
       <box flexGrow={1} width="100%">

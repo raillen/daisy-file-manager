@@ -18,16 +18,22 @@ export function TitleBar(props: TitleBarProps) {
 
   return (
     <box flexDirection="row" height={1} paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.muted"]}>
-      <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
-        {"daisy"}
-      </text>
+      {/* LED & Brand */}
+      <box flexDirection="row" marginRight={1}>
+        <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
+          {"● daisy "}
+        </text>
+        <text fg={props.palette["fg.muted"]}>{"// "}</text>
+      </box>
 
-      <box flexDirection="row" flexGrow={1} paddingLeft={1} paddingRight={1}>
+      {/* Breadcrumbs */}
+      <box flexDirection="row" flexGrow={1} paddingLeft={0} paddingRight={1}>
         <For each={props.segments}>
           {(segment, index) => (
             <>
               <text
                 fg={index() === lastIndex() ? props.palette["fg.default"] : props.palette["fg.accent"]}
+                attributes={index() === lastIndex() ? TextAttributes.BOLD : TextAttributes.NONE}
                 onMouseDown={() => props.onNavigate(segment.path)}
               >
                 {segment.name}
@@ -40,12 +46,19 @@ export function TitleBar(props: TitleBarProps) {
         </For>
       </box>
 
+      {/* Query / Filter */}
       <Show when={props.query !== ""}>
-        <text fg={props.palette["fg.muted"]}>{`/ ${props.query}`}</text>
+        <text fg={props.palette["fg.accent"]}>{`/ ${props.query}`}</text>
       </Show>
+
+      {/* Hint & Cyber Status Pill */}
       <Show when={props.query === "" && props.hint !== ""}>
         <text fg={props.palette["fg.muted"]}>{`${props.hint}`}</text>
       </Show>
+
+      <box flexDirection="row" marginLeft={1}>
+        <text fg={props.palette["fg.muted"]}>{" WIRED // SYS:98"}</text>
+      </box>
     </box>
   );
 }

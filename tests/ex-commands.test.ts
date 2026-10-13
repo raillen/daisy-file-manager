@@ -29,6 +29,9 @@ describe("parseExCommand", () => {
     const theme = parseExCommand(":theme dark");
     expect(theme.kind).toBe("theme");
     expect(theme.args).toEqual(["dark"]);
+    expect(parseExCommand(":theme wired").args).toEqual(["wired"]);
+    expect(parseExCommand(":theme cyberpunk").args).toEqual(["cyberpunk"]);
+    expect(parseExCommand(":theme retro").args).toEqual(["retro"]);
 
     const sort = parseExCommand(":sort size");
     expect(sort.kind).toBe("sort");

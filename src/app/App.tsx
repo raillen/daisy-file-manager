@@ -290,7 +290,18 @@ export function App(props: AppProps) {
         break;
       }
       case "theme": {
-        props.ui.actions.toggleTheme();
+        const target = parsed.args[0]?.toLowerCase();
+        if (
+          target === "dark" ||
+          target === "light" ||
+          target === "wired" ||
+          target === "cyberpunk" ||
+          target === "retro"
+        ) {
+          props.ui.actions.setTheme(target);
+        } else {
+          props.ui.actions.toggleTheme();
+        }
         break;
       }
       case "sort": {

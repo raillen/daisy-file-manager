@@ -1,5 +1,4 @@
 import { type SyntaxStyle, TextAttributes } from "@opentui/core";
-import { createMemo } from "solid-js";
 
 import type { Entry } from "../../core/entries/directory";
 import { formatBytes } from "../../core/format/units";
@@ -17,8 +16,6 @@ export type TextViewerDialogProps = {
 };
 
 export function TextViewerDialog(props: TextViewerDialogProps) {
-  const lineCount = createMemo(() => props.content.split("\n").length);
-
   return (
     <box
       position="absolute"
@@ -38,10 +35,13 @@ export function TextViewerDialog(props: TextViewerDialogProps) {
             {`${props.entry.name} `}
           </text>
           <text fg={props.palette["fg.muted"]}>
-            {`(${props.filetype} · ${formatBytes(props.entry.size, props.t)} · ${props.t("viewer.lines", { count: lineCount() })})`}
+            {`(${props.filetype} · ${formatBytes(props.entry.size, props.t)})`}
           </text>
         </box>
-        <text fg={props.palette["fg.muted"]}>{props.t("viewer.close")}</text>
+        <box flexDirection="row" gap={1}>
+          <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ]"}</text>
+          <text fg={props.palette["fg.muted"]}>{props.t("viewer.close")}</text>
+        </box>
       </box>
 
       <scrollbox flexGrow={1} width="100%">

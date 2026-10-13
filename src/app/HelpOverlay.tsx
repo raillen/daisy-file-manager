@@ -48,10 +48,15 @@ export function HelpOverlay(props: HelpOverlayProps) {
         flexDirection="column"
       >
         <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1} flexShrink={0}>
-          <text fg={props.palette["fg.default"]} attributes={TextAttributes.BOLD}>
-            {props.t("help.title")}
-          </text>
-          <text fg={props.palette["fg.muted"]}>{props.t("help.pressClose")}</text>
+          <box flexDirection="row">
+            <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
+              {`✳ DAISY // ${props.t("help.title").toLowerCase()}.txt `}
+            </text>
+          </box>
+          <box flexDirection="row" gap={1}>
+            <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ] [ × ]"}</text>
+            <text fg={props.palette["fg.muted"]}>{props.t("help.pressClose")}</text>
+          </box>
         </box>
 
         <scrollbox flexGrow={1} width="100%">

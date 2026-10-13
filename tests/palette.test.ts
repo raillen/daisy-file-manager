@@ -4,7 +4,10 @@ import { palettes } from "../src/core/theme/palette";
 
 describe("paleta canônica", () => {
   test("todas as paletas têm os mesmos tokens", () => {
-    expect(Object.keys(palettes.light).sort()).toEqual(Object.keys(palettes.dark).sort());
+    const canonical = Object.keys(palettes.dark).sort();
+    for (const palette of Object.values(palettes)) {
+      expect(Object.keys(palette).sort()).toEqual(canonical);
+    }
   });
 
   test("todo valor é hex com canal alfa opcional", () => {

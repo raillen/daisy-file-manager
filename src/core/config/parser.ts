@@ -1,6 +1,6 @@
 import type { LocaleCode } from "../i18n/translator";
 import type { IconSet } from "../theme/icons";
-import type { ColorToken } from "../theme/palette";
+import type { ColorToken, ThemeName } from "../theme/palette";
 
 import type { Config, ConfigOverride, ImageProtocol, PreviewConfig, SortField, ViewMode } from "./schema";
 
@@ -11,7 +11,7 @@ export type ParseResult = {
   warnings: string[];
 };
 
-const THEMES = ["light", "dark"] as const;
+const THEMES: readonly ThemeName[] = ["dark", "light", "wired", "cyberpunk", "retro"] as const;
 const LOCALES: LocaleCode[] = ["pt-BR", "en-US"];
 const ICON_SETS: IconSet[] = ["nerd", "unicode"];
 const VIEW_MODES: ViewMode[] = ["list", "grid"];

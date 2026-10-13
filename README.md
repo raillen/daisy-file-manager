@@ -53,7 +53,8 @@ Gerenciador de arquivos TUI elegante, ágil e acessível estilo Nautilus (GNOME 
 - **Lixeira do Sistema**: Integração com `gio trash` para exclusão recuperável.
 
 ### 🎨 Design System, Temas & Acessibilidade
-- **Paletas Semânticas Tokenizadas**: Temas `dark`, `light`, `nord` e `dracula`.
+- **Paletas Semânticas Tokenizadas**: Temas `wired` (estilo *The Wired / Serial Experiments Lain* em Azul Cobalto elétrico e Amarelo Ácido), `cyberpunk` (Rosa Neon `#ff2a85` e Roxo Vibrante `#9d4edd`), `retro` (estilo desktop clássico 1998 em Paper `#f1eee9` e Azul Cobalto), `dark` e `light`.
+- **Micro-HUDs Técnicos & Sinais**: Barra de sinal VU-Meter `▰▰▰▰▰▱▱▱`, leitor de status `WIRED_ONLINE // SYSTEM 98`, numeração técnica na barra lateral (`01 //`, `02 //`, `03 //`) e molduras de janela retro `[ _ ] [ □ ] [ × ]`.
 - **Sistema de Ícones**: Suporte a Nerd Fonts com fallback automático para Unicode em qualquer terminal.
 - **Internacionalização (i18n)**: Suporte completo e paritário em Português (`pt-BR`) e Inglês (`en-US`).
 - **Acessibilidade**: Foco visível em todos os controles, contraste calibrado e navegação 100% acionável via teclado.
@@ -166,7 +167,7 @@ bun run build
 | | `t` | Alternar entre modo visual e texto extraído |
 | **Interface** | `F9` | Mostrar / ocultar barra lateral |
 | | `F3` | Alternar painel duplo (split-pane) |
-| | `F10` | Alternar tema de cores |
+| | `Shift + T` / `F10` | Alternar entre temas (`dark`, `wired`, `cyberpunk`, `retro`, `light`) |
 | | `?` | Abrir painel de Ajuda e atalhos |
 | | `q` / `Ctrl + C` | Sair do Daisy |
 

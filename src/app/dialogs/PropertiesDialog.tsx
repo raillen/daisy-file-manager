@@ -35,9 +35,12 @@ export function PropertiesDialog(props: PropertiesDialogProps) {
       padding={1}
       flexDirection="column"
     >
-      <text fg={props.palette["fg.default"]} attributes={TextAttributes.BOLD}>
-        {props.t("dialog.properties.title")}
-      </text>
+      <box flexDirection="row" justifyContent="space-between" height={1} marginBottom={1}>
+        <text fg={props.palette["fg.accent"]} attributes={TextAttributes.BOLD}>
+          {`✳ DAISY // ${props.t("dialog.properties.title").toLowerCase()}.exe`}
+        </text>
+        <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ] [ × ]"}</text>
+      </box>
 
       <For each={rows()}>
         {(row) => (

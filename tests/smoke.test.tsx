@@ -921,3 +921,32 @@ test("App renders external and mounted drives in sidebar", async () => {
 
   await setup.dispose();
 });
+
+test("Theme cycling and switching via ui.actions works cleanly", async () => {
+  const cwd = process.cwd();
+  const { ui } = testStores(cwd);
+
+  expect(ui.state.theme).toBe("dark");
+  ui.actions.toggleTheme();
+  expect(ui.state.theme).toBe("wired");
+  ui.actions.toggleTheme();
+  expect(ui.state.theme).toBe("cyberpunk");
+  ui.actions.toggleTheme();
+  expect(ui.state.theme).toBe("retro");
+  ui.actions.toggleTheme();
+  expect(ui.state.theme).toBe("light");
+  ui.actions.toggleTheme();
+  expect(ui.state.theme).toBe("dark");
+
+  ui.actions.setTheme("cyberpunk");
+  expect(ui.state.theme).toBe("cyberpunk");
+  expect(ui.palette()["fg.accent"]).toBe("#ff2a85");
+
+  ui.actions.setTheme("wired");
+  expect(ui.state.theme).toBe("wired");
+  expect(ui.palette()["fg.accent"]).toBe("#ffe500");
+
+  ui.actions.setTheme("retro");
+  expect(ui.state.theme).toBe("retro");
+  expect(ui.palette()["fg.accent"]).toBe("#11379f");
+});

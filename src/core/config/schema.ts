@@ -1,6 +1,6 @@
 import type { LocaleCode } from "../i18n/translator";
 import type { IconSet } from "../theme/icons";
-import type { ColorToken } from "../theme/palette";
+import type { ColorToken, ThemeName } from "../theme/palette";
 
 export type ViewMode = "list" | "grid";
 export type SortField = "name" | "size" | "modified" | "kind";
@@ -13,7 +13,7 @@ export type PreviewConfig = {
 };
 
 export type Config = {
-  theme: "light" | "dark";
+  theme: ThemeName;
   locale: LocaleCode;
   iconSet: IconSet;
   editor: string;

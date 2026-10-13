@@ -239,7 +239,7 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
             {`${glyph("file.pdf", props.iconSet)} `}
           </text>
           <text fg={props.palette["fg.default"]} attributes={TextAttributes.BOLD}>
-            {props.entry.name}
+            {`✳ ${props.entry.name}`}
           </text>
           <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]}>
             <text fg={props.palette["fg.muted"]}>{formatBytes(props.entry.size, props.t)}</text>
@@ -253,6 +253,10 @@ export function PdfViewerDialog(props: PdfViewerDialogProps) {
                 ? `${glyph("file.text", props.iconSet)} ${props.t("viewer.toggleText")}`
                 : `${glyph("view.preview", props.iconSet)} ${props.t("viewer.toggleVisual")}`}
             </text>
+          </box>
+
+          <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]}>
+            <text fg={props.palette["fg.muted"]}>{"[ _ ] [ □ ]"}</text>
           </box>
 
           <box paddingLeft={1} paddingRight={1} backgroundColor={props.palette["bg.inset"]} onMouseDown={props.onClose}>
