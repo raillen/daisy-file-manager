@@ -1,206 +1,197 @@
-# 🌼 Daisy File Manager
+<div align="center">
 
-[![Bun](https://img.shields.io/badge/Bun-%E2%89%A51.4-black?style=flat-square&logo=bun)](https://bun.sh)
-[![OpenTUI](https://img.shields.io/badge/UI-OpenTUI%20%2B%20Solid.js-blue?style=flat-square)](https://github.com/opentui)
+<img src="assets/daisy.svg" width="96" height="96" alt="Daisy Logo" />
+
+```text
+  ___   _   ___  ___ _   _ 
+ |   \ /_\ |_ _|/ __| | | |
+ | |) / _ \ | | \__ \ |_| |
+ |___/_/ \_\___||___/\__, |
+                     |___/ 
+```
+
+### ✦ DAISY.EXE // NAUTILUS TUI FILE MANAGER // SYSTEM 98 ✦
+
+**[ English ]** • [ Português (pt-BR) ](README.pt-BR.md)
+
+[![Bun](https://img.shields.io/badge/Bun-%E2%89%A51.4-000000?style=flat-square&logo=bun)](https://bun.sh)
+[![Engine](https://img.shields.io/badge/Engine-OpenTUI%20%2B%20Solid.js-00126b?style=flat-square)](https://github.com/opentui)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
-[![Biome](https://img.shields.io/badge/Code%20Style-Biome-60A5FA?style=flat-square&logo=biome)](https://biomejs.dev)
-[![Tests](https://img.shields.io/badge/Tests-109%20passing-success?style=flat-square)]()
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)]()
+[![Biome](https://img.shields.io/badge/Style-Biome-60A5FA?style=flat-square&logo=biome)](https://biomejs.dev)
+[![Tests](https://img.shields.io/badge/Tests-113%20passing-00e575?style=flat-square)]()
+[![System](https://img.shields.io/badge/System-Windows%2098%20%2F%20The%20Wired-ff2a85?style=flat-square)]()
+[![License](https://img.shields.io/badge/License-MIT-ffe500?style=flat-square&labelColor=00126b)](LICENSE)
 
-Gerenciador de arquivos TUI elegante, ágil e acessível estilo Nautilus (GNOME Files), construído com **OpenTUI**, **Solid.js (1.9.12)** e **TypeScript** sobre o runtime **Bun**.
+```text
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ SYS_STATUS: ONLINE // THE WIRED PROTOCOL 1.4              ▰▰▰▰▰▰▱▱ [ _ ][ □ ][ ✕ ] ║
+║ ARCHITECTURE: x86_64 STANDALONE // GLIBC + MUSL // APPIMAGE // FLATPAK       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
----
+</div>
 
-## ✨ Recursos Principais
+A high-performance, accessible, and ergonomic terminal file manager (TUI) merging the spatial navigation and visual clarity of **Nautilus (GNOME Files)** with a retro-cyberpunk aesthetic drawn from ***The Wired* (Serial Experiments Lain)** and classic 1998 desktop environments.
 
-### 📂 Interface & Navegação Estilo Nautilus
-- **Modos de Exibição**: Alternância imediata entre lista detalhada e grade de ícones (`v`).
-- **Painel Duplo (Split-Pane)**: Divisão de tela (`F3`) com sessões independentes e chaveamento instantâneo via `Tab`.
-- **Barra Lateral Completa**:
-  - **Locais do Sistema**: Home, Documentos, Downloads, Músicas, Imagens, Vídeos, Área de Trabalho, Raiz e Lixeira.
-  - **Favoritos (Bookmarks)**: Fixe e desafixe qualquer pasta da barra lateral com um toque (`b`).
-  - **Dispositivos & Discos**: Detecção dinâmica de HDs externos, pendrives USB e pontos de montagem via `lsblk`.
-- **Caminho e Breadcrumbs**: Navegação de caminho com segmentos interativos no cabeçalho.
-- **Barra de Status Rica**: Exibição em tempo real de itens na pasta, itens selecionados, permissões e espaço livre em disco.
-
-### 🔍 Busca, Filtros & Modo de Comando
-- **Filtro Fuzzy Instantâneo**: Ative a busca com `/` e filtre pastas em tempo real com realce de correspondências.
-- **Linha de Comando Estilo Vim (:ex)**: Pressione `:` para executar comandos nativos como `:cd <pasta>`, `:mkdir <nome>`, `:touch <nome>`, `:sort <critério>`, `:theme <tema>` e `:quit`.
-
-### 🖱️ Suporte Completo a Mouse & Menu Contextual
-- **Menu de Contexto**: Abra com o **botão direito do mouse** ou pressionando `m` sobre qualquer arquivo ou pasta.
-- Ações rápidas no menu: Abrir, Abrir com aplicativo personalizado, Copiar, Recortar, Renomear, Fixar/Desafixar favoritos, Enviar para a Lixeira e Propriedades.
-- Navegação e seleção clicáveis em itens, abas e botões.
-
-### 📄 Visualizador de PDF Embutido
-- Renderização gráfica de páginas de PDF em alta resolução via `pdftoppm`.
-- **Zoom Real Configurável**: Escalas de 50%, 75%, 100%, 125%, 150%, 175%, 200%, 250% e 300% com rolagem suave (`ScrollBox`).
-- **Ajuste à Tela (Fit)**: Modo de enquadramento automático (`f` ou `0`) que calibra largura e altura para caber perfeitamente no terminal.
-- Controles de zoom via atalhos de teclado (`Ctrl +`, `Ctrl -`, `+`, `-`), botões na barra de ferramentas ou `Ctrl + Scroll` do mouse.
-- Navegação entre páginas (`n`, `p`, `Home`, `End`), modo de texto alternativo (`t`) e DPI dinâmico (72 a 300 DPI).
-
-### 👁️ Visualizadores & Pré-visualização Integrados
-- **Imagens**: Visualização em alta resolução no terminal através de protocolos gráficos suportados.
-- **Texto e Código**: Janela de leitura com destaque sintático, quebra de linha e numeração.
-- **Arquivos Compactados**: Extração automática de arquivos `.tar.gz` e `.zip` com um toque (`Enter` ou atalho de extração).
-- **Painel Lateral de Prévia**: Exibição instantânea de metadados, conteúdo de texto, miniaturas de imagem e contagem de itens em diretórios.
-
-### 📦 Operações de Arquivo Robustas
-- **Área de Transferência**: Copiar (`y`), recortar (`d`) e colar (`p`) com suporte a seleção múltipla.
-- **Diálogo Copiar/Mover Para**: Seleção interativa de pasta de destino com navegação (`F5` para copiar, `F6` para mover).
-- **Fila de Tarefas em Segundo Plano**: Operações assíncronas com toast notification de progresso e cancelamento seguro.
-- **Resolução de Conflitos**: Diálogo interativo para arquivos existentes (Sobrescrever, Renomear ou Pular).
-- **Lixeira do Sistema**: Integração com `gio trash` para exclusão recuperável.
-
-### 🎨 Design System, Temas & Acessibilidade
-- **Seletor de Temas Interativo em Tempo Real**: Pressione `t` ou `F10` para abrir o menu `themes.exe` com visualização ao vivo imediata das cores enquanto você navega pelas opções com as setas (`↑`/`↓`), `j`/`k` ou teclas de atalho numéricas (`1` a `5`).
-- **Paletas Semânticas Tokenizadas**:
-  - `wired`: Estilo *The Wired / Serial Experiments Lain* em Azul Cobalto elétrico (`#00126b`) e Amarelo Ácido (`#ffe500`).
-  - `cyberpunk`: Estilo neon futurista em Rosa Hot Magenta (`#ff2a85`) e Roxo Neon (`#9d4edd`).
-  - `retro`: Estilo desktop clássico 1998 em Paper claro (`#f1eee9`) e Azul Cobalto (`#11379f`).
-  - `dark`: Modo escuro padrão limpo e balanceado.
-  - `light`: Modo claro limpo e de alto contraste.
-- **Micro-HUDs Técnicos & Sinais**: Barra de sinal VU-Meter `▰▰▰▰▰▱▱▱`, leitor de status `WIRED_ONLINE // SYSTEM 98`, numeração técnica na barra lateral (`01 //`, `02 //`, `03 //`) e molduras de janela retro `[ _ ] [ □ ] [ × ]`.
-- **Sistema de Ícones**: Suporte a Nerd Fonts com fallback automático para Unicode em qualquer terminal.
-- **Internacionalização (i18n)**: Suporte completo e paritário em Português (`pt-BR`) e Inglês (`en-US`).
-- **Acessibilidade**: Foco visível em todos os controles, contraste calibrado e navegação 100% acionável via teclado.
+Built from scratch using **OpenTUI**, **Solid.js (1.9.12)**, and **TypeScript**, executing with bare-metal speed atop the **Bun** runtime.
 
 ---
 
-## 🚀 Instalação e Execução
+## 🖳 [ 01 // QUICK INSTALLATION ]
 
-### ⚡ Instalação Rápida (One-Line Installer)
+### ✦ One-Line Automated Installer
 
-Instale ou atualize o Daisy com um único comando no terminal:
+Install or update Daisy instantly with a single terminal command:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash
 ```
 
-*(Ou usando `wget`: `wget -qO- https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash`)*
+*(Or using `wget`: `wget -qO- https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash`)*
 
-O instalador interativo oferece:
-- **Escolha da versão**: Instala a versão estável mais recente (`v0.1.0`) ou permite escolher qualquer versão/tag do projeto.
-- **Escolha do formato**:
-  - **Binário Standalone** *(Recomendado)*: Instalação rápida em `~/.local/bin/daisy` sem necessidade de permissões root.
-  - **Pacote Nativo**: Detecta automaticamente sua distro e instala via gerenciador nativo (`.pkg.tar.zst` no Arch, `.deb` no Debian/Ubuntu, `.rpm` no Fedora).
-  - **AppImage**: Executável autocontido portátil.
-  - **Flatpak Bundle**: Pacote de sandbox isolado.
-- **Verificação criptográfica**: Valida a integridade do arquivo baixado via hash **SHA-256**.
-- **Integração com Desktop**: Cria automaticamente o atalho `.desktop` e instala o ícone no seu lançador de aplicativos (GNOME, KDE, Rofi, etc.).
+The interactive installer provides:
+- **Release Version Selection**: Installs the latest stable build (`v0.1.0`) or allows choosing any release tag.
+- **Distribution Format Selection**:
+  - `[1]` **Standalone Native Binary** *(Recommended)*: Fast setup in `~/.local/bin/daisy` (no root privileges required).
+  - `[2]` **Native Distro Package**: Automatically detects your distribution and installs through your native package manager (`.pkg.tar.zst` on Arch Linux, `.deb` on Debian/Ubuntu, `.rpm` on Fedora).
+  - `[3]` **AppImage**: Universal, portable, self-contained executable.
+  - `[4]` **Flatpak Bundle**: Sandboxed and isolated application deployment.
+- **Cryptographic Validation**: Pre-install SHA-256 integrity verification.
+- **Desktop Environment Integration (XDG)**: Automatically registers a `.desktop` shortcut and installs the desktop icon into your system app launcher (GNOME, KDE, Rofi, wofi, etc.).
 
-#### Instalação Não Interativa / Automação
+#### Non-Interactive / CI / Script Automation
 ```sh
-# Instalar a versão recomendada diretamente sem perguntas
+# Express non-interactive install (recommended defaults)
 curl -fsSL https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash -s -- --yes
 
-# Escolher versão e formato via parâmetros
+# Specify version and target format via flags
 curl -fsSL https://raw.githubusercontent.com/raillen/daisy-file-manager/main/install.sh | bash -s -- --version v0.1.0 --format binary
 ```
 
 ---
 
-### Pré-requisitos (para desenvolvimento ou compilação)
-- **Bun** ≥ 1.4 (`curl -fsSL https://bun.sh/install | bash`)
-- **Terminal com UTF-8** (recomendado emuladores modernos como Ghostty, WezTerm, Kitty ou Alacritty com Nerd Font)
-- *(Opcional)* `poppler-utils` (`pdftoppm`, `pdfinfo`) para renderização visual de PDFs.
+## 🗔 [ 02 // FEATURES & SUBSYSTEMS ]
 
-### Executando pelo Código-Fonte
-```sh
-# Clonar o repositório
-git clone https://github.com/raillen/daisy-file-manager.git
-cd daisy-file-manager
+### 🗀 02.1 // Nautilus-Style Navigation & Layout
+- **Display Modes**: Toggle between detailed tabular list and responsive icon grid (<kbd>v</kbd>).
+- **Dual-Pane (Split-Pane)**: Split screen horizontally (<kbd>F3</kbd>) with independent directory sessions and seamless <kbd>Tab</kbd> switching.
+- **Complete Sidebar**:
+  - `01 // Places`: Home, Documents, Downloads, Music, Pictures, Videos, Desktop, Root, and System Trash.
+  - `02 // Bookmarks`: Pin and unpin directories to/from favorites with a single keystroke (<kbd>b</kbd>).
+  - `03 // Drives`: Dynamic hardware detection for external disks, USB drives, and mount points with safe ejection (<kbd>⏏</kbd>).
+- **Breadcrumb Navigation**: Clickable path segments in the header bar.
+- **Rich Status HUD**: VU-meter signal meter, item counter, selection tracker, UNIX permissions, and live disk space metrics.
 
-# Instalar dependências
-bun install
+### ⌕ 02.2 // Fuzzy Search & :ex Command Console
+- **Instant Fuzzy Filter**: Trigger with <kbd>/</kbd> to filter directory entries in real time with syntax match highlights.
+- **Vim-Style Command Console (`:ex`)**: Press <kbd>:</kbd> to execute commands including `:cd <path>`, `:mkdir <name>`, `:touch <name>`, `:sort <criterion>`, `:theme <name>`, and `:quit`.
 
-# Iniciar o Daisy no diretório atual
-bun run dev
+### 🖱 02.3 // Mouse Trapping & Context Menus
+- **Context Menu**: Trigger with **Right-Click** or <kbd>m</kbd> over any item.
+- **Quick Actions**: Open, Open With (custom app), Copy, Cut, Rename, Pin/Unpin Bookmark, Send to Trash, and Properties.
+- **Comprehensive Focus Trap**: Modal dialogs and menus feature full-screen backdrop event capture for mouse and keyboard, preventing stray clicks or keypresses from leaking into background panes.
 
-# Ou passando um diretório inicial específico
-bun run dev ~/Downloads
-```
+### 🗎 02.4 // High-Resolution Embedded PDF Reader
+- Native graphical PDF page rendering via `pdftoppm`.
+- **True Configurable Zoom**: Scales of 50%, 75%, 100%, 125%, 150%, 175%, 200%, 250%, and 300% with smooth viewport scrolling (`ScrollBox`).
+- **Fit to Screen**: Automatic bounding box calibration (<kbd>f</kbd> or <kbd>0</kbd>) dynamically adjusting DPI (72 to 300 DPI) to fit the terminal dimensions.
+- Intuitive zoom keys (<kbd>+</kbd>, <kbd>-</kbd>, <kbd>Ctrl + =</kbd>, <kbd>Ctrl + -</kbd>) or mouse <kbd>Ctrl + Scroll</kbd>.
+- Extracted Text Mode (<kbd>t</kbd>) for instant lightweight viewing without graphical dependencies.
 
-### Compilando Binário Standalone
-O Daisy pode ser compilado em um binário nativo executável sem dependência do Bun instalado:
-```sh
-# Compilar binário standalone
-bun run build
+### ☵ 02.5 // Rich Markdown & Asset Previews
+- **Markdown in Rich Text**: `.md` and `.markdown` files render formatted rich text (`<markdown>`) including headers, lists, blockquotes, tables, and syntax-highlighted code blocks.
+- **Images**: High-resolution in-terminal rendering through modern terminal graphics protocols.
+- **Code & Text Reader**: Syntax-highlighted viewer window with line numbering and smooth scrolling.
+- **Archive Extraction**: One-key automatic extraction for `.tar.gz` and `.zip` archives (<kbd>Enter</kbd>).
+- **Inspector Preview Panel**: Live display of file metadata, text previews, image thumbnails, and directory counts.
 
-# Executar o binário compilado
-./dist/daisy-linux-x64
-```
+### 🖫 02.6 // Background I/O Operations Engine
+- **Clipboard**: Copy (<kbd>y</kbd>), Cut (<kbd>d</kbd>), and Paste (<kbd>p</kbd>) with multi-selection support.
+- **Copy/Move To Dialog**: Interactive destination directory browser (<kbd>F5</kbd> for copy, <kbd>F6</kbd> for move).
+- **Background Queue**: Asynchronous non-blocking file transfers with progress toasts and graceful cancellation.
+- **Conflict Resolution**: Interactive prompt on collisions (Overwrite, Rename, or Skip).
+- **System Trash**: Recoverable file deletion integrated with `gio trash`.
 
----
-
-## ⌨️ Tabela de Atalhos
-
-| Categoria | Atalho | Ação |
-| --- | --- | --- |
-| **Navegação** | `j` / `↓` | Mover cursor para baixo |
-| | `k` / `↑` | Mover cursor para cima |
-| | `l` / `Enter` | Entrar na pasta / abrir visualizador de arquivo |
-| | `h` | Voltar ao diretório pai |
-| | `g` / `G` | Ir para o primeiro / último item |
-| | `Tab` | Alternar entre o painel esquerdo e direito (Split-Pane) |
-| | `v` | Alternar modo de exibição (Lista / Grade) |
-| **Seleção** | `Espaço` | Marcar / desmarcar item sob o cursor |
-| | `V` | Alternar modo visual de seleção por intervalo |
-| | `Ctrl + A` | Selecionar todos os itens da pasta |
-| | `Ctrl + D` | Desmarcar todos os itens |
-| **Operações** | `y` | Copiar seleção para a área de transferência |
-| | `d` | Recortar seleção para a área de transferência |
-| | `p` | Colar itens da área de transferência |
-| | `F5` / `Shift + C` | Abrir diálogo para copiar itens para outra pasta |
-| | `F6` / `Shift + M` | Abrir diálogo para mover itens para outra pasta |
-| | `a` / `F2` | Renomear item selecionado |
-| | `Ctrl + N` | Criar nova pasta (`mkdir`) |
-| | `Ctrl + Shift + N` | Criar novo arquivo vazio (`touch`) |
-| | `D` / `Delete` | Enviar itens selecionados para a Lixeira |
-| | `Shift + Delete` | Excluir itens permanentemente |
-| | `o` | Abrir arquivo com o programa padrão do sistema (`xdg-open`) |
-| | `b` | Fixar ou desafixar a pasta atual nos Favoritos da barra lateral |
-| | `m` / `Menu` | Abrir Menu Contextual sob o cursor |
-| | `i` / `Alt + Enter` | Exibir diálogo de Propriedades e metadados |
-| **Busca & Comandos** | `/` | Iniciar busca com filtro fuzzy instantâneo |
-| | `:` | Abrir linha de comando (`:cd`, `:mkdir`, `:sort`, `:theme`, etc.) |
-| | `Esc` | Fechar busca, diálogo ou desmarcar seleção |
-| **Leitor de PDF** | `+` / `Ctrl + =` | Aumentar zoom (+25%) |
-| | `-` / `Ctrl + -` | Reduzir zoom (-25%) |
-| | `f` / `Ctrl + 0` / `0` | Alternar ajuste à tela (Fit to screen) |
-| | `j` / `↓` / `k` / `↑` | Rolar página do PDF quando ampliado |
-| | `n` / `p` | Próxima / página anterior |
-| | `t` | Alternar entre modo visual e texto extraído |
-| **Interface** | `F9` | Mostrar / ocultar barra lateral |
-| | `F3` | Alternar painel duplo (split-pane) |
-| | `t` / `Shift + T` / `F10` | Abrir Seletor de Temas com preview em tempo real (`dark`, `wired`, `cyberpunk`, `retro`, `light`) |
-| | `?` | Abrir painel de Ajuda e atalhos |
-| | `q` / `Ctrl + C` | Sair do Daisy |
+### ✦ 02.7 // Live Theme Matrix (themes.exe) & A11y
+- **Live Theme Switcher (`themes.exe`)**: Press <kbd>t</kbd> or <kbd>F10</kbd> to open an interactive modal with **immediate Live Preview** as you cycle through options:
+  - `wired`: *The Wired / Serial Experiments Lain* palette with Electric Cobalt (`#00126b`) and Acid Yellow (`#ffe500`).
+  - `cyberpunk`: Vibrant neon cyberpunk palette with Hot Magenta (`#ff2a85`) and Neon Purple (`#9d4edd`).
+  - `retro`: Authentic Windows 98 workstation palette in Soft Paper (`#f1eee9`) and Classic Cobalt (`#11379f`).
+  - `dark`: Clean, balanced modern dark mode.
+  - `light`: Crisp, high-contrast light mode.
+- **Retro Micro-HUDs**: VU-meter signal gauges `▰▰▰▰▰▱▱▱`, classic window controls `[ _ ] [ □ ] [ ✕ ]`, and technical section indexing `01 //`, `02 //`.
+- **Accessibility**: High-visibility focus indicators across all widgets, verified WCAG contrast ratios, and 100% keyboard accessibility.
 
 ---
 
-## ⚙️ Configuração Declarativa (`config.toml`)
+## ⌨ [ 03 // KEYBOARD MATRIX ]
 
-Você pode personalizar o comportamento do Daisy criando um arquivo em `~/.config/daisy/config.toml` ou no próprio diretório do projeto em `.daisy/config.toml`:
+| Subsystem | Keystroke | Operation |
+| :--- | :--- | :--- |
+| **Navigation** | <kbd>j</kbd> / <kbd>↓</kbd> | Move cursor down |
+| | <kbd>k</kbd> / <kbd>↑</kbd> | Move cursor up |
+| | <kbd>l</kbd> / <kbd>Enter</kbd> | Enter folder / open file viewer |
+| | <kbd>h</kbd> | Navigate to parent directory |
+| | <kbd>g</kbd> / <kbd>G</kbd> | Jump to first / last item |
+| | <kbd>Tab</kbd> | Switch active pane (Dual-Pane Mode) |
+| | <kbd>v</kbd> | Toggle view mode (List / Grid) |
+| **Selection** | <kbd>Space</kbd> | Select / unselect focused item |
+| | <kbd>V</kbd> | Toggle visual range selection mode |
+| | <kbd>Ctrl + A</kbd> | Select all entries in directory |
+| | <kbd>Ctrl + D</kbd> | Clear selection |
+| **Operations** | <kbd>y</kbd> | Copy selected items to clipboard |
+| | <kbd>d</kbd> | Cut selected items to clipboard |
+| | <kbd>p</kbd> | Paste items from clipboard |
+| | <kbd>F5</kbd> / <kbd>Shift + C</kbd> | Open Copy To directory picker |
+| | <kbd>F6</kbd> / <kbd>Shift + M</kbd> | Open Move To directory picker |
+| | <kbd>a</kbd> / <kbd>F2</kbd> | Rename selected item |
+| | <kbd>Ctrl + N</kbd> | Create new directory (`mkdir`) |
+| | <kbd>Ctrl + Shift + N</kbd> | Create new blank file (`touch`) |
+| | <kbd>D</kbd> / <kbd>Delete</kbd> | Move selected items to Trash |
+| | <kbd>Shift + Delete</kbd> | Permanently delete items |
+| | <kbd>o</kbd> | Open with default system application (`xdg-open`) |
+| | <kbd>b</kbd> | Toggle bookmark for current folder in sidebar |
+| | <kbd>m</kbd> / <kbd>Menu</kbd> | Open Context Menu under cursor |
+| | <kbd>i</kbd> / <kbd>Alt + Enter</kbd> | Open Properties dialog |
+| **Search & Commands** | <kbd>/</kbd> | Open instant fuzzy search filter |
+| | <kbd>:</kbd> | Open command console (`:cd`, `:mkdir`, `:sort`, `:theme`, etc.) |
+| | <kbd>Esc</kbd> | Dismiss search, close modal, or deselect all |
+| **PDF Reader** | <kbd>+</kbd> / <kbd>Ctrl + =</kbd> | Increase zoom level (+25%) |
+| | <kbd>-</kbd> / <kbd>Ctrl + -</kbd> | Decrease zoom level (-25%) |
+| | <kbd>f</kbd> / <kbd>Ctrl + 0</kbd> / <kbd>0</kbd> | Toggle fit-to-screen mode |
+| | <kbd>j</kbd> / <kbd>↓</kbd> / <kbd>k</kbd> / <kbd>↑</kbd> | Scroll viewport when zoomed |
+| | <kbd>n</kbd> / <kbd>p</kbd> | Next / previous page |
+| | <kbd>t</kbd> | Toggle between graphical render and extracted text |
+| **Interface** | <kbd>F9</kbd> | Toggle sidebar visibility |
+| | <kbd>F3</kbd> | Toggle dual-pane (split-pane) view |
+| | <kbd>t</kbd> / <kbd>Shift + T</kbd> / <kbd>F10</kbd> | Open Live Theme Switcher (`themes.exe`) |
+| | <kbd>?</kbd> | Open Keyboard Help overlay |
+| | <kbd>q</kbd> / <kbd>Ctrl + C</kbd> | Exit Daisy |
+
+---
+
+## ⚙ [ 04 // DECLARATIVE CONFIG ]
+
+Create or edit `~/.config/daisy/config.toml` (or project-local `.daisy/config.toml`):
 
 ```toml
 [theme]
-name = "dark"          # "dark" | "wired" | "cyberpunk" | "retro" | "light"
-icons = "nerd"         # "nerd" (ícones Nerd Font) ou "unicode"
+name = "wired"         # "wired" | "cyberpunk" | "retro" | "dark" | "light"
+icons = "nerd"         # "nerd" (Nerd Font glyphs) or "unicode"
 
 [locale]
-lang = "pt-BR"         # "pt-BR" ou "en-US"
+lang = "en-US"         # "en-US" or "pt-BR"
 
 [editor]
-command = "code"       # Editor para abrir arquivos de texto (ex: "nvim", "nano", "code")
+command = "nvim"       # Preferred editor for text files (e.g. "nvim", "nano", "code")
 
 [view]
-default = "list"       # "list" ou "grid"
-show_hidden = false    # Exibir arquivos ocultos por padrão
-split_pane = false     # Iniciar em modo split-pane
+default = "list"       # "list" or "grid"
+show_hidden = false    # Show hidden files by default
+split_pane = false     # Launch in split-pane mode
 
 [preview]
-max_text_bytes = 1048576  # Limite de leitura de prévia (1 MB)
+max_text_bytes = 1048576  # Maximum preview file size (1 MB)
 
 [keymap]
 "ui.quit" = ["q", "ctrl+q"]
@@ -209,51 +200,63 @@ max_text_bytes = 1048576  # Limite de leitura de prévia (1 MB)
 
 ---
 
-## 🛠️ Scripts & Desenvolvimento
+## 🛠 [ 05 // BUILD & DEVELOPMENT ]
 
+### Prerequisites
+- **Bun** ≥ 1.4 (`curl -fsSL https://bun.sh/install | bash`)
+- **UTF-8 Terminal** (recommended Ghostty, WezTerm, Kitty, or Alacritty with a Nerd Font)
+- *(Optional)* `poppler-utils` (`pdftoppm`, `pdfinfo`) for graphical PDF rendering
+
+### Running from Source
 ```sh
-bun run dev        # Inicia a TUI em modo interativo
-bun run build      # Compila executáveis nativos standalone em dist/
-bun test           # Executa a suíte de testes (109 testes unitários e de integração)
-bun run typecheck  # Checagem estrita de tipos com TypeScript (tsc --noEmit)
-bun run lint       # Análise estática e formatação de código com Biome
-bun run verify     # Executa test + typecheck + lint em sequência
-bun run website    # Servidor local da documentação em http://localhost:3000
+git clone https://github.com/raillen/daisy-file-manager.git
+cd daisy-file-manager
+bun install
+bun run dev
+```
+
+### Quality & Verification Commands
+```sh
+bun run dev        # Launch interactive TUI in development mode
+bun run build      # Compile standalone native binaries to dist/
+bun test           # Run automated test suite (113 tests)
+bun run typecheck  # Strict TypeScript typechecking (tsc --noEmit)
+bun run lint       # Static analysis and formatting check via Biome
+bun run verify     # Run test + typecheck + lint in sequence
 ```
 
 ---
 
-## 🏛️ Arquitetura do Projeto
+## ⛁ [ 06 // SYSTEM ARCHITECTURE ]
 
-O Daisy segue princípios estritos de Clean Code, separação de responsabilidades e código reativo:
-
-```
+```text
 daisy-file-manager/
-├── design/              # Fonte canônica de design tokens (colors.json, icons.json, i18n/*.json)
+├── design/              # Canonical design tokens (colors.json, icons.json, i18n/*.json)
 ├── src/
-│   ├── app/             # Componentes OpenTUI + Solid (camada de apresentação fina)
-│   │   ├── dialogs/     # Diálogos modais (PDF, Imagem, Texto, Propriedades, Copiar/Mover)
-│   │   ├── entries/     # Renderização de itens em lista e grade
-│   │   ├── layout/      # Estrutura de janelas, cabeçalho, barra lateral e rodapé
-│   │   └── App.tsx      # Componente raiz da aplicação
-│   ├── commands/        # Registro de comandos semânticos e mapa de teclas (@opentui/keymap)
-│   ├── core/            # Módulos de domínio puros e testáveis (fs, pdf, preview, drives, etc.)
-│   ├── state/           # Stores reativas Solid (session, ui, operations)
-│   └── index.tsx        # Ponto de entrada e bootstrap da TUI
-├── website/             # Site estático de documentação interativa
-└── tests/               # Suíte abrangente de testes automatizados com bun:test
+│   ├── app/             # OpenTUI + Solid components (lean presentation layer)
+│   │   ├── dialogs/     # Focus-trapped modal dialogs (PDF, Image, Text, Themes, etc.)
+│   │   ├── entries/     # List and grid row/tile rendering
+│   │   ├── layout/      # Window chrome, header, sidebar, footer, and split panes
+│   │   └── App.tsx      # Root application component
+│   ├── commands/        # Semantic command registry and keybinding engine (@opentui/keymap)
+│   ├── core/            # Pure, testable domain modules (fs, pdf, preview, drives, etc.)
+│   ├── state/           # Reactive Solid stores (session, ui, operations)
+│   └── main.tsx         # Bootstrap entry point and terminal setup
+├── packaging/           # Release packaging scripts (Arch, Fedora, Debian, AppImage, Flatpak)
+├── tests/               # Comprehensive automated test suite with bun:test
+└── install.sh           # Intelligent one-line installer script
 ```
 
 ---
 
-## 🗺️ Roadmap de Versões
+## ◬ [ 07 // ROADMAP ]
 
-Para acompanhar o planejamento das próximas funcionalidades (como Player de Áudio Embutido, Comparador de Diff, Busca Global e Integração com Git), consulte o documento oficial:
+To review planned features and milestones (Embedded Audio Player `player.exe`, Diff Inspector, Global Ripgrep Search, and Git Integration), see:
 
 👉 **[ROADMAP.md](ROADMAP.md)**
 
 ---
 
-## 📄 Licença
+## ⚖ [ 08 // LICENSE ]
 
-Este projeto está sob a licença [MIT](LICENSE).
+Daisy is licensed under the **[MIT License](LICENSE)**.
