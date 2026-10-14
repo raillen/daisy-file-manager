@@ -156,7 +156,7 @@ mkdir -p "${FLATPAK_DIR}" "${FLATPAK_REPO}"
 flatpak build-init "${FLATPAK_DIR}" org.daisy.FileManager org.freedesktop.Platform org.freedesktop.Platform 25.08
 mkdir -p "${FLATPAK_DIR}/files/bin" "${FLATPAK_DIR}/files/share/applications" "${FLATPAK_DIR}/files/share/icons/hicolor/128x128/apps"
 
-cp "${DIST_DIR}/daisy-linux-x64" "${FLATPAK_DIR}/files/bin/daisy"
+cp "${DIST_DIR}/daisy-linux-x64" "${FLATPAK_DIR}/files/bin/daisy-files"
 cp "${ASSETS_DIR}/daisy.desktop" "${FLATPAK_DIR}/files/share/applications/org.daisy.FileManager.desktop"
 cp "${ASSETS_DIR}/daisy.png" "${FLATPAK_DIR}/files/share/icons/hicolor/128x128/apps/org.daisy.FileManager.png"
 
