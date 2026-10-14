@@ -52,10 +52,10 @@ rm -f "${DEB_PATH}"
   --license "MIT" \
   --category "utils" \
   -p "${DEB_PATH}" \
-  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy" \
-  "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy.desktop" \
-  "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy.png" \
-  "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy.svg" \
+  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files-files" \
+  "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy-files.desktop" \
+  "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy-files.png" \
+  "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy-files.svg" \
   "${ROOT_DIR}/LICENSE=/usr/share/doc/daisy-file-manager/copyright"
 
 # 4. Gerar pacote Fedora / RHEL (.rpm)
@@ -72,10 +72,10 @@ rm -f "${RPM_PATH}"
   --url "https://github.com/raillen/daisy-file-manager" \
   --license "MIT" \
   -p "${RPM_PATH}" \
-  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy" \
-  "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy.desktop" \
-  "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy.png" \
-  "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy.svg" \
+  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files-files" \
+  "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy-files.desktop" \
+  "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy-files.png" \
+  "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy-files.svg" \
   "${ROOT_DIR}/LICENSE=/usr/share/licenses/daisy-file-manager/LICENSE"
 
 # 5. Gerar pacote Arch Linux (.pkg.tar.zst)
@@ -92,10 +92,10 @@ rm -f "${ARCH_PATH}"
   --url "https://github.com/raillen/daisy-file-manager" \
   --license "MIT" \
   -p "${ARCH_PATH}" \
-  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy" \
-  "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy.desktop" \
-  "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy.png" \
-  "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy.svg" \
+  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files-files" \
+  "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy-files.desktop" \
+  "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy-files.png" \
+  "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy-files.svg" \
   "${ROOT_DIR}/LICENSE=/usr/share/licenses/daisy-file-manager/LICENSE"
 
 # Gerar PKGBUILD para Arch AUR
@@ -108,13 +108,13 @@ pkgdesc="Nautilus-style TUI File Manager built with OpenTUI and Solid.js"
 arch=('x86_64')
 url="https://github.com/raillen/daisy-file-manager"
 license=('MIT')
-provides=('daisy' 'daisy-file-manager')
-conflicts=('daisy' 'daisy-file-manager')
+provides=('daisy-file-manager')
+conflicts=('daisy-file-manager')
 source=("https://github.com/raillen/daisy-file-manager/releases/download/v${pkgver}/daisy-v${pkgver}-linux-x64.tar.gz")
 sha256sums=('SKIP')
 
 package() {
-    install -Dm755 "${srcdir}/daisy-linux-x64" "${pkgdir}/usr/bin/daisy"
+    install -Dm755 "${srcdir}/daisy-linux-x64" "${pkgdir}/usr/bin/daisy-files-files"
     install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
 PKGBUILD_EOF
@@ -125,11 +125,11 @@ APPDIR="/tmp/daisy-AppDir"
 rm -rf "${APPDIR}"
 mkdir -p "${APPDIR}/usr/bin" "${APPDIR}/usr/share/icons/hicolor/128x128/apps" "${APPDIR}/usr/share/applications"
 
-cp "${DIST_DIR}/daisy-linux-x64" "${APPDIR}/usr/bin/daisy"
-cp "${ASSETS_DIR}/daisy.desktop" "${APPDIR}/daisy.desktop"
-cp "${ASSETS_DIR}/daisy.desktop" "${APPDIR}/usr/share/applications/daisy.desktop"
-cp "${ASSETS_DIR}/daisy.png" "${APPDIR}/daisy.png"
-cp "${ASSETS_DIR}/daisy.png" "${APPDIR}/usr/share/icons/hicolor/128x128/apps/daisy.png"
+cp "${DIST_DIR}/daisy-linux-x64" "${APPDIR}/usr/bin/daisy-files-files"
+cp "${ASSETS_DIR}/daisy.desktop" "${APPDIR}/daisy-files.desktop"
+cp "${ASSETS_DIR}/daisy.desktop" "${APPDIR}/usr/share/applications/daisy-files.desktop"
+cp "${ASSETS_DIR}/daisy.png" "${APPDIR}/daisy-files.png"
+cp "${ASSETS_DIR}/daisy.png" "${APPDIR}/usr/share/icons/hicolor/128x128/apps/daisy-files.png"
 cp "${ASSETS_DIR}/daisy.png" "${APPDIR}/.DirIcon"
 
 cat << 'APPRUN_EOF' > "${APPDIR}/AppRun"
@@ -137,7 +137,7 @@ cat << 'APPRUN_EOF' > "${APPDIR}/AppRun"
 SELF=$(readlink -f "$0")
 HERE=${SELF%/*}
 export PATH="${HERE}/usr/bin:${PATH}"
-exec "${HERE}/usr/bin/daisy" "$@"
+exec "${HERE}/usr/bin/daisy-files-files" "$@"
 APPRUN_EOF
 chmod +x "${APPDIR}/AppRun"
 
@@ -161,7 +161,7 @@ cp "${ASSETS_DIR}/daisy.desktop" "${FLATPAK_DIR}/files/share/applications/org.da
 cp "${ASSETS_DIR}/daisy.png" "${FLATPAK_DIR}/files/share/icons/hicolor/128x128/apps/org.daisy.FileManager.png"
 
 flatpak build-finish "${FLATPAK_DIR}" \
-  --command=daisy \
+  --command=daisy-files \
   --filesystem=host \
   --device=all \
   --share=ipc \
@@ -180,7 +180,7 @@ app-id: org.daisy.FileManager
 runtime: org.freedesktop.Platform
 runtime-version: '25.08'
 sdk: org.freedesktop.Platform
-command: daisy
+command: daisy-files
 
 finish-args:
   - --filesystem=host
@@ -192,7 +192,7 @@ modules:
   - name: daisy
     buildsystem: simple
     build-commands:
-      - install -Dm755 daisy-linux-x64 /app/bin/daisy
+      - install -Dm755 daisy-linux-x64 /app/bin/daisy-files
       - install -Dm644 daisy.desktop /app/share/applications/org.daisy.FileManager.desktop
       - install -Dm644 daisy.png /app/share/icons/hicolor/128x128/apps/org.daisy.FileManager.png
     sources:
