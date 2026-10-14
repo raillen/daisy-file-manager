@@ -422,21 +422,21 @@ install_desktop_integration() {
 
   # Baixar ou gerar ícone SVG
   local icon_url="https://raw.githubusercontent.com/${REPO}/main/assets/daisy.svg"
-  fetch_url "$icon_url" "${ICONS_DIR}/daisy.svg" 2>/dev/null || true
+  fetch_url "$icon_url" "${ICONS_DIR}/daisy-files.svg" 2>/dev/null || true
 
   # Gerar .desktop
-  cat <<EOF > "${DESKTOP_DIR}/daisy.desktop"
+  cat <<EOF > "${DESKTOP_DIR}/daisy-files.desktop"
 [Desktop Entry]
 Name=Daisy File Manager
 Comment=Nautilus-style TUI File Manager built with OpenTUI and Solid.js
 Exec=${target_bin} %F
 Terminal=true
 Type=Application
-Icon=daisy
+Icon=daisy-files
 Categories=System;FileManager;Utility;Core;
 Keywords=file;manager;explorer;browser;terminal;tui;nautilus;
 EOF
-  chmod 644 "${DESKTOP_DIR}/daisy.desktop"
+  chmod 644 "${DESKTOP_DIR}/daisy-files.desktop"
 
   if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
@@ -462,17 +462,17 @@ install_binary() {
     die "Binário executável não encontrado no pacote extraído."
   fi
 
-  info "Instalando binário em ${COLOR_BOLD}${install_dir}/daisy${COLOR_RESET}..."
+  info "Instalando binário em ${COLOR_BOLD}${install_dir}/daisy-files${COLOR_RESET}..."
   mkdir -p "$install_dir"
-  install -m 755 "$binary_src" "${install_dir}/daisy"
+  install -m 755 "$binary_src" "${install_dir}/daisy-files"
 
-  install_desktop_integration "${install_dir}/daisy"
-  success "Binário instalado com sucesso em ${install_dir}/daisy"
+  install_desktop_integration "${install_dir}/daisy-files"
+  success "Binário instalado com sucesso em ${install_dir}/daisy-files"
 
   # Verificar se está no PATH
   if ! echo "$PATH" | tr ':' '\n' | grep -qx "$install_dir"; then
     warn "Atenção: O diretório '${install_dir}' não está no seu \$PATH!"
-    printf "    Para executar o Daisy digitando apenas 'daisy', adicione ao seu ~/.bashrc ou ~/.zshrc:\n"
+    printf "    Para executar o Daisy digitando apenas 'daisy-files', adicione ao seu ~/.bashrc ou ~/.zshrc:\n"
     printf "    ${COLOR_CYAN}export PATH=\"%s:\$PATH\"${COLOR_RESET}\n\n" "$install_dir"
   fi
 }
@@ -505,14 +505,14 @@ install_appimage() {
   local install_dir="${CUSTOM_DIR:-$DEFAULT_INSTALL_DIR}"
 
   mkdir -p "$install_dir"
-  info "Instalando AppImage em ${COLOR_BOLD}${install_dir}/daisy${COLOR_RESET}..."
-  install -m 755 "${temp_dir}/${asset_name}" "${install_dir}/daisy"
-  install_desktop_integration "${install_dir}/daisy"
-  success "AppImage instalada com sucesso em ${install_dir}/daisy"
+  info "Instalando AppImage em ${COLOR_BOLD}${install_dir}/daisy-files${COLOR_RESET}..."
+  install -m 755 "${temp_dir}/${asset_name}" "${install_dir}/daisy-files"
+  install_desktop_integration "${install_dir}/daisy-files"
+  success "AppImage instalada com sucesso em ${install_dir}/daisy-files"
 
   if ! echo "$PATH" | tr ':' '\n' | grep -qx "$install_dir"; then
     warn "Atenção: O diretório '${install_dir}' não está no seu \$PATH!"
-    printf "    Para executar o Daisy digitando apenas 'daisy', adicione ao seu ~/.bashrc ou ~/.zshrc:\n"
+    printf "    Para executar o Daisy digitando apenas 'daisy-files', adicione ao seu ~/.bashrc ou ~/.zshrc:\n"
     printf "    ${COLOR_CYAN}export PATH=\"%s:\$PATH\"${COLOR_RESET}\n\n" "$install_dir"
   fi
 }
@@ -536,21 +536,21 @@ uninstall_daisy() {
   info "Desinstalando Daisy File Manager..."
   local removed=0
   
-  if [ -f "${DEFAULT_INSTALL_DIR}/daisy" ]; then
-    rm -f "${DEFAULT_INSTALL_DIR}/daisy"
-    info "Removido: ${DEFAULT_INSTALL_DIR}/daisy"
+  if [ -f "${DEFAULT_INSTALL_DIR}/daisy-files" ]; then
+    rm -f "${DEFAULT_INSTALL_DIR}/daisy-files"
+    info "Removido: ${DEFAULT_INSTALL_DIR}/daisy-files"
     removed=1
   fi
 
-  if [ -f "${DESKTOP_DIR}/daisy.desktop" ]; then
-    rm -f "${DESKTOP_DIR}/daisy.desktop"
-    info "Removido: ${DESKTOP_DIR}/daisy.desktop"
+  if [ -f "${DESKTOP_DIR}/daisy-files.desktop" ]; then
+    rm -f "${DESKTOP_DIR}/daisy-files.desktop"
+    info "Removido: ${DESKTOP_DIR}/daisy-files.desktop"
     removed=1
   fi
 
-  if [ -f "${ICONS_DIR}/daisy.svg" ]; then
-    rm -f "${ICONS_DIR}/daisy.svg"
-    info "Removido: ${ICONS_DIR}/daisy.svg"
+  if [ -f "${ICONS_DIR}/daisy-files.svg" ]; then
+    rm -f "${ICONS_DIR}/daisy-files.svg"
+    info "Removido: ${ICONS_DIR}/daisy-files.svg"
     removed=1
   fi
 
@@ -593,7 +593,7 @@ parse_args() {
         printf "  -f, --format <formato> Formato de instalação (binary, native, appimage, flatpak)\n"
         printf "  -d, --dir <caminho>    Diretório de instalação customizado (padrão: ~/.local/bin)\n"
         printf "  -y, --yes              Aceitar opções padrão sem perguntas interativas\n"
-        printf "      --uninstall        Desinstalar o Daisy (remove binário, desktop e ícone)\n"
+        printf "      --uninstall        Desinstalar o Daisy (remove apenas os arquivos do Daisy File Manager)\n"
         printf "  -h, --help             Exibir esta mensagem de ajuda\n\n"
         exit 0
         ;;
@@ -617,9 +617,9 @@ main() {
   printf "  ${COLOR_GREEN}${COLOR_BOLD}🎉 Parabéns! Daisy File Manager (%s) instalado com sucesso!${COLOR_RESET}\n" "$CHOSEN_VERSION"
   printf "\n"
   printf "  ${COLOR_BOLD}Para iniciar agora:${COLOR_RESET}\n"
-  printf "    ${COLOR_CYAN}daisy${COLOR_RESET}\n\n"
+  printf "    ${COLOR_CYAN}daisy-files${COLOR_RESET}\n\n"
   printf "  ${COLOR_BOLD}Para abrir em uma pasta específica:${COLOR_RESET}\n"
-  printf "    ${COLOR_CYAN}daisy ~/Documentos${COLOR_RESET}\n\n"
+  printf "    ${COLOR_CYAN}daisy-files ~/Documentos${COLOR_RESET}\n\n"
   printf "  ${COLOR_BOLD}Dicas de uso:${COLOR_RESET}\n"
   printf "    • Pressione ${COLOR_YELLOW}?${COLOR_RESET} para abrir o menu de ajuda e atalhos\n"
   printf "    • Pressione ${COLOR_YELLOW}F3${COLOR_RESET} para ativar a divisão de painéis (Split-Pane)\n"
