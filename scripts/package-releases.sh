@@ -52,7 +52,7 @@ rm -f "${DEB_PATH}"
   --license "MIT" \
   --category "utils" \
   -p "${DEB_PATH}" \
-  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files-files" \
+  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files" \
   "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy-files.desktop" \
   "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy-files.png" \
   "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy-files.svg" \
@@ -72,7 +72,7 @@ rm -f "${RPM_PATH}"
   --url "https://github.com/raillen/daisy-file-manager" \
   --license "MIT" \
   -p "${RPM_PATH}" \
-  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files-files" \
+  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files" \
   "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy-files.desktop" \
   "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy-files.png" \
   "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy-files.svg" \
@@ -92,7 +92,7 @@ rm -f "${ARCH_PATH}"
   --url "https://github.com/raillen/daisy-file-manager" \
   --license "MIT" \
   -p "${ARCH_PATH}" \
-  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files-files" \
+  "${DIST_DIR}/daisy-linux-x64=/usr/bin/daisy-files" \
   "${ASSETS_DIR}/daisy.desktop=/usr/share/applications/daisy-files.desktop" \
   "${ASSETS_DIR}/daisy.png=/usr/share/icons/hicolor/128x128/apps/daisy-files.png" \
   "${ASSETS_DIR}/daisy.svg=/usr/share/icons/hicolor/scalable/apps/daisy-files.svg" \
@@ -114,7 +114,7 @@ source=("https://github.com/raillen/daisy-file-manager/releases/download/v${pkgv
 sha256sums=('SKIP')
 
 package() {
-    install -Dm755 "${srcdir}/daisy-linux-x64" "${pkgdir}/usr/bin/daisy-files-files"
+    install -Dm755 "${srcdir}/daisy-linux-x64" "${pkgdir}/usr/bin/daisy-files"
     install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
 PKGBUILD_EOF
@@ -125,7 +125,7 @@ APPDIR="/tmp/daisy-AppDir"
 rm -rf "${APPDIR}"
 mkdir -p "${APPDIR}/usr/bin" "${APPDIR}/usr/share/icons/hicolor/128x128/apps" "${APPDIR}/usr/share/applications"
 
-cp "${DIST_DIR}/daisy-linux-x64" "${APPDIR}/usr/bin/daisy-files-files"
+cp "${DIST_DIR}/daisy-linux-x64" "${APPDIR}/usr/bin/daisy-files"
 cp "${ASSETS_DIR}/daisy.desktop" "${APPDIR}/daisy-files.desktop"
 cp "${ASSETS_DIR}/daisy.desktop" "${APPDIR}/usr/share/applications/daisy-files.desktop"
 cp "${ASSETS_DIR}/daisy.png" "${APPDIR}/daisy-files.png"
@@ -137,7 +137,7 @@ cat << 'APPRUN_EOF' > "${APPDIR}/AppRun"
 SELF=$(readlink -f "$0")
 HERE=${SELF%/*}
 export PATH="${HERE}/usr/bin:${PATH}"
-exec "${HERE}/usr/bin/daisy-files-files" "$@"
+exec "${HERE}/usr/bin/daisy-files" "$@"
 APPRUN_EOF
 chmod +x "${APPDIR}/AppRun"
 
